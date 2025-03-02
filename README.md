@@ -13,7 +13,7 @@ $`X·W_{q} = Q∈ℝ^{M×d}`$ - *query matrix*<br/>
 $`X·W_{k} = K∈ℝ^{M×d}`$ - *key matrix*<br/>
 $`X·W_{v} = V∈ℝ^{M×d_v}`$ - *value matrix*<br/>
 ```math
-Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX'∈ℝ^{M×d_v}
+Attention(Q,K,V) = Softmax\big(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX'∈ℝ^{M×d_v}
 ```
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
