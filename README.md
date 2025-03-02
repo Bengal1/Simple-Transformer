@@ -27,7 +27,7 @@ Y·W_v = V ∈ L×d_v - value matrix
 Attention(Q,K,V) =Softmax(Q·K^T/sqrt(d))·V = ΔX ∈ M×d_v
 ΔX'·W_out = ΔX ∈ M×N
 --> Z = ΔX + X - residual connection
-
-
+```
+```math
 Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d_{k}}})V
 ```
