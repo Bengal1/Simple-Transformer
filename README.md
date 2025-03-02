@@ -12,8 +12,9 @@ $`Input: X∈ℝ^{M×N}`$
 $`X·W_{q} = Q∈ℝ^{M×d}`$ - *query matrix*<br/>
 $`X·W_{k} = K∈ℝ^{M×d}`$ - *key matrix*<br/>
 $`X·W_{v} = V∈ℝ^{M×d_v}`$ - *value matrix*<br/>
-
-$`Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX'∈ℝ^{M×d_v}`$<br/>
+```math
+Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX'∈ℝ^{M×d_v}
+```
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
@@ -26,9 +27,9 @@ $`C·W_k = K∈ℝ^{L×d}`$ - *key matrix*<br/>
 $`C·W_v = V∈ℝ^{L×d_v}`$ - *value matrix*<br/>
 
 ```math
-Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX' ∈ M×d_v
+Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX'∈ℝ^{M×d_v}
 ```
-$`→ ΔX'·W_{out} = ΔX ∈ M×N`$<br/>
+$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - residual connection
 
 ```math
