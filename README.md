@@ -5,7 +5,7 @@ Transformer architecture according to article 'Attention Is All You Need'.
 
 ## Attention
 
-*Self-Attention*
+**Self-Attention**
 
 $`Input: X∈ℝ^{M×N}`$ 
 
@@ -18,7 +18,7 @@ Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX'∈ℝ^{M×d_v}
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
-*Cross-Attention*
+**Cross-Attention**
 
 $`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×N}`$
 
