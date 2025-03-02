@@ -7,7 +7,7 @@ Transformer architecture according to article 'Attention Is All You Need'.
 
 *Self-Attention*
 
-Input: X ∈ M×N 
+$`Input: X∈ℝ^{M×N}`$ 
 
 $`X·W_{q} = Q ∈ M×d`$ - *query matrix*<br/>
 $`X·W_{k} = K ∈ M×d`$ - *key matrix*<br/>
@@ -19,7 +19,7 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
 *Cross-Attention*
 
-$`Input:  X∈R^{M×N} ,  C∈R^{L×N}`$
+$`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×N}`$
 
 $`X·W_q = Q ∈ M×d`$ - *query matrix*<br/>
 $`C·W_k = K ∈ L×d`$ - *key matrix*<br/>
