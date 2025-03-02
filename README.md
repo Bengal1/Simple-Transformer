@@ -7,7 +7,7 @@ Transformer architecture according to article 'Attention Is All You Need'.
 
 **Self-Attention**
 
-$`Input:     X∈ℝ^{M×N}`$ 
+*Input:*   $`X∈ℝ^{M×N}`$ 
 
 $`X·W_{q} = Q∈ℝ^{M×d}`$ - *query matrix*<br/>
 $`X·W_{k} = K∈ℝ^{M×d}`$ - *key matrix*<br/>
