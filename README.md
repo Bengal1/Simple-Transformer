@@ -16,7 +16,8 @@ X·W_{v} = V ∈ M×d_{v} - value matrix
 Attention(Q,K,V) =Softmax(Q·K^T/sqrt(d))·V = ΔX' ∈ M×d_v <br />
 ΔX'·W_out = ΔX ∈ M×N <br />
 --> Z = ΔX + X - Residual connection <br />
-
+```
+```math
 --- Cross-Attention ---
 Input: X ∈ M×N, Y ∈ L×N
 
