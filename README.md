@@ -13,7 +13,7 @@ $`X·W_{k} = K ∈ M×d`$ - *key matrix*<br/>
 $`X·W_{v} = V ∈ M×d_{v}`$ - *value matrix*<br/>
 
 $`Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX' ∈ M×d_v`$<br/>
-$`ΔX'·W_out = ΔX ∈ M×N`$<br/>
+$`ΔX'·W_{out} = ΔX ∈ M×N`$<br/>
 $`→ Z = ΔX + X`$ - *Residual connection*<br/>
 
 *Cross-Attention*
