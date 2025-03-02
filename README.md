@@ -6,6 +6,7 @@ Transformer architecture according to article 'Attention Is All You Need'.
 ## Attention
 
 *Self-Attention*
+
 Input: X ∈ M×N 
 
 $`X·W_{q} = Q ∈ M×d`$ - *query matrix*<br/>
