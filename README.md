@@ -27,11 +27,11 @@ $`C·W_k = K∈ℝ^{L×d}`$ - *key matrix*<br/>
 $`C·W_v = V∈ℝ^{L×d_v}`$ - *value matrix*<br/>
 
 ```math
-Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX'∈ℝ^{M×d_v}
+Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*
 
 ```math
-Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V
+Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
