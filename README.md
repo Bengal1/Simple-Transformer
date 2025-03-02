@@ -6,17 +6,15 @@ Transformer architecture according to article 'Attention Is All You Need'.
 ## Attention
 
 *Self-Attention*
-```math
-Input: X ∈ M×N <br /><br />
+Input: X ∈ M×N 
 
-X·W_{q} = Q ∈ M×d - query matrix
-X·W_{k} = K ∈ M×d - key matrix
-X·W_{v} = V ∈ M×d_{v} - value matrix
+$`X·W_{q} = Q ∈ M×d - query matrix`$
+$`X·W_{k} = K ∈ M×d - key matrix`$
+$`X·W_{v} = V ∈ M×d_{v} - value matrix`$
 
-Attention(Q,K,V) =Softmax(Q·K^T/sqrt(d))·V = ΔX' ∈ M×d_v <br />
-ΔX'·W_out = ΔX ∈ M×N <br />
---> Z = ΔX + X - Residual connection <br />
-```
+$`Attention(Q,K,V) =Softmax(Q·K^T/sqrt(d))·V = ΔX' ∈ M×d_v`$
+ΔX'·W_out = ΔX ∈ M×N
+--> Z = ΔX + X - Residual connection
 *Cross-Attention*
 ```math
 Input: X ∈ M×N, Y ∈ L×N
