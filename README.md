@@ -25,8 +25,8 @@ $`C·W_k = K ∈ L×d`$ - *key matrix*<br/>
 $`C·W_v = V ∈ L×d_v`$ - *value matrix*<br/>
 
 $`Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX' ∈ M×d_v`$<br/>
-$`ΔX'·W_{out} = ΔX ∈ M×N`$
-$`→ Y = ΔX + X`$ - residual connection
+$`→ ΔX'·W_{out} = ΔX ∈ M×N`$<br/>
+$`⇨ Y = ΔX + X`$ - residual connection
 
 ```math
 Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V
