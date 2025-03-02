@@ -19,7 +19,7 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
 *Cross-Attention*
 
-$`1Input: X ∈ M×N, C ∈ ⁠ R^{L×N}`$
+$`1Input: X ∈ M×N, C∈R^{L×N}`$
 
 $`X·W_q = Q ∈ M×d`$ - *query matrix*<br/>
 $`C·W_k = K ∈ L×d`$ - *key matrix*<br/>
