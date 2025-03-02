@@ -1,3 +1,3 @@
 # SimpleTransformer
 transformer
-Based on the...
+Transformer architecture according to article 'Attention Is All You Need'.
