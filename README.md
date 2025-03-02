@@ -14,20 +14,20 @@ $`X·W_{v} = V ∈ M×d_{v}`$ - *value matrix*<br/>
 
 $`Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX' ∈ M×d_v`$<br/>
 $`ΔX'·W_{out} = ΔX ∈ M×N`$<br/>
-$`→ Z = ΔX + X`$ - *Residual connection*<br/>
+$`→ Y = ΔX + X`$ - *Residual connection*<br/>
 
 *Cross-Attention*
-```math
-Input: X ∈ M×N, Y ∈ L×N
 
-X·W_q = Q ∈ M×d - query matrix
-Y·W_k = K ∈ L×d - key matrix
-Y·W_v = V ∈ L×d_v - value matrix
+Input: X ∈ M×N, C ∈ L×N
 
-Attention(Q,K,V) =Softmax(Q·K^T/sqrt(d))·V = ΔX ∈ M×d_v
-ΔX'·W_out = ΔX ∈ M×N
-→ Z = ΔX + X - residual connection
-```
+$`X·W_q = Q ∈ M×d`$ - *query matrix*<br/>
+$`C·W_k = K ∈ L×d`$ - *key matrix*<br/>
+$`C·W_v = V ∈ L×d_v`$ - *value matrix*<br/>
+
+$`Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V = ΔX' ∈ M×d_v`$<br/>
+$`ΔX'·W_{out} = ΔX ∈ M×N`$
+$`→ Y = ΔX + X`$ - residual connection
+
 ```math
 Attention(Q,K,V) = Softmax(\frac{Q K^{T}}{\sqrt{d}})·V
 ```
