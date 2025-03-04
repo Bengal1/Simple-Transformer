@@ -73,6 +73,7 @@ Embeddings are representations of values or objects like text, images, and audio
 In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`) and we get for every sequence a matrix of size $`ℝ^{M×E}`$.
 
 [TODO: how embedding work]
+#### Intuitive understanding of Embedding
 
 * Alternative method to embedding: *Token IDs* - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
 ## Transformer
