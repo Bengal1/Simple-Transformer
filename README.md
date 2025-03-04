@@ -1,7 +1,8 @@
 # SimpleTransformer
 
 [*The Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)) is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need".
-Transformer architecture according to article 'Attention Is All You Need'.
+
+SimpleTransformer architecture is built according to article 'Attention Is All You Need'.
 
 ## Data
 The raw data is a csv file...
