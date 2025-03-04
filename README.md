@@ -80,7 +80,7 @@ $`PE(k=0) = [sin \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{M-1}{10,
 
 ### Normalizing
 
-Layer normalization: $`x' = \frac{(x - μ)}{\sqrt(σ^{2} + ε)}`$<br/>
+Layer normalization: $`x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}`$<br/>
 Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 ⇨  $`y = γ·x' + β`$<br/>
 
