@@ -74,7 +74,11 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 
 #### Intuitive understanding of Embedding
 This explaination is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical semantic connection such as:  $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical semantic connection such as:
+```math
+e_{king} - e_{queen} = e_{man} - e_{woman}
+```
+And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
 We can also look at this mathematical semantic connection: 
 ```math
 e_{king} - e_{man} = e_{queen} - e_{woman}
