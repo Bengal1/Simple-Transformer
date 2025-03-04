@@ -83,7 +83,8 @@ We can interpret it as if we strip the king from his gender then the vector that
 and also it expected to get from the king vector to the queen vector we will do: 
 ```math
 e_{king} - e_{man} + e_{woman} = e_{queen}
-``` 
+```
+<br/>
 
 In Reality that is not what happenning. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed.
 
