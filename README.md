@@ -32,6 +32,9 @@ $`if`$ $`d_v \ne N → W_{out}∈ℝ^{d_v×N}`$<br/>
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
+
+TODO: masked attention
+
 **Cross-Attention**
 
 $`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×N}`$
