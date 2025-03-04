@@ -69,7 +69,7 @@ $`PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)`$<br/>
 *PE(k,j)* - 
 
 #### Example:
-Lets assume sequance length is M.
+Lets assume sequence length is M.
 
 $`PE(k=0) = [sin \Bigg(\frac{0}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{0}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{0}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{0}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{0}{10,000^{d-2/2d}} \Bigg)]`$<br/>
 $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{1}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{1}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{1}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{1}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{1}{10,000^{d-2/2d}} \Bigg)]`$<br/>
@@ -79,3 +79,8 @@ $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{1}{10,000^
 $`PE(k=0) = [sin \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg)]`$<br/>
 
 ### Normalizing
+
+Layer normalization: $`x' = \frac{(x - μ)}{\sqrt(σ^{2} + ε)}`$
+Then apply scaling (gamma) and shifting (beta) parameters.
+⇨  y = γ·x' + β
+
