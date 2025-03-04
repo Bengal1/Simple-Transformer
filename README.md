@@ -52,6 +52,13 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ### FeedForward
 
 ### Embedding
+alternative = Token IDs
+
+how embedding work
+
+what are the properties of embedding - king - queen, man - woman. gender direction, status(royalty) direction and so on
+
+
 
 ### Positional Encodeing
 
