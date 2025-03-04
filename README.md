@@ -12,7 +12,6 @@ This Repository is built for learning purposes, and its goal is to help people w
 
 ## Data
 TODO: 
-* fix table
 * check if unique value number correct
 * more detailes on sizes and staff  
 
