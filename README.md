@@ -92,7 +92,7 @@ Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 ⇨  $`y = γ·x' + β`$<br/>
 
 
-# R
+## References
+[Attention Is All You Need]([https://ieeexplore.ieee.org/abstract/document/409626](https://arxiv.org/abs/1706.03762))
 
-https://github.com/Bengal1/SimpleTransformer/blob/main/README.md
 
