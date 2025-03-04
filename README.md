@@ -45,10 +45,12 @@ sentence = "This Simple Transformer Guide!"
 Before embedding we would like to build the data in a way...
 ```
 special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
-<unk> -
-<pad> -
-<bos> -
-<eos> - 
+
+<unk> - unknown words.
+<pad> - use for padding.
+<bos> - beginning of sentence.
+<eos> - end of sentence.
+We sets <unk> as the default. 
 ```
 ```ruby
 sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
