@@ -74,7 +74,7 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 
 [TODO: how embedding work] what are the properties of embedding - king - queen, man - woman. gender direction, status(royalty) direction and so on
 #### Intuitive understanding of Embedding
-Lets assume we have the tokens `{<king>, <queen>, <man>, <woman>}` and we covnert them to embedding vectors: $`\Bigg\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Bigg\}`$, So for example we would exapect the next mathematical connection: $`e_{king} - e_{queen} = e_{man} - e_{woman}`$
+Lets assume we have the tokens `{<king>, <queen>, <man>, <woman>}` and we covnert them to embedding vectors: $`\Bigg\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Bigg\}`$, So for example we would exapect the next mathematical connection: $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, We can interpret it as the gender difference between the vectors. And also $`e_{king} - e_{man} = e_{queen} - e_{woman}`$
 
 
 * Alternative method to embedding: *Token IDs* - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
