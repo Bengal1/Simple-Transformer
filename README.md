@@ -28,7 +28,7 @@ $`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
+$`→ ΔX'·W_{out} = ΔX∈ℝ^{d_v×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
 **Cross-Attention**
@@ -42,7 +42,7 @@ $`C·W_v = V∈ℝ^{L×d_v}`$ - *value matrix*<br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
+$`→ ΔX'·W_{out} = ΔX∈ℝ^{d_v×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*
 
 ```math
