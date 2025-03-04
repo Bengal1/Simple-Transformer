@@ -8,7 +8,7 @@ The raw data is a csv file...
 sentence = "this is a sentence from the dataset"
 ⇨ sentence_tokenized = ["this", "is", "a", "sentence", "from", "the", "dataset"]
 ```
-
+special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 
 ## Transformer
 
