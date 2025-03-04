@@ -77,6 +77,12 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 * Alternative method to embedding: *Token IDs* - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
 ## Transformer
 
+TODO:
+* change N to E for the use of embedding dimension
+* s
+
+
+  
 ### "Attentiona Is All You Need"
 
 ### Attention
