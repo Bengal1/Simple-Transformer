@@ -32,7 +32,7 @@ In this repository we will excute the task of *Machine Translation* french to en
 
 123,100 english unique values and 165,975 french unique values [TODO: check if true]
 
-[dataset source](https://www.kaggle.com/datasets/devicharith/language-translation-englishfrench)
+[dataset source](http://www.manythings.org/anki/)
 ### Tokenization
 ```ruby
 sentence = "this is a sentence from the dataset"
