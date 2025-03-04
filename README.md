@@ -69,10 +69,9 @@ what are the properties of embedding - king - queen, man - woman. gender directi
 ### Positional Encodeing
 
 ```math
-PE(k,2i) = sin \Bigg(\frac{k}{n^{2i/d}} \Bigg)<br/>
-```
-```math
-PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)<br/>
+\begin{cases}PE(k,2i) = sin \Bigg(\frac{k}{n^{2i/d}} \Bigg)\\\
+
+PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
 ```
 *k* - 
 
