@@ -59,9 +59,13 @@ $`PE(k,2i) = sin \Bigg(\frac{k}{n^{2i/d}} \Bigg)`$<br/>
 $`PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)`$<br/>
 
 *k* - 
+
 *n* - 
+
 *d* - 
+
 *i* - 
+
 *PE(k,j)* - 
 
 
