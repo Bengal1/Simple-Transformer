@@ -72,11 +72,11 @@ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. 
 In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`) and we get for every sequence a matrix of size $`ℝ^{M×E}`$.
 
-[TODO: how embedding work] what are the properties of embedding - king - queen, man - woman. gender direction, status(royalty) direction and so on
 #### Intuitive understanding of Embedding
-This explaination is for intuitive understanding of Embedding, you will need vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical connection: $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
-We can also look at this mathematical connection: $`e_{king} - e_{man} = e_{queen} - e_{woman}`$, We can interpret it as if we strip the king from his gender and the vector that we get is the status/Royalty vector as well as for the queen.
+This explaination is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical semantic connection such as:  $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
+We can also look at this mathematical semantic connection: $`e_{king} - e_{man} = e_{queen} - e_{woman}`$, We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen.
+and also it expected to get from the king vector to the queen vector we will do: $`e_{king} - e_{man} + e_{woman} = e_{queen}`$ 
 
 In Reality that is not what happenning. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed.
 
