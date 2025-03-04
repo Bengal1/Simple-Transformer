@@ -111,7 +111,12 @@ TODO:
 ### "Attentiona Is All You Need"
 
 ### Attention
-[*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence.
+[*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. In this method the learnable parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}`$ 
+
+```math
+Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
+```
+
 **Self-Attention**
 
 $`Input:X∈ℝ^{M×E}`$ 
@@ -145,9 +150,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*
 
-```math
-Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
-```
+
 
 ### FeedForward
 
