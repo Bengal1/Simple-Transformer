@@ -77,7 +77,7 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 <img align="right" width="530" height="530" src="https://github.com/user-attachments/assets/c99a2410-d73c-451d-ae9b-6b4bd606e45d">
 
 This explaination is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical semantic connection such as:
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect, for good embedding, the next mathematical semantic connection:
 ```math
 e_{king} - e_{queen} = e_{man} - e_{woman}
 ```
@@ -170,7 +170,7 @@ PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
 `i` - Used for mapping column's/object's indices,  $`0 \le i < \frac{2}{d}`$.<br/>
 `PE(k,j)` - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 
-#### Example:
+**Example**:
 Lets us note sequence length as M (M object/tokens).
 
 $`PE(k=0) = [sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
