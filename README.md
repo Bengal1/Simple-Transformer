@@ -87,8 +87,8 @@ We can also look at this mathematical semantic connection:
 ```math
 e_{king} - e_{man} = e_{queen} - e_{woman}
 ```
-We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen.
-and also it expected to get from the king vector to the queen vector we will do: 
+We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen, meaning a royal direction.<br/>
+And also it expected to get from the king vector to the queen vector we will do: 
 ```math
 e_{king} - e_{man} + e_{woman} = e_{queen}
 ```
