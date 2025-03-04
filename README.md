@@ -8,7 +8,7 @@ SimpleTransformer architecture is built according to article "Attention Is All Y
 * Python 3
 * [Pytorch](https://pytorch.org/get-started/locally/)
 * torchtext
-* spaCy
+* [spaCy](https://spacy.io/)
 
 ## Data
 The raw data is a csv file...
