@@ -65,7 +65,7 @@ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ### Embedding
 
 Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings enable machine learning models to interact with various data types. 
-In our case we get a tokenized sequence(sentence) and we convert every token to a vector in the $`ℝ^{embed\_dim}`$.
+In our case we get a tokenized sequence(sentence) and we convert every token to a vector in the $`ℝ^{N}`$.
 how embedding work
 
 
