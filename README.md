@@ -123,8 +123,8 @@ $`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
-$`if`$ $`d_v \ne N → W_{out}∈ℝ^{d_v×N}`$<br/>
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
+$`if`$ $`d_v \ne E → W_{out}∈ℝ^{d_v×E}`$<br/>
+$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
 
@@ -134,7 +134,7 @@ TODO: masked attention
 
 input and conditional input, can be the target output or maybe prompt words
 
-$`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×N}`$
+$`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×E}`$
 
 $`X·W_q = Q∈ℝ^{M×d_k}`$ - *query matrix*<br/>
 $`C·W_k = K∈ℝ^{L×d_k}`$ - *key matrix*<br/>
@@ -143,7 +143,7 @@ $`C·W_v = V∈ℝ^{L×d_v}`$ - *value matrix*<br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
+$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*
 
 ```math
