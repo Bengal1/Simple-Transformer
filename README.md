@@ -11,6 +11,11 @@ This Repository is built for learning purposes, and its goal is to help people w
 * [spaCy](https://spacy.io/)
 
 ## Data
+TODO: 
+* fix table
+* check if unique value number correct
+* more detailes on sizes and staff  
+
 In this repository we will excute the task of *Machine Translation* french to english. therfore the raw data is a csv file of 2 columns one in english and the other one in french in each row there is a word or sentence in english and its translation in french.
 
 ```
