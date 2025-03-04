@@ -3,9 +3,9 @@
 Transformer architecture according to article 'Attention Is All You Need'.
 ## Data
 
-"""
+```
 sentence = "this is a sentence from the dataset" ----> sentence_tokenized = ["this", "is", "a", "sentence", "from", "the", "dataset"]
-"""
+```
 
 
 ## Transformer
