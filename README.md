@@ -82,7 +82,7 @@ PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
 
 *i* - Used for mapping column's/object's indices,  $`0 \le i < \frac{2}{d}`$.<br/>
 
-$`PE(k,j)`$ - Positional encoding of thr j-yh index in the k-th object in the input sequence.<br/>
+$`PE(k,j)`$ - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 
 #### Example:
 Lets assume sequence length is M (M object/sentences).
