@@ -70,6 +70,8 @@ what are the properties of embedding - king - queen, man - woman. gender directi
 
 ```math
 PE(k,2i) = sin \Bigg(\frac{k}{n^{2i/d}} \Bigg)<br/>
+```
+```math
 PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)<br/>
 ```
 *k* - 
