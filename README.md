@@ -42,7 +42,7 @@ In order to provide the computer workable data we decompose the sentence into to
 sentence = "This Simple Transformer Guide!"
 ⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ```
-Before embedding we would like to build the data in a way...
+Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixxed length to sentences `max_length`.
 ```
 special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 
