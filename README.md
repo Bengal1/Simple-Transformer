@@ -2,9 +2,9 @@
 
 This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to beginners who like to know how to start building a Transformer with Pytorch. *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need".
 
-SimpleTransformer architecture is built according to article "Attention Is All You Need".
+SimpleTransformer architecture is built according to article "Attention Is All You Need", In this project we will use it for [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation)
 
-This Repository is built for learning purposes, and its goal is to help people who would like to start coding transformer excuting [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation). 
+This Repository is built for learning purposes, and its goal is to help people who would like to start coding transformer excuting NLP tasks.
 
 ## Requirements
 * Python 3
