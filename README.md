@@ -75,10 +75,10 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 [TODO: how embedding work] what are the properties of embedding - king - queen, man - woman. gender direction, status(royalty) direction and so on
 #### Intuitive understanding of Embedding
 This explaination is for intuitive understanding of Embedding, you will need vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{<king>, <queen>, <man>, <woman>}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical connection: $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical connection: $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
 We can also look at this mathematical connection: $`e_{king} - e_{man} = e_{queen} - e_{woman}`$, We can interpret it as if we strip the king from his gender and the vector that we get is the status/Royalty vector as well as for the queen.
 
-In fact that is not what happens because there is more for king part to gender and royalty ...
+In Reality that is not what happenning. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed.
 
 
 * Alternative method to embedding: *Token IDs* - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
@@ -96,7 +96,7 @@ TODO:
 
 **Self-Attention**
 
-$`Input:X∈ℝ^{M×N}`$ 
+$`Input:X∈ℝ^{M×E}`$ 
 
 $`X·W_{q} = Q∈ℝ^{M×d_k}`$  -  *query matrix*<br/>
 $`X·W_{k} = K∈ℝ^{M×d_k}`$  -  *key matrix*<br/>
@@ -156,7 +156,7 @@ PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
 `PE(k,j)` - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 
 #### Example:
-Lets assume sequence length is M (M object/sentences).
+Lets us note sequence length as M (M object/tokens).
 
 $`PE(k=0) = [sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
 $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
