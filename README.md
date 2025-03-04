@@ -28,7 +28,7 @@ $`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
-if $`d_v != N → W_{out}∈ℝ^{d_v×N}`$
+if $`d_v \ne N → W_{out}∈ℝ^{d_v×N}`$
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×N}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
