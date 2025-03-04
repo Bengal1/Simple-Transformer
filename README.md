@@ -4,6 +4,8 @@ This is a practical guide for building [*Transformer*](https://en.wikipedia.org/
 
 SimpleTransformer architecture is built according to article "Attention Is All You Need".
 
+This Repository is built for learning purposes, and its goal is to help people who would like to start coding transformer...
+
 ## Requirements
 * Python 3
 * [Pytorch](https://pytorch.org/get-started/locally/)
