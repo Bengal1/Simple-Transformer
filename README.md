@@ -7,7 +7,7 @@ SimpleTransformer architecture is built according to article "Attention Is All Y
 ## Requirements
 * Python 3
 * [Pytorch](https://pytorch.org/get-started/locally/)
-* torchtext
+* [Torchtext](https://pytorch.org/text/stable/index.html)
 * [spaCy](https://spacy.io/)
 
 ## Data
