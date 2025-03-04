@@ -83,7 +83,7 @@ $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{1}{10,000^
 .<br/>
 .<br/>
 .<br/>
-$`PE(k=0) = [sin \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg)]`$<br/>
+$`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg)]`$<br/>
 
 ### Normalizing
 
