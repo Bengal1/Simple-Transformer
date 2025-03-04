@@ -81,7 +81,7 @@ Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covner
 ```math
 e_{king} - e_{queen} = e_{man} - e_{woman}
 ```
-And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
+And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an direction of gender, the more manly attrubutes the token has the further the the vector will do in that direction and the same thing about womaly attributes in the opposite direction. 
 We can also look at this mathematical semantic connection: 
 ```math
 e_{king} - e_{man} = e_{queen} - e_{woman}
