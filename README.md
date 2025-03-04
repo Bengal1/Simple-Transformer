@@ -93,6 +93,6 @@ Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 
 
 ## References
-[Attention Is All You Need]([https://ieeexplore.ieee.org/abstract/document/409626](https://arxiv.org/abs/1706.03762))
+[Attention Is All You Need]((https://arxiv.org/abs/1706.03762))
 
 
