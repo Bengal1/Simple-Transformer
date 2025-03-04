@@ -4,6 +4,12 @@ This is a practical guide for building [*Transformer*](https://en.wikipedia.org/
 
 SimpleTransformer architecture is built according to article "Attention Is All You Need".
 
+## Requirements
+* Python 3
+* [Pytorch](https://pytorch.org/get-started/locally/)
+* torchtext
+* spaCy
+
 ## Data
 The raw data is a csv file...
 ### Tokenization
