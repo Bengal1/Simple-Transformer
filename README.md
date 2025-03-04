@@ -71,9 +71,9 @@ $`PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)`$<br/>
 #### Example
 $`PE(k=0) = [sin \Bigg(\frac{0}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{0}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{0}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{0}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{0}{10,000^{d-2/2d}} \Bigg)]`$<br/>
 $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{1}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{1}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{1}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{1}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{1}{10,000^{d-2/2d}} \Bigg)]`$<br/>
-.
-.
-.
+.<br/>
+.<br/>
+.<br/>
 $`PE(k=0) = [sin \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{0/d}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{2/d}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{d-2/2d}} \Bigg)]`$<br/>
 
 ### Normalizing
