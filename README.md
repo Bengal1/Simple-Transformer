@@ -13,7 +13,8 @@ This Repository is built for learning purposes, and its goal is to help people w
 ## Data
 In this repository we will excute the task of *Machine Translation* french to english. therfore the raw data is a csv file of 2 columns one in english and the other one in french in each row there is an expression, word or sentence in english and its translation in french.
 
-                                  English words/sentences                             French words/sentences
+```ruby
+                   English words/sentences                             French words/sentences
 0                                                     Hi.                                             Salut!
 1                                                    Run!                                            Cours !
 2                                                    Run!                                           Courez !
@@ -27,7 +28,7 @@ In this repository we will excute the task of *Machine Translation* french to en
 175620  If someone who doesn't know your background sa...  Si quelqu'un qui ne connaît pas vos antécédent...
 
 [175621 rows x 2 columns]
-
+```
 
 
 [dataset source](https://www.kaggle.com/datasets/devicharith/language-translation-englishfrench)
