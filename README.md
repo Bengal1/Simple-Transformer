@@ -30,7 +30,7 @@ In this repository we will excute the task of *Machine Translation* french to en
 [175621 rows x 2 columns]
 ```
 
-123100 english unique values and 165975 french unique values
+123,100 english unique values and 165,975 french unique values
 * TODO: check if true
 
 [dataset source](https://www.kaggle.com/datasets/devicharith/language-translation-englishfrench)
