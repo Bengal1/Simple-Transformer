@@ -20,12 +20,13 @@ In this repository we will excute the task of *Machine Translation* french to en
 
 ```
        |            English words/sentences                |             French words/sentences                |
-0      |                                               Hi. |                                            Salut! |
-1      |                                              Run! |                                           Cours ! |
-2      |                                              Run! |                                          Courez ! |
-3      |                                              Who? |                                             Qui ? |
-4      |                                              Wow! |                                        Ça alors ! |
-...    |                                               ... |                                               ... |
+       |---------------------------------------------------|---------------------------------------------------|
+0      | Hi.                                               | Salut!                                            |
+1      | Run!                                              | Cours !                                           |
+2      | Run!                                              | Courez !                                          |
+3      | Who?                                              | Qui ?                                             |
+4      | Wow!                                              | Ça alors !                                        |
+...    | ...                                               | ...                                               |
 175616 | Top-down economics never works, said Obama. "T... | « L'économie en partant du haut vers le bas, ç... |
 175617 | A carbon footprint is the amount of carbon dio... | Une empreinte carbone est la somme de pollutio... |
 175618 | Death is something that we're often discourage... | La mort est une chose qu'on nous décourage sou... |
