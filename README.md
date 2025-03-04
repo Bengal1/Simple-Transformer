@@ -104,7 +104,6 @@ For exapmle in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vect
 ## Transformer
 
 TODO:
-* change N to E for the use of embedding dimension
 * s
 
 
@@ -112,7 +111,7 @@ TODO:
 ### "Attentiona Is All You Need"
 
 ### Attention
-
+[*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence.
 **Self-Attention**
 
 $`Input:X∈ℝ^{M×E}`$ 
