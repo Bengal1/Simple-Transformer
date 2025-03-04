@@ -35,7 +35,7 @@ In this repository we will excute the task of *Machine Translation* french to en
 [175621 rows x 2 columns]
 ```
 
-123,100 english unique values and 165,975 french unique values [TODO: check if true]
+Containing 123,100 unique english values and 165,975 unique french values.
 
 [dataset source](http://www.manythings.org/anki/)
 ### Tokenization
