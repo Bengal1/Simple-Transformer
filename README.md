@@ -74,7 +74,11 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 
 [TODO: how embedding work] what are the properties of embedding - king - queen, man - woman. gender direction, status(royalty) direction and so on
 #### Intuitive understanding of Embedding
-Lets assume we have the tokens `{<king>, <queen>, <man>, <woman>}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical connection: $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, We can interpret it as the gender difference between the vectors. And also $`e_{king} - e_{man} = e_{queen} - e_{woman}`$
+This explaination is for intuitive understanding of Embedding, you will need vector analysis to best understand it.
+Lets assume we have the tokens `{<king>, <queen>, <man>, <woman>}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical connection: $`e_{king} - e_{queen} = e_{man} - e_{woman}`$, And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is an axis of gender, when the more manly the token is the further the the vector will do in that direction and the same thing about womaly in the other direction. 
+We can also look at this mathematical connection: $`e_{king} - e_{man} = e_{queen} - e_{woman}`$, We can interpret it as if we strip the king from his gender and the vector that we get is the status/Royalty vector as well as for the queen.
+
+In fact that is not what happens because there is more for king part to gender and royalty ...
 
 
 * Alternative method to embedding: *Token IDs* - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
