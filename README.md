@@ -63,7 +63,7 @@ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ```
 
 ### Embedding
-alternative = Token IDs
+* Alternative method to embedding: Token IDs - token IDs -
 
 how embedding work
 
