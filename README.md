@@ -73,11 +73,11 @@ Embeddings are representations of values or objects like text, images, and audio
 In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`) and we get for every sequence a matrix of size $`ℝ^{M×E}`$.
 
 #### Intuitive understanding of Embedding
-This explaination is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical semantic connection such as:
 
 <img align="right" width="350" height="350" src="https://github.com/user-attachments/assets/c99a2410-d73c-451d-ae9b-6b4bd606e45d">
 
+This explaination is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect the next mathematical semantic connection such as:
 ```math
 e_{king} - e_{queen} = e_{man} - e_{woman}
 ```
