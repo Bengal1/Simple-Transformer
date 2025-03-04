@@ -1,9 +1,13 @@
 # SimpleTransformer
 
 Transformer architecture according to article 'Attention Is All You Need'.
+## Data
 
+## Transformer
 
-## Attention
+### "Attentiona Is All You Need"
+
+### Attention
 
 **Self-Attention**
 
@@ -35,3 +39,11 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
+
+### FeedForward
+
+### Embedding
+
+### Positional Encodeing
+
+### Normalizing
