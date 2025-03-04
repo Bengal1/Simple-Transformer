@@ -170,7 +170,7 @@ PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
 `i` - Used for mapping column's/object's indices,  $`0 \le i < \frac{2}{d}`$.<br/>
 `PE(k,j)` - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 
-**Example**:
+**Example**:<br/><br/>
 Lets us note sequence length as M (M object/tokens).
 
 $`PE(k=0) = [sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
