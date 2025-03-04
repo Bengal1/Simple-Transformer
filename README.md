@@ -46,6 +46,7 @@ Before embedding we would like to build the data in a way...
 ```ruby
 special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 ```
+```ruby
 sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
 ```
