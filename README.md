@@ -43,7 +43,7 @@ sentence = "This Simple Transformer Guide!"
 ⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ```
 Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixxed length to sentences `max_length`, when we pad sentence that wre shorter (This is the method we used).
-* Altenative method: use max length 95% of the data. meaning 95% of the data will fit with no problem and 10% will be truncated according to size (the presentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
+* *Altenative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 10% will be truncated according to size (the presentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
 ```
 special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 
