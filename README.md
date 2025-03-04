@@ -22,9 +22,9 @@ sentence_for_train[max_length] = ['<bos>', 'this', 'is', 'a', 'sentence', 'from'
 
 $`Input:X∈ℝ^{M×N}`$ 
 
-$`X·W_{q} = **Q**∈ℝ^{M×d}`$ - *query matrix*<br/>
-$`X·W_{k} = K∈ℝ^{M×d}`$ - *key matrix*<br/>
-$`X·W_{v} = V∈ℝ^{M×d_v}`$ - *value matrix*<br/>
+$`X·W_{q} = Q∈ℝ^{M×d}`$  -  *query matrix*<br/>
+$`X·W_{k} = K∈ℝ^{M×d}`$  -  *key matrix*<br/>
+$`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
