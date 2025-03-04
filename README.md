@@ -55,8 +55,8 @@ special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 <eos> - end of sentence.
 We sets <unk> as the default. 
 ```
-After sentence tokenization, we put before the sentence the beginning of sentence token, `<bos>`, and after it the end of sentence token, `<eos>`, and pad the remainder of the sentence up to `max_length`.
-
+After sentence tokenization, we put before the sentence the beginning of sentence token, `<bos>`, and after it the end of sentence token, `<eos>`, and pad with padding token, `<pad>`, the remainder of the sentence up to `max_length`.<br/>
+The unknown word token ,`<unk>`, use for words that are not in the vocabulary and dealing with failures, and for that reason ee sets `<unk>` as the default. 
 ```ruby
 sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
