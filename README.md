@@ -4,7 +4,7 @@ Transformer architecture according to article 'Attention Is All You Need'.
 ## Data
 The raw data is a csv file...
 ### Tokenization
-```
+```ruby
 sentence = "this is a sentence from the dataset"
 ⇨ sentence_tokenized = ["this", "is", "a", "sentence", "from", "the", "dataset"]
 
