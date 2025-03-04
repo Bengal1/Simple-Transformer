@@ -10,7 +10,7 @@ sentence = "this is a sentence from the dataset"
 
 special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 
-sentence_for_train = ['<bos>', 'this', 'is', 'a', 'sentence', 'from', 'the', 'dataset', '<eos>', '<pad>',..., '<pad>']
+sentence_for_train[max_length] = ['<bos>', 'this', 'is', 'a', 'sentence', 'from', 'the', 'dataset', '<eos>', '<pad>',..., '<pad>']
 ```
 ## Transformer
 
