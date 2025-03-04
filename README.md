@@ -91,3 +91,8 @@ Layer normalization: $`x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}`$<br/>
 Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 ⇨  $`y = γ·x' + β`$<br/>
 
+
+# R
+
+https://github.com/Bengal1/SimpleTransformer/blob/main/README.md
+
