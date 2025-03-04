@@ -34,14 +34,24 @@ In this repository we will excute the task of *Machine Translation* french to en
 
 [dataset source](http://www.manythings.org/anki/)
 ### Tokenization
-```ruby
-sentence = "this is a sentence from the dataset"
-⇨ sentence_tokenized = ['this', 'is', 'a', 'sentence', 'from', 'the', 'dataset']
+In order to prepare the data for traning we need tokenization - convet words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
+So what do computer understand? the understand numbers in the core of computer it undrstand binary values($`V_low` and $`V_high`), but on higher levels it understand number and tensors (vectors, matrices, 3D matrices,...) and mathematical relation between them.
 
+```ruby
+sentence = "This Simple Transformer Guide!"
+⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
+```
+```ruby
 special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 
-sentence_for_train[max_length] = ['<bos>', 'this', 'is', 'a', 'sentence', 'from', 'the', 'dataset', '<eos>', '<pad>',..., '<pad>']
+sentence_for_train[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
 ```
+
+### Embedding
+alternative = Token IDs
+
+how embedding work
+
 ## Transformer
 
 ### "Attentiona Is All You Need"
@@ -87,10 +97,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 
 ### FeedForward
 
-### Embedding
-alternative = Token IDs
 
-how embedding work
 
 what are the properties of embedding - king - queen, man - woman. gender direction, status(royalty) direction and so on
 
