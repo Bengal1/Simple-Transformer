@@ -67,7 +67,7 @@ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 how embedding work
 
 
-* Alternative method to embedding: Token IDs - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that
+* Alternative method to embedding: *Token IDs* - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
 ## Transformer
 
 ### "Attentiona Is All You Need"
