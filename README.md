@@ -130,7 +130,7 @@ $`d_{v}`$ - <br/><br/>
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
 
-$`if`$ $`d_v \ne E → W_{out}∈ℝ^{d_v×E}`$<br/>
+In case of: $`d_v \ne E`$ then we define a out matrix $`W_{out}∈ℝ^{d_v×E}`$. This matrix is also weigth matrix (has trained parameters) it can be used it to make the model more complex, and if not set $`d_v \ne E`$.<br/>
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
