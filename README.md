@@ -91,7 +91,7 @@ We can interpret it as if we strip the king from his gender then the vector that
 And also it expected to get from the king vector to the queen vector we will do: 
 <br/>
 &emsp;&emsp;&emsp;&emsp;&emsp; $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
-<br/>
+<br/><br/>
 
 #### How Can $`ℝ^{E}`$ Holds Language Semantics?
 
