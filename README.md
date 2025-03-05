@@ -48,7 +48,7 @@ In order to provide the computer workable data we decompose the sentence into to
 sentence = "This Simple Transformer Guide!"
 ⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ```
-Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixxed length to sentences `max_length`, when we pad sentence that wre shorter (This is the method we used).
+Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences `max_length`, and then we pad sentence that are shorter (This is the method in use here).
 * *Altenative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 5% will be truncated according to size (the presentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
 
 In order to give the model contextual sign and mange the data better, we use special tokens
@@ -63,7 +63,7 @@ special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 We sets <unk> as the default. 
 ```
 After sentence tokenization, we put before the sentence the beginning of sentence token, `<bos>`, and after it the end of sentence token, `<eos>`, and pad with padding token, `<pad>`, the remainder of the sentence up to `max_length`.<br/>
-The unknown word token ,`<unk>`, use for words that are not in the vocabulary and dealing with failures, and for that reason ee sets `<unk>` as the default. 
+The unknown word token ,`<unk>`, use for words that are not in the vocabulary and dealing with failures, and for that reason we sets `<unk>` as the default. 
 ```ruby
 sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
