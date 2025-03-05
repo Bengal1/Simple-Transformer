@@ -134,8 +134,8 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
 TODO: masked attention
 
-**Cross-Attention**
-
+#### Cross-Attention
+The difference between self attention and cross-attention...
 input and conditional input, can be the target output or maybe prompt words
 
 $`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×E}`$
