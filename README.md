@@ -2,7 +2,7 @@
 
 This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to beginners who like to know how to start building a Transformer with Pytorch. *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need".<br/>
 SimpleTransformer architecture is built according to article "Attention Is All You Need", In this project we will use it for [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation)<br/>
-This Repository is built for learning purposes, and its goal is to help people who would like to start coding transformer excuting NLP tasks.
+This Repository is built for learning purposes, and its goal is to help people who would like to start coding transformer excuting *NLP (Natural Language Processing)* tasks.
 
 ## Requirements
 * Python 3
@@ -119,7 +119,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 when I mention 'attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
 #### Self-Attention
-Self-Attention
+Self-Attention is the simplest way of attention. we use our input and the weights to create $`Q, K, V`$ and execute the attention. this will tell us the affinity between words. We can use it for various NLP tasks like text generation etc. 
 
 $`Input:X∈ℝ^{M×E}`$ 
 
