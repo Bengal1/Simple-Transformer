@@ -103,13 +103,6 @@ For exapmle in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vect
 * Alternative method to embedding: *Token IDs* - token IDs id a simpe method which every token gets aunique integer. This is a more simple approch that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
 ## Transformer
 
-TODO:
-* s
-
-
-  
-### "Attentiona Is All You Need"
-
 ### Attention
 [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. In this method the learnable parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, we use them to create $`Q, K, V`$ and then execute the attention:
 
