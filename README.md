@@ -92,7 +92,7 @@ And also it expected to get from the king vector to the queen vector we will do:
 <br/>
 $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
 <br/>
-
+#### How Can $`ℝ^{E}`$ Represent Language Semantics?
 In Reality that is not what happenning. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, meanning larger the embedding space the more semantics it can hold. but a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).<br/>
 We would like the embedding space to hold relevat semantics as much as it can, however increasing E will result in space and computing cost. Nevertheless we can see that not so large embedding spaces supply the semantic's demand, and there is a hypothesis that tries to explain this. 
 According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) if we cram more vectors in the space a bit in the space with a slight deviation, $`0<ε<1`$, meaning we can arrange them not exactly 90° degrees between evry vectors , instead of being orthogonal they will have an angle of $`[90°-ε , 90°+ε]`$ betwen all vectors, then we could arrage D vecotrs in $`ℝ^{E}`$, when *D ≈* **O**$`\bigg( exp(E·ε^2) \bigg) `$.<br/>
