@@ -74,7 +74,7 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 
 #### Intuitive understanding of Embedding
 
-<img align="right" width="500" height="550" src="https://github.com/user-attachments/assets/edf0a13e-fa50-4dbd-a040-940fcf3c0d76">
+<img align="right" width="500"  src="https://github.com/user-attachments/assets/edf0a13e-fa50-4dbd-a040-940fcf3c0d76">
 
 This explaination is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
 Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we covnert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would exapect, for good embedding, the next mathematical semantic connection:
