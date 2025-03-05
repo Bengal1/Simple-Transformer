@@ -214,7 +214,7 @@ Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
 
 
-Draft
+## Draft
 
 ```math 
 Attention(Q,(K,V)) = \sum_{i=1}^M \alpha(q,k_{i})v_{i}
