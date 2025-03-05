@@ -67,6 +67,8 @@ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
 ```
 
+----------------------
+
 ### Embedding
 
 Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. 
@@ -141,7 +143,7 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
 TODO: masked attention
 
-----------------------
+
 #### Cross-Attention
 <img align="right" width="330" height="400" src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
 
