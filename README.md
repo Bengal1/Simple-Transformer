@@ -158,9 +158,7 @@ $`X·W_q = Q∈ℝ^{M×d_k}`$ - *query matrix*<br/>
 $`C·W_k = K∈ℝ^{L×d_k}`$ - *key matrix*<br/>
 $`C·W_v = V∈ℝ^{L×d_v}`$ - *value matrix*<br/>
 
-```math 
-Attention(Q,(K,V)) = \sum_{i=1}^M \alpha(q,k_{i})v_{i}
-```
+
 ```math
  = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
@@ -214,3 +212,10 @@ Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
 [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
+
+
+Draft
+
+```math 
+Attention(Q,(K,V)) = \sum_{i=1}^M \alpha(q,k_{i})v_{i}
+```
