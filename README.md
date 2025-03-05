@@ -116,8 +116,10 @@ TODO:
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
+when I mention 'attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
-**Self-Attention**
+#### Self-Attention
+Self-Attention
 
 $`Input:X∈ℝ^{M×E}`$ 
 
