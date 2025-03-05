@@ -58,6 +58,7 @@ special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
 <pad> - use for padding.
 <bos> - beginning of sentence.
 <eos> - end of sentence.
+
 We sets <unk> as the default. 
 ```
 After sentence tokenization, we put before the sentence the beginning of sentence token, `<bos>`, and after it the end of sentence token, `<eos>`, and pad with padding token, `<pad>`, the remainder of the sentence up to `max_length`.<br/>
