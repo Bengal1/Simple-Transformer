@@ -110,7 +110,7 @@ For exapmle in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vect
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The tranformer is Encoder-Decoder ... <br/>
 ### Attention
-[*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. In this method the learnable parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, we use them to create $`Q, K, V`$ and then execute the attention:
+The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) mechanism is the heart of the *Transformer* and it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. In this method the learnable parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, we use them to create $`Q, K, V`$ and then execute the attention:
 
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
