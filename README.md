@@ -90,7 +90,7 @@ e_{king} - e_{man} = e_{queen} - e_{woman}
 We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen, meaning a royal direction.<br/>
 And also it expected to get from the king vector to the queen vector we will do: 
 <br/>
-<td/>$`e_{king} - e_{man} + e_{woman} = e_{queen}`$
+<td><td/>$`e_{king} - e_{man} + e_{woman} = e_{queen}`$
 <br/>
 
 #### How Can $`ℝ^{E}`$ Holds Language Semantics?
