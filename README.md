@@ -89,9 +89,8 @@ e_{king} - e_{man} = e_{queen} - e_{woman}
 ```
 We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen, meaning a royal direction.<br/>
 And also it expected to get from the king vector to the queen vector we will do: 
-```math
-e_{king} - e_{man} + e_{woman} = e_{queen}
-```
+<br/>
+$`e_{king} - e_{man} + e_{woman} = e_{queen}`$
 <br/>
 
 In Reality that is not what happenning. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, meanning larger the embedding space the more semantics it can hold. but a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).<br/>
