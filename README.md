@@ -126,7 +126,7 @@ $`Input:X∈ℝ^{M×E}`$
 
 $`X·W_{q} = Q∈ℝ^{M×d_k}`$  -  *query matrix*<br/>
 $`X·W_{k} = K∈ℝ^{M×d_k}`$  -  *key matrix*<br/>
-$`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
+$`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/><br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
