@@ -121,7 +121,7 @@ Given an   $`Input:X∈ℝ^{M×E}`$, when `M=max_length` and `E=embedding_dimens
 
 $`X·W_{q} = Q∈ℝ^{M×d_k}`$  -  *query matrix*<br/>
 $`X·W_{k} = K∈ℝ^{M×d_k}`$  -  *key matrix*<br/>
-$`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/><br/>
+$`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
 
 $`d_{k}`$ - <br/>
 $`d_{v}`$ - <br/><br/>
