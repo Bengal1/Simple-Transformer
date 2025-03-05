@@ -169,9 +169,7 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*
 
 ### FeedForward
 
-
-
-
+![feedforward](https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650)
 
 
 
