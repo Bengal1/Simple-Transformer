@@ -120,7 +120,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 When I mention 'attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
 #### Self-Attention
-Self-Attention is the simplest way of attention. we use our input and the weights to create $`Q, K, V`$ and execute the attention. this will tell us the affinity between words. We can use it for various NLP tasks like text generation etc. 
+Self-Attention is the simplest way of attention. we use our input and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. this will tell us the affinity between words. We can use it for various NLP tasks like text generation etc. 
 
 $`Input:X∈ℝ^{M×E}`$ 
 
