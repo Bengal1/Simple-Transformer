@@ -153,7 +153,7 @@ TODO: masked attention
 
 
 ### Cross-Attention
-<img align="right" width="330"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
+<img align="right" width="280"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
 
 The difference between self attention and cross-attention...
 input and conditional input, can be the target output or maybe prompt words
