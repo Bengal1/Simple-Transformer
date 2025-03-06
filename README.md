@@ -48,7 +48,7 @@ In order to provide the computer workable data we decompose the sentence into to
 sentence = "This Simple Transformer Guide!"
 ⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
 ```
-Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences `max_length`, and then we pad sentence that are shorter (This is the method in use here).
+Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences (input sequence) `max_length`, and then we pad sentence that are shorter (This is the method in use here).
 * *Altenative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 5% will be truncated according to size (the presentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
 
 In order to give the model contextual sign and mange the data better, we use special tokens
