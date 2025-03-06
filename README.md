@@ -41,7 +41,7 @@ Containing 123,100 unique english values and 165,975 unique french values.
 [dataset source](http://www.manythings.org/anki/)
 ### Tokenization
 In order to prepare the data for traning we need tokenization - convet words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
-So what do computer understand? the understand numbers in the core of computer it undrstand binary values($`V_low`$ and $`V_high`$), but on higher levels it understand number and tensors (vectors, matrices, 3D matrices,...) and mathematical relation between them.
+So what do computer understand? the understand numbers in the core of computer it undrstand binary values($`V_{low}`$ and $`V_{high}`$), but on higher levels it understand number and tensors (vectors, matrices, 3D matrices,...) and mathematical relation between them.
 In order to provide the computer workable data we decompose the sentence into tokens and covert every token to a dense vector (process called *Embedding*).
 
 ```ruby
