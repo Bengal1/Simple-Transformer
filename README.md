@@ -1,3 +1,6 @@
+TODO:
+* BLEU score
+
 # SimpleTransformer Guide
 <img align="right" width="200"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
@@ -13,32 +16,22 @@ This Repository is built for learning purposes, and its goal is to help people w
 
 ## Data
 TODO: 
-* Do dataset from the start
-* more detailes on sizes and staff  
+* Do dataset from the start - IWSLT14
+* more detailes on sizes and staff
 
-In this repository we will excute the task of *Machine Translation* french to english. therfore the raw data is a csv file of 2 columns one in english and the other one in french in each row there is a word or sentence in english and its translation in french.
+[dataset source: Hugging Face - IWSLT14](https://huggingface.co/datasets/ahazeemi/iwslt14-en-fr)
+train: 179435
+validation: 903
+test: 3666
 
-```
-       |            English words/sentences                |             French words/sentences                |
--------|---------------------------------------------------|---------------------------------------------------|
-0      | Hi.                                               | Salut!                                            |
-1      | Run!                                              | Cours !                                           |
-2      | Run!                                              | Courez !                                          |
-3      | Who?                                              | Qui ?                                             |
-4      | Wow!                                              | Ça alors !                                        |
-...    | ...                                               | ...                                               |
-175616 | Top-down economics never works, said Obama. "T... | « L'économie en partant du haut vers le bas, ç... |
-175617 | A carbon footprint is the amount of carbon dio... | Une empreinte carbone est la somme de pollutio... |
-175618 | Death is something that we're often discourage... | La mort est une chose qu'on nous décourage sou... |
-175619 | Since there are usually multiple websites on a... | Puisqu'il y a de multiples sites web sur chaqu... |
-175620 | If someone who doesn't know your background sa... | Si quelqu'un qui ne connaît pas vos antécédent... |
+unique tokens: en - ~28K; fr - ~32K.
 
-[175621 rows x 2 columns]
-```
+Domain: TED Talks (spoken text)
+Size: ~160K sentence pairs
+Sentence Style: Conversational, natural
+Vocabulary: General, daily speech
+Best For: Chatbots, speech models
 
-Containing 123,100 unique english values and 165,975 unique french values.
-
-[dataset source](http://www.manythings.org/anki/)
 ### Tokenization
 In order to prepare the data for traning we need tokenization - convet words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
 So what do computer understand? the understand numbers in the core of computer it undrstand binary values ($`V_{low}`$ and $`V_{high}`$), but on higher levels it understand number and tensors (vectors, matrices, 3D matrices,...) and mathematical relation between them.
@@ -203,6 +196,7 @@ Layer normalization:   $`x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}`$<br/>
 Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 ⇨  $`y = γ·x' + β`$<br/>
 
+## Typical Run 
 
 ## References
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
