@@ -1,6 +1,21 @@
 TODO:
 * BLEU score
 
+* repo map:
+`
+SimpleTransformer Guide/
+│
+├── datasets/
+│   ├── __init__.py
+│   ├── iwslt14.py  # contains IWSLT14Dataset
+│
+├── models/
+│   ├── transformer.py  # Transformer model
+│
+├── train.py  # Training script
+└── evaluate.py  # Evaluation script
+`
+
 # SimpleTransformer Guide
 <img align="right" width="200"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
