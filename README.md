@@ -20,7 +20,7 @@ In this repository we will excute the task of *Machine Translation* french to en
 
 ```
        |            English words/sentences                |             French words/sentences                |
-       |---------------------------------------------------|---------------------------------------------------|
+-------|---------------------------------------------------|---------------------------------------------------|
 0      | Hi.                                               | Salut!                                            |
 1      | Run!                                              | Cours !                                           |
 2      | Run!                                              | Courez !                                          |
