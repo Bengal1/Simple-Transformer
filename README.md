@@ -153,7 +153,7 @@ TODO: masked attention
 
 
 ### Cross-Attention
-<img align="left" width="330"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
+<img align="right" width="330"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
 
 The difference between self attention and cross-attention...
 input and conditional input, can be the target output or maybe prompt words
@@ -174,8 +174,7 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*
 
 
 ### FeedForward
-
-<img align="right" width="350"  src="[https://github.com/user-attachments/assets/86b1234e-de87-4c88-bd53-e7c148769d2f](https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650)">
+<img align="right" width="350"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
 
 A Feedforward Neural Network (FNN) is a type of artificial neural network where connections between the nodes do not form cycles. The network consists of an input layer, one or more hidden layers, and an output layer. Information flows in one direction—from input to output—hence the name "feedforward."
 
