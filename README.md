@@ -3,9 +3,9 @@ TODO:
 
 * repo map:
 `
-SimpleTransformer Guide/<br/>
+SimpleTransformer Guide/
 │
-├── data/
+├── datasets/
 │   ├── __init__.py
 │   ├── iwslt14.py  # contains IWSLT14Dataset
 │
