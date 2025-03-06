@@ -174,7 +174,7 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*
 
 
 ### FeedForward
-<img align="right" width="350"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
+<img align="right" width="400"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
 
 A Feedforward Neural Network (FNN) is a type of artificial neural network where connections between the nodes do not form cycles. The network consists of an input layer, one or more hidden layers, and an output layer. Information flows in one direction—from input to output—hence the name "feedforward."
 
