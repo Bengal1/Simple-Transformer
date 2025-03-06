@@ -1,18 +1,13 @@
 import torch
 import torch.nn as nn
 import torchtext
-from torchtext.vocab import Vocab
+import pandas as pd
 from torchtext.data.utils import get_tokenizer
+from torch.utils.data import Dataset, DataLoader
 
+from torchtext.vocab import build_vocab_from_iterator
+from collections import Counter
 
-
-# def get_data():
-#     tokenizer_src = get_tokenizer("en")
-#     tokenizer_target = get_tokenizer("fr")
-#
-# class Embedding(nn.Module):
-#     def __init__(self):
-#         super(Embedding, self).__init__()
 
 
 class PositionalEncoding(nn.Module):
@@ -48,3 +43,30 @@ class PositionalEncoding(nn.Module):
 
         return x
 
+
+
+def prepare_tokenized_vocabulary(file):
+
+    df = pd.read_csv(file)
+
+    en_tokenizer = get_tokenizer('spacy', language='en')
+    fr_tokenizer = get_tokenizer('spacy', language='fr')
+
+    df['tokenized_en'] = df['english'].apply(en_tokenizer)
+    df['tokenized_fr'] = df['french'].apply(fr_tokenizer)
+
+    # Special tokens
+    special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
+
+    # Build vocabulary for source (English) and target (French)
+    en_vocab = torchtext.vocab.build_vocab_from_iterator(df['tokenized_en'], specials=special_tokens)
+    fr_vocab = torchtext.vocab.build_vocab_from_iterator(df['tokenized_fr'], specials=special_tokens)
+
+    # Set default token for unknown words
+    en_vocab.set_default_index(en_vocab['<unk>'])
+    fr_vocab.set_default_index(fr_vocab['<unk>'])
+
+    max_length = max(df['tokenized_en'].apply(len).max(),
+                     df['tokenized_fr'].apply(len).max()) + 2  # Adding 2 for <bos> and <eos>
+
+    return df['tokenized_en'], df['tokenized_fr'], max_length
