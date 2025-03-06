@@ -118,7 +118,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 <br/>
 When I mention 'attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
-#### Self-Attention
+### Self-Attention
 <img align="right" width="350"  src="https://github.com/user-attachments/assets/86b1234e-de87-4c88-bd53-e7c148769d2f">
 
 Self-Attention is the simplest way of attention. we use our input and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. this will tell us the affinity between vector(tokens/words). We can use it for various NLP tasks like text generation etc. 
@@ -144,7 +144,7 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 TODO: masked attention
 
 
-#### Cross-Attention
+### Cross-Attention
 <img align="right" width="330"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
 
 The difference between self attention and cross-attention...
