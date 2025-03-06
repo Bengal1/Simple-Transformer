@@ -8,12 +8,12 @@ This Repository is built for learning purposes, and its goal is to help people w
 ## Requirements
 * Python 3
 * [Pytorch](https://pytorch.org/get-started/locally/)
-* [Torchtext](https://pytorch.org/text/stable/index.html)
+* [Huggung Face](https://huggingface.co/)
 * [spaCy](https://spacy.io/)
 
 ## Data
 TODO: 
-* check if unique value number correct
+* Do dataset from the start
 * more detailes on sizes and staff  
 
 In this repository we will excute the task of *Machine Translation* french to english. therfore the raw data is a csv file of 2 columns one in english and the other one in french in each row there is a word or sentence in english and its translation in french.
