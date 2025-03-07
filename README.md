@@ -32,16 +32,15 @@ This Repository is built for learning purposes, and its goal is to help people w
 ## Data
   
 The IWSLT14 dataset is a multilingual parallel corpus created for machine translation tasks, specifically focusing on spoken language translation. It is part of the [*International Workshop on Spoken Language Translation (IWSLT)*](https://iwslt.org/) 2014 challenge. The dataset consists of TED Talks transcriptions and their translations, making it especially useful for training models that handle conversational and informal language.<br/>
-The IWSLT14 English-French (En-Fr) dataset is a part of the International Workshop on Spoken Language Translation (IWSLT). The IWSLT14 dataset is specifically designed for *Machine Translation* tasks and contains parallel sentences in English and French. The dataset consists of sentence pairs aligned between English and French. Each sentence pair is a translation from one language to the other.
+The IWSLT14 English-French (En-Fr) dataset is a part of the International Workshop on Spoken Language Translation (IWSLT). The IWSLT14 dataset is specifically designed for *Machine Translation* tasks and contains parallel sentences in English and French. The dataset consists of sentence pairs aligned between English and French. Each sentence pair is a translation from one language to the other.<br/>
+In this repository we load the dataset using Hugging Face's [*Dataset Library*](https://huggingface.co/datasets).
+
 Dataset size:
 * Training Set: Around 160,000 sentence pairs.
 * Validation Set: About 7,000 sentence pairs.
 * Test Set: Roughly 6,000 sentence pairs.
-
-This dataset consists of ~28K unique english tokens and  ~32K unique french tokens.
-
-In this repository the dataset is
-[dataset source: Hugging Face - IWSLT14](https://huggingface.co/datasets/ahazeemi/iwslt14-en-fr)
+ 
+This dataset consists of ~28K unique english tokens and  ~32K unique french tokens. <br/>
 
 ### Tokenization
 In order to prepare the data for traning we need tokenization - convet words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
