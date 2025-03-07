@@ -178,13 +178,11 @@ The Layers of the *FeedForward Network* consist of Dense layer, also called the 
 ### Positional Encodeing
 
 Positional encoding is a technique used in sequence-based models (such as transformers) to provide information about the positions or order of tokens in a sequence. Since transformers process entire sequences in parallel and lack an inherent mechanism for handling sequential order (unlike RNNs or LSTMs), positional encoding helps the model differentiate between tokens that appear in different positions within the sequence. Positional encodings are added to token embeddings, enabling the model to process both the semantic meaning and position of tokens in the sequence.<br/><br/>
-
-<div style="text-align: left;">
   
 $$
 PE(k, 2i) = \sin\left( \frac{k}{n^{2i/d}} \right) \quad \text{;} \quad PE(k, 2i+1) = \cos\left( \frac{k}{n^{2i/d}} \right)
 $$
-</div>
+
 <br/>
 
 `k` - Position of an object in the input sequence, $`0 \le k <M`$ (M=sequence length).<br/>
