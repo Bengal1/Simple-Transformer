@@ -37,8 +37,8 @@ Dataset size:
 * Training Set: Around 160,000 sentence pairs
 * Validation Set: About 7,000 sentence pairs
 * Test Set: Roughly 6,000 sentence pairs
+This dataset consists of ~28K unique english tokens and  ~32K unique french tokens.
 
-unique tokens: en - ~28K; fr - ~32K.
 In this repository the dataset is
 [dataset source: Hugging Face - IWSLT14](https://huggingface.co/datasets/ahazeemi/iwslt14-en-fr)
 
