@@ -175,8 +175,9 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*
 A [*FeedForward Neural Network (FNN)*](https://en.wikipedia.org/wiki/Feedforward_neural_network) is a type of artificial neural network where connections between the nodes do not form cycles. The network consists of an input layer, one or more hidden layers, and an output layer. Information flows in one direction—from input to output—hence the name "feedforward."<br/>
 The Layers of the *FeedForward Network* consist of Dense layer, also called the fully-connected layer, and is used for abstract representations of input data. In this layer, neurons connect to every neuron in the preceding layer. In [*Multilayer Perceptron*](https://en.wikipedia.org/wiki/Multilayer_perceptron) networks, these layers are stacked together. 
 
-$`y = f(Wx+b)`$
-
+```math
+y = f(Wx+b)
+```
 Where:
 * ***x*** is the input vector.
 * ***W*** is the weight matrix.
