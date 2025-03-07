@@ -34,9 +34,10 @@ This Repository is built for learning purposes, and its goal is to help people w
 The IWSLT14 dataset is a multilingual parallel corpus created for machine translation tasks, specifically focusing on spoken language translation. It is part of the [*International Workshop on Spoken Language Translation (IWSLT)*](https://iwslt.org/) 2014 challenge. The dataset consists of TED Talks transcriptions and their translations, making it especially useful for training models that handle conversational and informal language.<br/>
 The IWSLT14 English-French (En-Fr) dataset is a part of the International Workshop on Spoken Language Translation (IWSLT). The IWSLT14 dataset is specifically designed for *Machine Translation* tasks and contains parallel sentences in English and French. The dataset consists of sentence pairs aligned between English and French. Each sentence pair is a translation from one language to the other.
 Dataset size:
-* Training Set: Around 160,000 sentence pairs
-* Validation Set: About 7,000 sentence pairs
-* Test Set: Roughly 6,000 sentence pairs
+* Training Set: Around 160,000 sentence pairs.
+* Validation Set: About 7,000 sentence pairs.
+* Test Set: Roughly 6,000 sentence pairs.
+
 This dataset consists of ~28K unique english tokens and  ~32K unique french tokens.
 
 In this repository the dataset is
