@@ -184,6 +184,15 @@ Where:
 * ***b*** is the bias vector.
 * ***f*** is the activation function (e.g., ReLU, sigmoid, tanh).
 
+#### Activation Functions
+
+The activation function introduces non-linearity into the network, allowing it to learn complex patterns.<br/> 
+Common activation functions:
+
+* ReLU (Rectified Linear Unit): $`f(x) = max(0,x)`$.
+* Sigmoid: $`f(x) = {1 \over {1+e^{-x}}}`$.
+* Tanh: $`f(x)=tanh(x)`$.
+
 ### Positional Encodeing
 
 Positional encoding is a technique used in sequence-based models (such as transformers) to provide information about the positions or order of tokens in a sequence. Since transformers process entire sequences in parallel and lack an inherent mechanism for handling sequential order (unlike RNNs or LSTMs), positional encoding helps the model differentiate between tokens that appear in different positions within the sequence. Positional encodings are added to token embeddings, enabling the model to process both the semantic meaning and position of tokens in the sequence.<br/><br/>
