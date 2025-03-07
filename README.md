@@ -33,6 +33,8 @@ This Repository is built for learning purposes, and its goal is to help people w
 TODO: 
 * Do dataset from the start - IWSLT14
 * more detailes on sizes and staff
+The IWSLT14 dataset is a multilingual parallel corpus created for machine translation tasks, specifically focusing on spoken language translation. It is part of the International Workshop on Spoken Language Translation (IWSLT) 2014 challenge. The dataset consists of TED Talks transcriptions and their translations, making it especially useful for training models that handle conversational and informal language.<br/>
+The IWSLT14 English-French (En-Fr) dataset is a part of the International Workshop on Spoken Language Translation (IWSLT). The IWSLT14 dataset is specifically designed for *Machine Translation* tasks and contains parallel sentences in English and French.
 
 [dataset source: Hugging Face - IWSLT14](https://huggingface.co/datasets/ahazeemi/iwslt14-en-fr)
 train: 179435
