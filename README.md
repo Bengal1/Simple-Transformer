@@ -38,18 +38,9 @@ Dataset size:
 * Validation Set: About 7,000 sentence pairs
 * Test Set: Roughly 6,000 sentence pairs
 
-[dataset source: Hugging Face - IWSLT14](https://huggingface.co/datasets/ahazeemi/iwslt14-en-fr)
-train: 179435
-validation: 903
-test: 3666
-
 unique tokens: en - ~28K; fr - ~32K.
-
-Domain: TED Talks (spoken text)
-Size: ~160K sentence pairs
-Sentence Style: Conversational, natural
-Vocabulary: General, daily speech
-Best For: Chatbots, speech models
+In this repository the dataset is
+[dataset source: Hugging Face - IWSLT14](https://huggingface.co/datasets/ahazeemi/iwslt14-en-fr)
 
 ### Tokenization
 In order to prepare the data for traning we need tokenization - convet words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
