@@ -120,7 +120,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
 <br/>
 
-* When I mention 'attention' here I am speaking about 'Scaled Dot-Product Attention'.
+* When I mention 'Attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
 ### Self-Attention
 <img align="right" width="350"  src="https://github.com/user-attachments/assets/86b1234e-de87-4c88-bd53-e7c148769d2f">
