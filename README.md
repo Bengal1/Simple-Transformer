@@ -119,6 +119,7 @@ The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) me
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
 <br/>
+
 * When I mention 'attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
 ### Self-Attention
