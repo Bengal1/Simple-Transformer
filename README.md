@@ -184,7 +184,7 @@ Positional encoding is a technique used in sequence-based models (such as transf
 
 PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
 ```
-<br/><br/>
+<br/>
 `k` - Position of an object in the input sequence, $`0 \le k <M`$ (M=sequence length).<br/>
 `n` - User defined scalar. Set to 10,000 in the article "Attention Is All You Need".<br/>
 `d` - Dimension of the model (output or output embedding space).<br/>
