@@ -36,9 +36,9 @@ The IWSLT14 English-French (En-Fr) dataset is a part of the International Worksh
 In this repository we load the dataset using Hugging Face's [*Dataset Library*](https://huggingface.co/datasets).
 
 Dataset size:
-* Training Set: Around 160,000 sentence pairs.
-* Validation Set: About 7,000 sentence pairs.
-* Test Set: Roughly 6,000 sentence pairs.
+* Training Set: Around 179,000 sentence pairs.
+* Validation Set: About 903 sentence pairs.
+* Test Set: Roughly 3,670 sentence pairs.
  
 This dataset consists of ~28K unique english tokens and  ~32K unique french tokens. <br/>
 
