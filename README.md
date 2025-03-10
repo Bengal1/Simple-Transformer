@@ -143,6 +143,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 
 *Self-Attention* is the simplest way of attention. we use the input sequence and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. This will tell us the affinity between vectors(tokens/words). <br/>
 In *Cross-Attention*, Q comes from the decoder's input (e.g., previously generated tokens or a prompt), while K and V come from the encoder's output, allowing the decoder to focus on relevant information from the input sequence. This means self-attention captures dependencies within a sequence, while cross-attention links information between two different sequences.
+<br/>
 
 Feature          | Self-Attention                                            | Cross-Attention
 -----------------|-----------------------------------------------------------|------------------------------------------------------------------
@@ -153,11 +154,13 @@ Purpose          | Captures dependencies within the same sequence            | L
 Example          | Text summarization, sentiment analysis, language modeling | Machine translation, text-to-text generation, question answering
 
 
-Given an   $`Input:X∈ℝ^{M×E}`$, when `M=max_length` and `E=embedding_dimension`. 
+Given an   $`Input:X∈ℝ^{M×E}`$ and $` Conditional Input C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and is the conditional input sequence length. <br/>
 
-$`X·W_{q} = Q∈ℝ^{M×d_k}`$  -  *query matrix*<br/>
-$`X·W_{k} = K∈ℝ^{M×d_k}`$  -  *key matrix*<br/>
-$`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
+*Self-Attention:*                                                   *Cross-Attention:*
+$`X·W_{q} = Q∈ℝ^{M×d_k}`$                                                    $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
+$`X·W_{k} = K∈ℝ^{M×d_k}`$                                                    $`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
+$`X·W_{v} = V∈ℝ^{M×d_v}`$                                                    $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>
+
 
 $`d_{k}`$ - <br/>
 $`d_{v}`$ - <br/><br/>
