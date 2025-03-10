@@ -168,9 +168,9 @@ $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
-In case of: $`d_v \ne E`$ then we use the out matrix $`W_{out}∈ℝ^{d_v×E}`$ to set the output in the right size. This matrix is also weight matrix (has trained parameters) it can be used it to make the model more complex, and if not set $`d_v \ne E`$.<br/>
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
-$`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
+In case of: $`d_v \ne E`$ then we use the out matrix $`W_{out}∈ℝ^{d_v×E}`$ to set the output in the right size. This matrix is also weight matrix (has trained parameters) it can be used it to make the model more complex.<br/><br/>
+$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/><br/>
+$`⇨ Y = ΔX + X`$  (*Residual connection*)<br/>
 
 
 $`d_{k}`$ - <br/>
