@@ -122,9 +122,9 @@ X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
 $$
 
 Each token in the input sequence is represented using three vectors:
-Query (Q): Represents the current token (word) we are trying to attend to.
-Key (K): Represents all the tokens in the input sequence that we compare against the query.
-Value (V): Represents the actual content to be used in the output.
+Query (Q): Represents the word we are currently processing and is used to find relevant words in the input.
+Key (K): Represents all words in the input sequence and is used to compare with the query to determine relevance.
+Value (V): Holds the actual word representations, which are combined based on attention scores to form the final output.
 
 To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values, we scale the scores:  
 ```math
@@ -139,10 +139,19 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 <br/>
 
 
-### Self-Attention
+### Self-Attention vs. Cross-Attention
 <img align="right" width="350"  src="https://github.com/user-attachments/assets/86b1234e-de87-4c88-bd53-e7c148769d2f">
 
-Self-Attention is the simplest way of attention. we use our input and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. this will tell us the affinity between vector(tokens/words). We can use it for various NLP tasks like text generation etc. 
+*Self-Attention* is the simplest way of attention. we use the input sequence and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. This will tell us the affinity between vectors(tokens/words).
+In *Cross-Attention*, Q comes from the decoder's input (e.g., previously generated tokens or a prompt), while K and V come from the encoder's output, allowing the decoder to focus on relevant information from the input sequence. This means self-attention captures dependencies within a sequence, while cross-attention links information between two different sequences.
+
+Feature          | Self-Attention                                            | Cross-Attention
+-----------------|-----------------------------------------------------------|------------------------------------------------------------------
+Q (Query) Source |From the same sequence (input or decoder tokens)           | From the decoder’s conditional input (generated tokens or prompt)
+K (Key) Source   | From the same sequence                                    | From the encoder’s output (context representations)
+V (Value) Source | From the same sequence                                    | From the encoder’s output (context representations)
+Purpose          | Captures dependencies within the same sequence            | Links information between encoder and decoder
+Example          | Text summarization, sentiment analysis, language modeling | Machine translation, text-to-text generation, question answering
 
 Given an   $`Input:X∈ℝ^{M×E}`$, when `M=max_length` and `E=embedding_dimension`. 
 
