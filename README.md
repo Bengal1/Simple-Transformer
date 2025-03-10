@@ -30,22 +30,17 @@ This Repository is built for learning purposes, and its goal is to help people w
 * [spaCy](https://spacy.io/)
 
 ## Data
-TODO: 
-* Do dataset from the start - IWSLT14
-* more detailes on sizes and staff
+  
+The IWSLT14 dataset is a multilingual parallel corpus created for machine translation tasks, specifically focusing on spoken language translation. It is part of the [*International Workshop on Spoken Language Translation (IWSLT)*](https://iwslt.org/) 2014 challenge. The dataset consists of TED Talks transcriptions and their translations, making it especially useful for training models that handle conversational and informal language.<br/>
+The IWSLT14 English-French (En-Fr) dataset is a part of the International Workshop on Spoken Language Translation (IWSLT). The IWSLT14 dataset is specifically designed for *Machine Translation* tasks and contains parallel sentences in English and French. The dataset consists of sentence pairs aligned between English and French. Each sentence pair is a translation from one language to the other.<br/>
+In this repository we load the dataset using Hugging Face's [*Dataset Library*](https://huggingface.co/datasets).
 
-[dataset source: Hugging Face - IWSLT14](https://huggingface.co/datasets/ahazeemi/iwslt14-en-fr)
-train: 179435
-validation: 903
-test: 3666
-
-unique tokens: en - ~28K; fr - ~32K.
-
-Domain: TED Talks (spoken text)
-Size: ~160K sentence pairs
-Sentence Style: Conversational, natural
-Vocabulary: General, daily speech
-Best For: Chatbots, speech models
+Dataset size:
+* Training Set: Around 179,000 sentence pairs.
+* Validation Set: About 903 sentence pairs.
+* Test Set: Roughly 3,670 sentence pairs.
+ 
+This dataset consists of ~28K unique english tokens and  ~32K unique french tokens. [TODO: check unique values!]<br/>
 
 ### Tokenization
 In order to prepare the data for traning we need tokenization - convet words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
@@ -124,7 +119,8 @@ The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) me
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
 <br/>
-When I mention 'attention' here I am speaking about 'Scaled Dot-Product Attention'.
+
+* When I mention 'Attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
 ### Self-Attention
 <img align="right" width="350"  src="https://github.com/user-attachments/assets/86b1234e-de87-4c88-bd53-e7c148769d2f">
@@ -153,7 +149,7 @@ TODO: masked attention
 
 
 ### Cross-Attention
-<img align="right" width="330"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
+<img align="right" width="280"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
 
 The difference between self attention and cross-attention...
 input and conditional input, can be the target output or maybe prompt words
@@ -173,22 +169,43 @@ $`⇨ Y = ΔX + X`$ - *Residual connection*
 
 
 
-### FeedForward
+### FeedForward Network
+<img align="right" width="400"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
 
-![feedforward](https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650)
+A [*FeedForward Neural Network (FNN)*](https://en.wikipedia.org/wiki/Feedforward_neural_network) is a type of artificial neural network where connections between the nodes do not form cycles. The network consists of an input layer, one or more hidden layers, and an output layer. Information flows in one direction—from input to output—hence the name "feedforward."<br/>
+The Layers of the *FeedForward Network* consist of Dense layer, also called the fully-connected layer, and is used for abstract representations of input data. In this layer, neurons connect to every neuron in the preceding layer. In *Multilayer Perceptron* networks, these layers are stacked together.<br/>
+For a single layer, the output is calculated as:
 
+```math
+y = f(Wx+b)
+```
+Where:
+* ***x*** is the input vector.
+* ***W*** is the weight matrix.
+* ***b*** is the bias vector.
+* ***f*** is the activation function (e.g., ReLU, sigmoid, tanh).
 
+#### Activation Functions
+
+The activation function introduces non-linearity into the network, allowing it to learn complex patterns.<br/> 
+Common activation functions:
+
+* ReLU (Rectified Linear Unit): $`f(x) = max(0,x)`$.
+* Sigmoid: $`f(x) = {1 \over {1+e^{-x}}}`$.
+* Tanh: $`f(x)=tanh(x)`$.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Positional Encodeing
 
-Positional encoding ...
+Positional encoding is a technique used in sequence-based models (such as transformers) to provide information about the positions or order of tokens in a sequence. Since transformers process entire sequences in parallel and lack an inherent mechanism for handling sequential order (unlike RNNs or LSTMs), positional encoding helps the model differentiate between tokens that appear in different positions within the sequence. Positional encodings are added to token embeddings, enabling the model to process both the semantic meaning and position of tokens in the sequence.<br/><br/>
+  
+$$
+PE(k, 2i) = \sin\left( \frac{k}{n^{2i/d}} \right) \quad \text{;} \quad PE(k, 2i+1) = \cos\left( \frac{k}{n^{2i/d}} \right)
+$$
 
-```math
-\begin{cases}PE(k,2i) = sin \Bigg(\frac{k}{n^{2i/d}} \Bigg)\\\
+<br/>
 
-PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
-```
-<br/><br/>
 `k` - Position of an object in the input sequence, $`0 \le k <M`$ (M=sequence length).<br/>
 `n` - User defined scalar. Set to 10,000 in the article "Attention Is All You Need".<br/>
 `d` - Dimension of the model (output or output embedding space).<br/>
@@ -196,7 +213,7 @@ PE(k,2i+1) = cos \Bigg(\frac{k}{n^{2i/d}} \Bigg)\end{cases}
 `PE(k,j)` - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 <br/>
 **Example**:<br/>
-Lets us note sequence length as M (M objects/tokens).
+Lets us note sequence length as *M* (*M* objects/tokens).
 
 $`PE(k=0) = [sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
 $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
@@ -205,11 +222,15 @@ $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}
 .<br/>
 $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
 
+After calculating the positional encoding vectors, $`[p_1, p_2, p_3,..., p_M]`$, we adds them to the embedding vectors, $`[e_1, e_2, e_3,..., e_M]`$ :<br/> $`[e_1 + p_1, e_2 + p_2, e_3 + p_3,..., e_M + p_M]`$ 
+
 ### Normalizing
 
 Layer normalization:   $`x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}`$<br/>
 Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 ⇨  $`y = γ·x' + β`$<br/>
+
+#### Residual Connection
 
 ## Typical Run 
 
@@ -220,6 +241,13 @@ Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 
 
 ## Draft
+
+```math
+\begin{cases}
+PE(k, 2i) = \sin\left( \frac{k}{n^{2i/d}} \right) \\
+PE(k, 2i+1) = \cos\left( \frac{k}{n^{2i/d}} \right)
+\end{cases}
+```
 
 ```math 
 Attention(Q,(K,V)) = \sum_{i=1}^M \alpha(q,k_{i})v_{i}
