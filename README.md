@@ -118,7 +118,7 @@ The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (S
 In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$:
 
 ```math
-X·W_{Q} = Q  ;  X·W_{K} = K  ;  X·W_{V} = V
+X·W_{Q} = Q  &nbsp; ;  X·W_{K} = K  ;  X·W_{V} = V
 ```
 Each token in the input sequence is represented using three vectors:
 Query (Q): Represents the current token (word) we are trying to attend to.
