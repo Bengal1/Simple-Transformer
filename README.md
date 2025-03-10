@@ -125,7 +125,7 @@ Query (Q): Represents the current token (word) we are trying to attend to.
 Key (K): Represents all the tokens in the input sequence that we compare against the query.
 Value (V): Represents the actual content to be used in the output.
 
-To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*:  $`Q·K^{T}`$.
+To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values, we scale the scores:  $`\frac{Q·K^{T}}{\sqrt{d}}`$.
 
 and then execute the attention:
 
