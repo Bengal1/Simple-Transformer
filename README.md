@@ -174,7 +174,7 @@ $$
 → ΔX'·W_{out} = ΔX∈ℝ^{M×E}
 $$
 $$
-&emsp; ⇨ Y = ΔX + X &emsp; (Residual &nbsp; connection)
+&emsp;&emsp;&emsp; ⇨ Y = ΔX + X &ensp; (Residual &nbsp; connection)
 $$
 
 
