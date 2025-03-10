@@ -114,7 +114,7 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vect
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The transformer is Encoder-Decoder ... <br/>
 ### Attention
-The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
+The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
 In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$:
 
 ```math
@@ -130,14 +130,13 @@ To determine which words are most relevant to the current query, we compute a do
 \frac{Q·K^{T}}{\sqrt{d}}
 ```
 
-and then execute the attention we apply *Softmax* and multiply with *V* :
+To execute the attention we apply *Softmax* and multiply with *V* :
 
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
 <br/>
 
-* When I mention 'Attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
 ### Self-Attention
 <img align="right" width="350"  src="https://github.com/user-attachments/assets/86b1234e-de87-4c88-bd53-e7c148769d2f">
