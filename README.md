@@ -108,17 +108,24 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vect
 
 
 * Alternative method to embedding: *Token IDs* - token IDs id a simple method which every token gets a unique integer. This is a more simple approach that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
+
 ## Transformer
 <img align="right" width="330"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The transformer is Encoder-Decoder ... <br/>
 ### Attention
-The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. In this method the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, we use them to create $`Q, K, V`$:
+The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
+In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$:
 
 ```math
 X·W_{Q} = Q  ;  X·W_{K} = K  ;  X·W_{V} = V
 ```
+Each token in the input sequence is represented using three vectors:
+Query (Q): Represents the current token (word) we are trying to attend to.
+Key (K): Represents all the tokens in the input sequence that we compare against the query.
+Value (V): Represents the actual content to be used in the output.
 
+To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*:  $`Q·K^{T}`$.
 
 and then execute the attention:
 
