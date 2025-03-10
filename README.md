@@ -120,6 +120,7 @@ In this method we use the learnable (trainable) parameters are the weights: $`W_
 $$
 X·W_{Q} = Q  ;  X·W_{K} = K  ;  X·W_{V} = V
 $$
+
 Each token in the input sequence is represented using three vectors:
 Query (Q): Represents the current token (word) we are trying to attend to.
 Key (K): Represents all the tokens in the input sequence that we compare against the query.
