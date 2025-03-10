@@ -165,42 +165,23 @@ $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
 $`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
 $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>
 
-
-
-
-$`d_{k}`$ - <br/>
-$`d_{v}`$ - <br/><br/>
-
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
-
-In case of: $`d_v \ne E`$ then we define an out matrix $`W_{out}∈ℝ^{d_v×E}`$. This matrix is also weight matrix (has trained parameters) it can be used it to make the model more complex, and if not set $`d_v \ne E`$.<br/>
+In case of: $`d_v \ne E`$ then we use the out matrix $`W_{out}∈ℝ^{d_v×E}`$ to set the output in the right size. This matrix is also weight matrix (has trained parameters) it can be used it to make the model more complex, and if not set $`d_v \ne E`$.<br/>
 $`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
 $`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
 
 
-TODO: masked attention
+$`d_{k}`$ - <br/>
+$`d_{v}`$ - <br/><br/>
+*Residual connection* - is a shortcut path that adds the input of the attention layer directly to its output before passing it to the next layer. This helps preserve the original input information, aids in gradient flow, and prevents vanishing gradients. In Transformers, the residual connection is followed by layer normalization to stabilize training.
 
 
-### Cross-Attention
-<img align="right" width="280"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
 
-The difference between self attention and cross-attention...
-input and conditional input, can be the target output or maybe prompt words
+### Masked-Attention
 
-$`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×E}`$
-
-$`X·W_q = Q∈ℝ^{M×d_k}`$ - *query matrix*<br/>
-$`C·W_k = K∈ℝ^{L×d_k}`$ - *key matrix*<br/>
-$`C·W_v = V∈ℝ^{L×d_v}`$ - *value matrix*<br/>
-
-
-```math
- = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
-```
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
-$`⇨ Y = ΔX + X`$ - *Residual connection*
+### Multihead-Attention
 
 
 
