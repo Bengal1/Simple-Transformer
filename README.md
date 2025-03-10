@@ -173,7 +173,7 @@ In case of: $`d_v \ne E`$ then we use the out matrix $`W_{out}∈ℝ^{d_v×E}`$ 
 $$
 → ΔX'·W_{out} = ΔX∈ℝ^{M×E}
 
-⇨ Y = ΔX + X`$  (Residual connection)
+⇨ Y = ΔX + X  (Residual connection)
 $$
 
 
@@ -181,7 +181,7 @@ $$
 → ΔX'·W_{out} = ΔX∈ℝ^{M×E}
 ```
 ```math
-⇨ Y = ΔX + X`$  (Residual connection)
+⇨ Y = ΔX + X  (Residual connection)
 ```
 $`d_{k}`$  (Key dimension): The size of each key vector, which affects the scaling factor in the dot-product attention<br/>
 $`d_{v}`$  (Value dimension): The size of each value vector, determining the dimension of the weighted sum used as the attention output.<br/><br/>
