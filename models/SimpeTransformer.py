@@ -155,7 +155,8 @@ class MultiHeadAttention(nn.Module):
             mask = torch.triu(torch.ones(1, 1, max_length, max_length, dtype=torch.bool), diagonal=1)
             self.register_buffer("mask", mask)
 
-    def scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
+    def scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
+                                     mask: torch.Tensor = None) -> (torch.Tensor, torch.Tensor):
         """
         Computes the scaled dot-product attention.
 
@@ -226,21 +227,20 @@ class SimpleTransformer(nn.Module):
         self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim)
         self.positional_encoding_encoder = PositionalEncoding(max_length, embed_dim)
 
+        self.attention_encoder = MultiHeadAttention(max_length, embed_dim, num_heads)
+        self.norm1_enc = NormLayer(embed_dim)
+        self.ff_enc = FeedForward(embed_dim)
+        self.norm2_enc = NormLayer(embed_dim)
+
         # Decoder components
         self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim)
         self.positional_encoding_decoder = PositionalEncoding(max_length, embed_dim)
-
-        # Attention and FeedForward layers
-        self.attention_encoder = MultiHeadAttention(max_length, embed_dim, num_heads)
-        self.norm1_enc = NormLayer(embed_dim)
-        self.ff1 = FeedForward(embed_dim)
-        self.norm2_enc = NormLayer(embed_dim)
 
         self.attention_masked_dec = MultiHeadAttention(max_length, embed_dim, num_heads, masked_attn=True)
         self.norm1_dec = NormLayer(embed_dim)
         self.attention_cross_dec = MultiHeadAttention(max_length, embed_dim, num_heads, cross_attn=True)
         self.norm2_dec = NormLayer(embed_dim)
-        self.ff2 = FeedForward(embed_dim)
+        self.ff_dec = FeedForward(embed_dim)
         self.norm3_dec = NormLayer(embed_dim)
 
         # Output layer
@@ -258,6 +258,7 @@ class SimpleTransformer(nn.Module):
         Returns:
         - Tensor: Output tensor of shape (batch_size, trg_seq_len, trg_vocab_size).
         """
+
         # Embedding and positional encoding
         src_embed = self.embedding_encoder(src)
         src_embed = self.positional_encoding_encoder(src_embed)
@@ -268,4 +269,17 @@ class SimpleTransformer(nn.Module):
         # Encoder
         attn_enc = self.attention_encoder(src_embed)
         norm1_e_out = self.norm1_enc(attn_enc + src_embed)
-        ff1_out = self.ff1
+        ff_e_out = self.ff1(norm1_e_out)
+        self.norm2_enc(ff_e_out + norm1_e_out)
+
+        # Decoder
+        attn_masked_out = self.attention_masked_dec(trg_embed)
+        norm1_d_out = self.norm1_dec(trg_embed + attn_masked_out)
+        attn_cross_dec = self.attention_cross_dec(norm1_d_out)
+        norm2_d_out = self.norm2_dec(norm1_d_out + attn_cross_dec)
+        ff_d_out = self.ff_dec(norm2_d_out)
+        norm3_d_out = self.norm3_dec(norm2_d_out + ff_d_out)
+
+        # Output
+        out = self.w_o(norm3_d_out)
+        return self.softmax(out)

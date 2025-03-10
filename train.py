@@ -16,17 +16,18 @@ batch_size = 32          # Batch size
 epochs = 10              # Number of epochs
 learning_rate = 1e-4     # Learning rate
 
-# Set device (GPU if available)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Set device #
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using', device, '\n')
 
-# Initialize dataset and dataloaders
+# Data #
 dataset = IWSLT14Dataset()
 train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-# Initialize the model
+# Initialize the model #
 model = SimpleTransformer(embed_dim, max_length, trg_vocab_size, d_v, num_heads).to(device)
 
-# Loss function and optimizer
+# Loss & Optimization #
 criterion = torch.nn.CrossEntropyLoss(ignore_index=dataset.get_padding_index())  # Ignore padding token
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -72,7 +73,7 @@ def train():
     print(f"Epoch complete, Average Loss: {avg_loss:.4f}, Time: {elapsed_time:.2f} seconds")
     return avg_loss
 
-# Training loop over multiple epochs
+# Train #
 def train_model():
     best_loss = float('inf')
 
