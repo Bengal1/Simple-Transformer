@@ -172,7 +172,8 @@ In case of: $`d_v \ne E`$ then we use the out matrix $`W_{out}∈ℝ^{d_v×E}`$ 
 
 $$
 → ΔX'·W_{out} = ΔX∈ℝ^{M×E}
-
+$$
+$$
 ⇨ Y = ΔX + X  (Residual connection)
 $$
 
