@@ -130,7 +130,7 @@ To determine which words are most relevant to the current query, we compute a do
 \frac{Q·K^{T}}{\sqrt{d}}
 ```
 
-and then execute the attention:
+and then execute the attention we apply *Softmax* and multiply with *V* :
 
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
