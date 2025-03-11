@@ -178,6 +178,7 @@ $$
 $$
 
 <br/>
+
 $`d_{k}`$  (Key dimension): The size of each key vector, which affects the scaling factor in the dot-product attention<br/>
 $`d_{v}`$  (Value dimension): The size of each value vector, determining the dimension of the weighted sum used as the attention output.<br/>
 *Residual connection*: is a shortcut path that adds the input of the attention layer directly to its output before passing it to the next layer. This helps preserve the original input information, aids in gradient flow, and prevents vanishing gradients. In Transformers, the residual connection is followed by layer normalization to stabilize training.
