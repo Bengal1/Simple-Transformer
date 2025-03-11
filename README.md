@@ -146,7 +146,7 @@ Common activation functions:
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Positional Encoding
-<img align="right" width="400"  src="https://github.com/user-attachments/assets/388db75c-06dd-491e-8735-d67a55bc1575">
+<img align="right" width="500"  src="https://github.com/user-attachments/assets/388db75c-06dd-491e-8735-d67a55bc1575">
 
 Positional encoding is a technique used in sequence-based models (such as transformers) to provide information about the positions or order of tokens in a sequence. Since transformers process entire sequences in parallel and lack an inherent mechanism for handling sequential order (unlike RNNs or LSTMs), positional encoding helps the model differentiate between tokens that appear in different positions within the sequence. Positional encodings are added to token embeddings, enabling the model to process both the semantic meaning and position of tokens in the sequence.<br/><br/>
   
