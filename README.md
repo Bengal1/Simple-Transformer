@@ -203,7 +203,7 @@ Multi-head attention is an extension of the attention mechanism that allows the 
 head_i = Attention(QW_{Q_{i}},KW_{K_{i}},VW_{V_{i}})
 ```
 ```math
-Multi-Head Attention = Concat(head_1,...,head_h)·W_{out}
+MultiHead-Attention = Concat(head_1,...,head_h)·W_{out}
 ```
 
 ### FeedForward Network
