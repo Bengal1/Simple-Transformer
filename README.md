@@ -254,11 +254,16 @@ After calculating the positional encoding vectors, $`[p_1, p_2, p_3,..., p_M]`$,
 
 ### Normalization
 
-*Normalization Layer* is used to stabilize and accelerate training by normalizing the inputs to each layer.
-
-Layer normalization:   $`x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}`$<br/>
-
+*Normalization Layer* is used to stabilize and accelerate training by normalizing the inputs to each layer.<br/>
+For each input vector (for each token in a sequence), subtract the mean and divide by the standard deviation of the vector's values. This centers the data around 0 with unit variance:
+```math
+x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}
+```
+where *μ* is the mean and *σ* is the standard deviation of the input vector.<br/>
 Then apply scaling (gamma) and shifting (beta) parameters.<br/>
+
+*γ* (scale): A parameter to scale the normalized output.
+*β* (shift): A parameter to shift the normalized output.
 
 ⇨  $`y = γ·x' + β`$<br/>
 
