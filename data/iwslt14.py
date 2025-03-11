@@ -1,5 +1,6 @@
 import torch
 import spacy
+import json
 from datasets import load_dataset
 from torch.utils.data import Dataset
 
@@ -7,8 +8,9 @@ from torch.utils.data import Dataset
 class IWSLT14Dataset(Dataset):
     """Custom Dataset class for the IWSLT14 English-French translation dataset."""
 
-    def __init__(self):
+    def __init__(self, local_file=None):  # debug code!!!
         """Initializes the dataset by loading, tokenizing, and building vocabularies."""
+        self.local_file = local_file # debug code!!!
         self._load_tokenizers()
         self._load_dataset()
         self._build_vocabularies()
@@ -22,7 +24,17 @@ class IWSLT14Dataset(Dataset):
 
     def _load_dataset(self):
         """Loads the IWSLT14 dataset and tokenizes sentences."""
-        iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr")["train"]
+        # debug code!!!
+        """Loads the dataset (from local file if specified)."""
+        if self.local_file:
+            print(f"Loading local dataset from {self.local_file}...")
+            with open(self.local_file, "r", encoding="utf-8") as f:
+                iwslt_data = json.load(f)
+        else:
+            print("Loading full IWSLT14 dataset...")
+            iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr")["train"]
+        # debug code!!!
+        # iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr")["train"]
         self.tokenized_en = [self._tokenize_text(sentence, self.en_nlp) for sentence in iwslt_data["en"]]
         self.tokenized_fr = [self._tokenize_text(sentence, self.fr_nlp) for sentence in iwslt_data["fr"]]
 
@@ -104,6 +116,10 @@ class IWSLT14Dataset(Dataset):
     def get_unknown_index(self) -> int:
         """Returns the unknown token index."""
         return self.unk_idx
+
+    def get_vocab_sizes(self):
+        """Returns the sizes of the English and French vocabularies."""
+        return len(self.en_vocab), len(self.fr_vocab)
 
     def get_max_length(self) -> int:
         """Returns the maximum sentence length, considering <bos> and <eos>."""
