@@ -106,10 +106,10 @@ $$
 X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
 $$
 
-Each token in the input sequence is represented using three vectors:
-Query (Q): Represents the word we are currently processing and is used to find relevant words in the input.
-Key (K): Represents all words in the input sequence and is used to compare with the query to determine relevance.
-Value (V): Holds the actual word representations, which are combined based on attention scores to form the final output.
+Each token in the input sequence is represented using three matrices: <br/>
+Query (Q): Represents the word we are currently processing and is used to find relevant words in the input. <br/>
+Key (K): Represents all words in the input sequence and is used to compare with the query to determine relevance. <br/>
+Value (V): Holds the actual word representations, which are combined based on attention scores to form the final output. <br/>
 
 To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values, we scale the scores:  
 ```math
