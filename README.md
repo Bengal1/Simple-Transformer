@@ -146,7 +146,7 @@ Given an   $`Input:X∈ℝ^{M×E}`$ and $` Conditional Input C∈ℝ^{L×E}`$, w
 $`X·W_{q} = Q∈ℝ^{M×d_k}`$ <br/>
 $`X·W_{k} = K∈ℝ^{M×d_k}`$ <br/>
 $`X·W_{v} = V∈ℝ^{M×d_v}`$ <br/>  
-*Cross-Attention:*
+*Cross-Attention:* <br/>
 $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
 $`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
 $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>
