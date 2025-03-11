@@ -189,7 +189,9 @@ $`d_{v}`$  (Value dimension): The size of each value vector, determining the dim
 
 Masked attention is a variant of self-attention where certain positions in the attention matrix are masked (set to -∞ before softmax, Since $`e^{−∞}=0`$, so softmax turns the masked positions into zero attention) to prevent the model from attending to specific tokens. In Transformer decoders, causal masking is used to ensure that a token can only attend to previous tokens (not future ones), enabling auto-regressive generation.
 
-
+```math
+Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} + Mask \Bigg)·V
+```
 
 ### Multihead-Attention
 
