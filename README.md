@@ -1,5 +1,7 @@
 TODO:
 * BLEU score
+* Teacher forcing
+* token IDs
 
 # SimpleTransformer Guide
 
