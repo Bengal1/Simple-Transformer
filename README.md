@@ -252,13 +252,16 @@ $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\fra
 
 After calculating the positional encoding vectors, $`[p_1, p_2, p_3,..., p_M]`$, we add them to the embedding vectors, $`[e_1, e_2, e_3,..., e_M]`$ :<br/> $`[e_1 + p_1, e_2 + p_2, e_3 + p_3,..., e_M + p_M]`$ 
 
-### Normalizing
+### Normalization
+
+*Normalization Layer* is used to stabilize and accelerate training by normalizing the inputs to each layer.
 
 Layer normalization:   $`x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}`$<br/>
+
 Then apply scaling (gamma) and shifting (beta) parameters.<br/>
+
 ⇨  $`y = γ·x' + β`$<br/>
 
-#### Residual Connection
 
 ## Typical Run 
 
