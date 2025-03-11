@@ -1,21 +1,6 @@
 TODO:
 * BLEU score
 
-* repo map:
-`
-SimpleTransformer Guide/
-│
-├── datasets/
-│   ├── __init__.py
-│   ├── iwslt14.py  # contains IWSLT14Dataset
-│
-├── models/
-│   ├── transformer.py  # Transformer model
-│
-├── train.py  # Training script
-└── evaluate.py  # Evaluation script
-`
-
 # SimpleTransformer Guide
 <img align="right" width="200"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
@@ -108,66 +93,110 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vect
 
 
 * Alternative method to embedding: *Token IDs* - token IDs id a simple method which every token gets a unique integer. This is a more simple approach that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
+
 ## Transformer
 <img align="right" width="330"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The transformer is Encoder-Decoder ... <br/>
 ### Attention
-The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. In this method the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, we use them to create $`Q, K, V`$ and then execute the attention:
+The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
+In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$:
+
+$$
+X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
+$$
+
+Each token in the input sequence is represented using three vectors:
+Query (Q): Represents the word we are currently processing and is used to find relevant words in the input.
+Key (K): Represents all words in the input sequence and is used to compare with the query to determine relevance.
+Value (V): Holds the actual word representations, which are combined based on attention scores to form the final output.
+
+To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values, we scale the scores:  
+```math
+\frac{Q·K^{T}}{\sqrt{d}}
+```
+
+To execute the attention we apply *Softmax* and multiply with *V* :
 
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 ```
 <br/>
 
-* When I mention 'Attention' here I am speaking about 'Scaled Dot-Product Attention'.
 
-### Self-Attention
-<img align="right" width="350"  src="https://github.com/user-attachments/assets/86b1234e-de87-4c88-bd53-e7c148769d2f">
+### Self-Attention vs. Cross-Attention
 
-Self-Attention is the simplest way of attention. we use our input and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. this will tell us the affinity between vector(tokens/words). We can use it for various NLP tasks like text generation etc. 
+*Self-Attention* is the simplest way of attention. we use the input sequence and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. This will tell us the affinity between vectors(tokens/words). <br/>
+In *Cross-Attention*, Q comes from the decoder's input (e.g., previously generated tokens or a prompt), while K and V come from the encoder's output, allowing the decoder to focus on relevant information from the input sequence. This means self-attention captures dependencies within a sequence, while cross-attention links information between two different sequences.
+<br/>
 
-Given an   $`Input:X∈ℝ^{M×E}`$, when `M=max_length` and `E=embedding_dimension`. 
+Feature          | Self-Attention                                            | Cross-Attention
+-----------------|-----------------------------------------------------------|------------------------------------------------------------------
+Q (Query) Source | From the same sequence (input or decoder tokens)          | From the decoder’s conditional input (generated tokens or prompt)
+K (Key) Source   | From the same sequence                                    | From the encoder’s output (context representations)
+V (Value) Source | From the same sequence                                    | From the encoder’s output (context representations)
+Purpose          | Captures dependencies within the same sequence            | Links information between encoder and decoder
+Example          | Text summarization, sentiment analysis, language modeling | Machine translation, text-to-text generation, question answering
 
-$`X·W_{q} = Q∈ℝ^{M×d_k}`$  -  *query matrix*<br/>
-$`X·W_{k} = K∈ℝ^{M×d_k}`$  -  *key matrix*<br/>
-$`X·W_{v} = V∈ℝ^{M×d_v}`$  -  *value matrix*<br/>
 
-$`d_{k}`$ - <br/>
-$`d_{v}`$ - <br/><br/>
+Given an   $`Input:X∈ℝ^{M×E}`$ and $` Conditional Input C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and is the conditional input sequence length. <br/>
+
+*Self-Attention:* <br/>
+$`X·W_{q} = Q∈ℝ^{M×d_k}`$ <br/>
+$`X·W_{k} = K∈ℝ^{M×d_k}`$ <br/>
+$`X·W_{v} = V∈ℝ^{M×d_v}`$ <br/>  
+*Cross-Attention:*
+$`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
+$`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
+$`C·W_v = V∈ℝ^{L×d_v}`$ <br/>
 
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
+<br/>
 
-In case of: $`d_v \ne E`$ then we define an out matrix $`W_{out}∈ℝ^{d_v×E}`$. This matrix is also weight matrix (has trained parameters) it can be used it to make the model more complex, and if not set $`d_v \ne E`$.<br/>
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
-$`⇨ Y = ΔX + X`$ - *Residual connection*<br/>
+In case of: $`d_v \ne E`$ then we use the out matrix $`W_{out}∈ℝ^{d_v×E}`$ to set the output in the right size. This matrix is also a weight matrix (has trainable parameters) it is also used to make the model more complex.<br/><br/>
+
+$$
+→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}
+$$
+$$
+&emsp;&emsp;&emsp;&ensp; ⇨ Y = ΔX + X &ensp; (Residual - Connection)
+$$
+
+<br/>
+
+$`d_{k}`$  (Key dimension): The size of each key vector, which affects the scaling factor in the dot-product attention<br/>
+$`d_{v}`$  (Value dimension): The size of each value vector, determining the dimension of the weighted sum used as the attention output.<br/>
+*Residual connection*: is a shortcut path that adds the input of the attention layer directly to its output before passing it to the next layer. This helps preserve the original input information, aids in gradient flow, and prevents vanishing gradients. In Transformers, the residual connection is followed by layer normalization to stabilize training.
 
 
-TODO: masked attention
+### Masked-Attention
+<img align="right" width="380" src="https://github.com/user-attachments/assets/b5d33ce5-2e29-4cb3-8da3-e572e716e447">
 
-
-### Cross-Attention
-<img align="right" width="280"  src="https://github.com/user-attachments/assets/9f7bdae9-f051-42ae-973e-5dd9144fee09">
-
-The difference between self attention and cross-attention...
-input and conditional input, can be the target output or maybe prompt words
-
-$`Input:  X∈ℝ^{M×N} ,  C∈ℝ^{L×E}`$
-
-$`X·W_q = Q∈ℝ^{M×d_k}`$ - *query matrix*<br/>
-$`C·W_k = K∈ℝ^{L×d_k}`$ - *key matrix*<br/>
-$`C·W_v = V∈ℝ^{L×d_v}`$ - *value matrix*<br/>
-
+Masked attention is a variant of self-attention where certain positions in the attention matrix are masked (set to -∞ before softmax, Since $`e^{−∞}=0`$, so softmax turns the masked positions into zero attention) to prevent the model from attending to specific tokens. In Transformer decoders, causal masking is used to ensure that a token can only attend to previous tokens (not future ones), enabling auto-regressive generation.
+<br/><br/>
 
 ```math
- = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
+Masked-Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} + Mask \Bigg)·V
 ```
-$`→ ΔX'·W_{out} = ΔX∈ℝ^{M×E}`$<br/>
-$`⇨ Y = ΔX + X`$ - *Residual connection*
+<br/>
 
+### Multihead-Attention
 
+Multi-head attention is an extension of the attention mechanism that allows the model to focus on different parts of the input sequence simultaneously, using multiple attention heads. Each head computes attention independently, and the results are combined to form a more comprehensive representation.
+
+```math
+head_i = Attention(QW_{Q_{i}},KW_{K_{i}},VW_{V_{i}})
+```
+```math
+MultiHead-Attention = Concat(head_1,...,head_h)·W_{out}
+```
+<br/>
+
+Where $`W_{Q_{i}}, W_{K_{i}}, W_{V_{i}}`$ and $`W_{out}`$ are learnable weight matrices.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### FeedForward Network
 <img align="right" width="400"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
@@ -224,13 +253,25 @@ $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\fra
 
 After calculating the positional encoding vectors, $`[p_1, p_2, p_3,..., p_M]`$, we add them to the embedding vectors, $`[e_1, e_2, e_3,..., e_M]`$ :<br/> $`[e_1 + p_1, e_2 + p_2, e_3 + p_3,..., e_M + p_M]`$ 
 
-### Normalizing
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Layer normalization:   $`x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}`$<br/>
-Then apply scaling (gamma) and shifting (beta) parameters.<br/>
-⇨  $`y = γ·x' + β`$<br/>
+### Normalization
 
-#### Residual Connection
+*Normalization Layer* is used to stabilize and accelerate training by normalizing the inputs to each layer.<br/>
+For each input vector (for each token in a sequence), subtract the mean and divide by the standard deviation of the vector's values. This centers the data around 0 with unit variance:
+```math
+x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}
+```
+where *μ* is the mean and *σ* is the standard deviation of the input vector.<br/><br/>
+Then apply scaling (gamma) and shifting (beta) parameters (trainable):
+
+* *γ* (scale): A parameter to scale the normalized output.<br/>
+* *β* (shift): A parameter to shift the normalized output.<br/>
+
+```math
+⇨  y = γ·x' + β
+```
+
 
 ## Typical Run 
 
@@ -238,17 +279,3 @@ Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
 [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
-
-
-## Draft
-
-```math
-\begin{cases}
-PE(k, 2i) = \sin\left( \frac{k}{n^{2i/d}} \right) \\
-PE(k, 2i+1) = \cos\left( \frac{k}{n^{2i/d}} \right)
-\end{cases}
-```
-
-```math 
-Attention(Q,(K,V)) = \sum_{i=1}^M \alpha(q,k_{i})v_{i}
-```
