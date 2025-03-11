@@ -115,7 +115,7 @@ To determine which words are most relevant to the current query, we compute a do
 ```math
 \frac{Q·K^{T}}{\sqrt{d}}
 ```
-
+<br/>
 To execute the attention we apply *Softmax* and multiply with *V* :
 
 ```math
