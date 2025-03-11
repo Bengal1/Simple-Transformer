@@ -212,7 +212,7 @@ Where:
 * ***x*** is the input vector.
 * ***W*** is the weight matrix.
 * ***b*** is the bias vector.
-* ***f*** is the activation function (e.g., ReLU, sigmoid, tanh).
+* ***f*** is the activation function.
 
 #### Activation Functions
 
