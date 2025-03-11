@@ -60,7 +60,7 @@ Purpose          | Captures dependencies within the same sequence            | L
 Example          | Text summarization, sentiment analysis, language modeling | Machine translation, text-to-text generation, question answering
 
 
-Given an ***Input***: $`X∈ℝ^{M×E}`$ and a ***Conditional Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and `L` is the conditional input sequence length, then: <br/>
+Given an ***Input***: $`X∈ℝ^{M×E}`$ and a ***Conditional Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and `L` is the conditional input sequence length. We compute the matrices of the attention: Q,K and V: <br/>
 
 
 ***Self-Attention:*** &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ***Cross-Attention:*** <br/>
@@ -77,6 +77,8 @@ $`X·W_{v} = V∈ℝ^{M×d_v}`$ <br/>
 $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
 $`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
 $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>
+
+After computing the attention components, the rest of the process converges and is carried out in the same manner:
 
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
