@@ -67,7 +67,7 @@ Purpose          | Captures dependencies within the same sequence            | L
 Example          | Text summarization, sentiment analysis, language modeling | Machine translation, text-to-text generation, question answering
 
 
-Given an ***Input***: $`X∈ℝ^{M×E}`$ and ***Conditional-Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and `L` is the conditional input sequence length. <br/>
+Given an ***Input***: $`X∈ℝ^{M×E}`$ and ***Conditional Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and `L` is the conditional input sequence length. <br/>
 
 *Self-Attention:* <br/>
 $`X·W_{q} = Q∈ℝ^{M×d_k}`$ <br/>
