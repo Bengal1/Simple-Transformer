@@ -205,6 +205,7 @@ head_i = Attention(QW_{Q_{i}},KW_{K_{i}},VW_{V_{i}})
 ```math
 MultiHead-Attention = Concat(head_1,...,head_h)·W_{out}
 ```
+<br/>
 Where $`W_{Q_{i}}, W_{K_{i}}, W_{V_{i}}`$ and $`W_{out}`$ are learnable weight matrices.
 
 
