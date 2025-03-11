@@ -262,10 +262,11 @@ x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}
 where *μ* is the mean and *σ* is the standard deviation of the input vector.<br/>
 Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 
-*γ* (scale): A parameter to scale the normalized output.
-*β* (shift): A parameter to shift the normalized output.
-
-⇨  $`y = γ·x' + β`$<br/>
+*γ* (scale): A parameter to scale the normalized output.<br/>
+*β* (shift): A parameter to shift the normalized output.<br/>
+```math
+⇨  y = γ·x' + β
+```
 
 
 ## Typical Run 
