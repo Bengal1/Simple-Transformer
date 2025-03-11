@@ -1,21 +1,6 @@
 TODO:
 * BLEU score
 
-* repo map:
-`
-SimpleTransformer Guide/
-│
-├── datasets/
-│   ├── __init__.py
-│   ├── iwslt14.py  # contains IWSLT14Dataset
-│
-├── models/
-│   ├── transformer.py  # Transformer model
-│
-├── train.py  # Training script
-└── evaluate.py  # Evaluation script
-`
-
 # SimpleTransformer Guide
 <img align="right" width="200"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
@@ -281,17 +266,3 @@ Then apply scaling (gamma) and shifting (beta) parameters.<br/>
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
 [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
-
-
-## Draft
-
-```math
-\begin{cases}
-PE(k, 2i) = \sin\left( \frac{k}{n^{2i/d}} \right) \\
-PE(k, 2i+1) = \cos\left( \frac{k}{n^{2i/d}} \right)
-\end{cases}
-```
-
-```math 
-Attention(Q,(K,V)) = \sum_{i=1}^M \alpha(q,k_{i})v_{i}
-```
