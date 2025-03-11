@@ -14,6 +14,12 @@ This Repository is built for learning purposes, and its goal is to help people w
 * [spaCy](https://spacy.io/)
 
 
+
+***Self-Attention:*** &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ***Cross-Attention:*** <br/>
+&emsp;$`X·W_{q} = Q∈ℝ^{M×d_k}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
+&emsp;$`X·W_{k} = K∈ℝ^{M×d_k}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
+&emsp;$`X·W_{v} = V∈ℝ^{M×d_v}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>  
+
 ## Transformer
 <img align="right" width="400"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
@@ -61,13 +67,6 @@ Example          | Text summarization, sentiment analysis, language modeling | M
 
 
 Given an ***Input***: $`X∈ℝ^{M×E}`$ and a ***Conditional Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and `L` is the conditional input sequence length. We compute the matrices of the attention: *Q*, *K* and *V*: <br/>
-
-
-***Self-Attention:*** &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ***Cross-Attention:*** <br/>
-&emsp;$`X·W_{q} = Q∈ℝ^{M×d_k}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
-&emsp;$`X·W_{k} = K∈ℝ^{M×d_k}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
-&emsp;$`X·W_{v} = V∈ℝ^{M×d_v}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>  
-
 
 *Self-Attention:* <br/>
 $`X·W_{q} = Q∈ℝ^{M×d_k}`$ <br/>
