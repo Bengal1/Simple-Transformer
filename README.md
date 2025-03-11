@@ -193,7 +193,7 @@ Masked attention is a variant of self-attention where certain positions in the a
 <br/>
 
 ```math
-Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} + Mask \Bigg)·V
+Masked-Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} + Mask \Bigg)·V
 ```
 <br/>
 
