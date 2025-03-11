@@ -22,6 +22,7 @@ The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (S
 In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$:
 
 Given: $`W_{Q}∈ℝ^{E×d_k}`$  ;  $`W_{K}∈ℝ^{E×d_k}`$  ;  $`W_{V}∈ℝ^{E×d_v}`$:
+
 $$
 X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
 $$
