@@ -25,11 +25,11 @@ dataset = IWSLT14Dataset()
 train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 # Initialize the model #
-model = SimpleTransformer(embed_dim, max_length, trg_vocab_size, d_v, num_heads).to(device)
+st_model = SimpleTransformer(embed_dim, max_length, trg_vocab_size, d_v, num_heads).to(device)
 
 # Loss & Optimization #
 criterion = torch.nn.CrossEntropyLoss(ignore_index=dataset.get_padding_index())  # Ignore padding token
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = optim.Adam(st_model.parameters(), lr=learning_rate)
 
 # Function to save the model checkpoint
 def save_model(epoch, model, optimizer, loss, path="model_checkpoint.pth"):
@@ -44,7 +44,7 @@ def save_model(epoch, model, optimizer, loss, path="model_checkpoint.pth"):
 
 # Training loop
 def train():
-    model.train()
+    st_model.train()
     total_loss = 0
     start_time = time.time()
 
@@ -54,7 +54,7 @@ def train():
 
         # Forward pass
         optimizer.zero_grad()
-        output = model(src, trg[:, :-1])  # Remove the last token from target (teacher forcing)
+        output = st_model(src, trg[:, :-1])  # Remove the last token from target (teacher forcing)
 
         # Compute loss
         loss = criterion(output.view(-1, trg_vocab_size), trg[:, 1:].reshape(-1))  # Shift target by 1
@@ -84,7 +84,7 @@ def train_model():
         # Save the model if the loss is the best so far
         if avg_loss < best_loss:
             best_loss = avg_loss
-            save_model(epoch, model, optimizer, avg_loss)
+            save_model(epoch, st_model, optimizer, avg_loss)
 
 if __name__ == "__main__":
     train_model()
