@@ -259,8 +259,8 @@ For each input vector (for each token in a sequence), subtract the mean and divi
 ```math
 x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}
 ```
-where *μ* is the mean and *σ* is the standard deviation of the input vector.<br/>
-Then apply scaling (gamma) and shifting (beta) parameters.<br/>
+where *μ* is the mean and *σ* is the standard deviation of the input vector.<br/><br/>
+Then apply scaling (gamma) and shifting (beta) parameters (trainable).<br/>
 
 *γ* (scale): A parameter to scale the normalized output.<br/>
 *β* (shift): A parameter to shift the normalized output.<br/>
