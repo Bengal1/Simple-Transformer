@@ -66,7 +66,7 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 
 #### Intuitive understanding of Embedding
 
-<img align="right" width="550"  src="https://github.com/user-attachments/assets/edf0a13e-fa50-4dbd-a040-940fcf3c0d76">
+<img align="right" width="500"  src="https://github.com/user-attachments/assets/edf0a13e-fa50-4dbd-a040-940fcf3c0d76">
 
 This explanation is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
 Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would expect, for good embedding, the next mathematical semantic connection:
@@ -95,7 +95,7 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vect
 * Alternative method to embedding: *Token IDs* - token IDs id a simple method which every token gets a unique integer. This is a more simple approach that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
 
 ## Transformer
-<img align="right" width="330"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
+<img align="right" width="400"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The transformer is Encoder-Decoder ... <br/>
 ### Attention
