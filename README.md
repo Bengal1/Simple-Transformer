@@ -272,9 +272,6 @@ According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Joh
 For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vectors/directions/semantics and that is a lot of semantics!
 
 
-* Alternative method to embedding: *Token IDs* - token IDs id a simple method which every token gets a unique integer. This is a more simple approach that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
-
-
 ## Typical Run 
 
 ## References
