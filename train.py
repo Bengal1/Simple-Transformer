@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 from models.SimpeTransformer import SimpleTransformer
 from data.iwslt14 import IWSLT14Dataset
 import time
-import os
+
 
 # Hyperparameters
 embed_dim = 512          # Embedding dimension
