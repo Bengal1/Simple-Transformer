@@ -168,6 +168,8 @@ $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V = ΔX'∈ℝ^{M×d_v}
 ```
+<br/>
+
 In case of: $`d_v \ne E`$ then we use the out matrix $`W_{out}∈ℝ^{d_v×E}`$ to set the output in the right size. This matrix is also a weight matrix (has trainable parameters) it is also used to make the model more complex.<br/><br/>
 
 $$
