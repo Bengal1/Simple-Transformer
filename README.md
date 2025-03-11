@@ -196,6 +196,7 @@ MultiHead-Attention = Concat(head_1,...,head_h)·W_{out}
 
 Where $`W_{Q_{i}}, W_{K_{i}}, W_{V_{i}}`$ and $`W_{out}`$ are learnable weight matrices.
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### FeedForward Network
 <img align="right" width="400"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
@@ -251,6 +252,8 @@ $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}
 $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
 
 After calculating the positional encoding vectors, $`[p_1, p_2, p_3,..., p_M]`$, we add them to the embedding vectors, $`[e_1, e_2, e_3,..., e_M]`$ :<br/> $`[e_1 + p_1, e_2 + p_2, e_3 + p_3,..., e_M + p_M]`$ 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Normalization
 
