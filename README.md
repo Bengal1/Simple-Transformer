@@ -14,6 +14,13 @@ This Repository is built for learning purposes, and its goal is to help people w
 * [spaCy](https://spacy.io/)
 
 
+*Self-Attention:* &emsp; *Cross-Attention:* <br/>
+$`X·W_{q} = Q∈ℝ^{M×d_k}`$ &emsp; $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
+$`X·W_{k} = K∈ℝ^{M×d_k}`$ &emsp; $`C·W_k = K∈ℝ^{L×d_k}`$ <br/>
+$`X·W_{v} = V∈ℝ^{M×d_v}`$ &emsp; $`C·W_v = V∈ℝ^{L×d_v}`$ <br/>  
+
+
+
 ## Transformer
 <img align="right" width="400"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
 
