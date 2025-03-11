@@ -185,9 +185,10 @@ $`d_{v}`$  (Value dimension): The size of each value vector, determining the dim
 
 
 ### Masked-Attention
+Masked attention is a variant of self-attention where certain positions in the attention matrix are masked (set to -∞ before softmax) to prevent the model from attending to specific tokens. In Transformer decoders, causal masking is used to ensure that a token can only attend to previous tokens (not future ones), enabling auto-regressive generation.
+
 
 ### Multihead-Attention
-
 
 
 ### FeedForward Network
