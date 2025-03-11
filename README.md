@@ -14,85 +14,6 @@ This Repository is built for learning purposes, and its goal is to help people w
 * [Hugging Face](https://huggingface.co/)
 * [spaCy](https://spacy.io/)
 
-## Data
-  
-The IWSLT14 dataset is a multilingual parallel corpus created for machine translation tasks, specifically focusing on spoken language translation. It is part of the [*International Workshop on Spoken Language Translation (IWSLT)*](https://iwslt.org/) 2014 challenge. The dataset consists of TED Talks transcriptions and their translations, making it especially useful for training models that handle conversational and informal language.<br/>
-The IWSLT14 English-French (En-Fr) dataset is a part of the International Workshop on Spoken Language Translation (IWSLT). The IWSLT14 dataset is specifically designed for *Machine Translation* tasks and contains parallel sentences in English and French. The dataset consists of sentence pairs aligned between English and French. Each sentence pair is a translation from one language to the other.<br/>
-In this repository we load the dataset using Hugging Face's [*Dataset Library*](https://huggingface.co/datasets).
-
-Dataset size:
-* Training Set: Around 179,000 sentence pairs.
-* Validation Set: About 903 sentence pairs.
-* Test Set: Roughly 3,670 sentence pairs.
- 
-This dataset consists of ~28K unique english tokens and  ~32K unique french tokens. [TODO: check unique values!]<br/>
-
-### Tokenization
-In order to prepare the data for training we need tokenization - convert words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
-So what do computer understand? they understand numbers. in the core of computer it understands binary values ($`V_{low}`$ and $`V_{high}`$), but on higher levels it understand number and tensors (vectors, matrices, 3D matrices,...) and mathematical relation between them.
-In order to provide the computer workable data we decompose the sentence into tokens and covert every token to a dense vector (process called *Embedding*).
-
-```ruby
-sentence = "This Simple Transformer Guide!"
-⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
-```
-Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences (input sequence) `max_length`, and then we pad sentence that are shorter (This is the method in use here).
-* *Alternative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 5% will be truncated according to size (the percentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
-
-In order to give the model contextual sign and mange the data better, we use special tokens
-```
-special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
-
-<unk> - unknown words.
-<pad> - use for padding.
-<bos> - beginning of sentence.
-<eos> - end of sentence.
-
-We sets <unk> as the default. 
-```
-After sentence tokenization, we put before the sentence the beginning of sentence token, `<bos>`, and after it the end of sentence token, `<eos>`, and pad with padding token, `<pad>`, the remainder of the sentence up to `max_length`.<br/>
-The unknown word token ,`<unk>`, use for words that are not in the vocabulary and dealing with failures, and for that reason we sets `<unk>` as the default. 
-```ruby
-sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
-⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
-```
-
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-### Embedding
-
-Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. 
-In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`, for more information on [*Real Vector Space*](https://en.wikipedia.org/wiki/Real_coordinate_space)) and we get for every sequence a matrix of size $`ℝ^{M×E}`$.
-
-#### Intuitive understanding of Embedding
-
-<img align="right" width="500"  src="https://github.com/user-attachments/assets/edf0a13e-fa50-4dbd-a040-940fcf3c0d76">
-
-This explanation is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would expect, for good embedding, the next mathematical semantic connection:
-```math
-e_{king} - e_{queen} = e_{man} - e_{woman}
-```
-
-And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is a direction of gender, the more manly attributes the token has the further the vector will go in that direction and the same for womanly attributes in the opposite direction. 
-We can also look at this mathematical semantic connection: 
-```math
-e_{king} - e_{man} = e_{queen} - e_{woman}
-```
-We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen, meaning a royal direction.<br/>
-And also it expected to get from the king vector to the queen vector we will do: 
-&emsp;&emsp;&emsp;&emsp; $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
-<br/>
-#### How Can $`ℝ^{E}`$ Holds Language Semantics?
-
-In Reality that is not what exactly happening. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, so that an object in this space when getting shifted in the 'Royal' direction it would not be shifted in unrelated direction like 'Size', 'Metallic' etc. meaning larger the embedding space the more semantics it can hold. However, a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).
-<br/>
-We would like the embedding space to hold relevant semantics as much as it can, however increasing E will result in space and computing cost. Nevertheless, we can see that not so large embedding spaces supply the semantics demand, and there is a hypothesis that tries to explain this phenomenon.<br/>
-According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) if we "cram" more vectors in the space and ease the rigid demand of [*Orthogonality*](https://en.wikipedia.org/wiki/Orthogonality) a little bit and allow a slight deviation, $`0<ε<1`$. Meaning we can arrange the vectors, not in exactly 90° between each other, but in a range of $`90°-ε \le ∡e_{i}e_{j} \le 90°+ε`$ between them, each vector will have an angle of $`[90°-ε , 90°+ε]`$ with all other vectors. Then the *lemma* tells us we can arrange D vectors in $`ℝ^{E}`$, when *D ≈* *****O*****$`\big( exp(E·ε^2) \big)`$.<br/>
-For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vectors/directions/semantics and that is a lot of semantics!
-
-
-* Alternative method to embedding: *Token IDs* - token IDs id a simple method which every token gets a unique integer. This is a more simple approach that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
 
 ## Transformer
 <img align="right" width="400"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
@@ -272,6 +193,86 @@ Then apply scaling (gamma) and shifting (beta) parameters (trainable):
 ```math
 ⇨  y = γ·x' + β
 ```
+
+## Data
+  
+The IWSLT14 dataset is a multilingual parallel corpus created for machine translation tasks, specifically focusing on spoken language translation. It is part of the [*International Workshop on Spoken Language Translation (IWSLT)*](https://iwslt.org/) 2014 challenge. The dataset consists of TED Talks transcriptions and their translations, making it especially useful for training models that handle conversational and informal language.<br/>
+The IWSLT14 English-French (En-Fr) dataset is a part of the International Workshop on Spoken Language Translation (IWSLT). The IWSLT14 dataset is specifically designed for *Machine Translation* tasks and contains parallel sentences in English and French. The dataset consists of sentence pairs aligned between English and French. Each sentence pair is a translation from one language to the other.<br/>
+In this repository we load the dataset using Hugging Face's [*Dataset Library*](https://huggingface.co/datasets).
+
+Dataset size:
+* Training Set: Around 179,000 sentence pairs.
+* Validation Set: About 903 sentence pairs.
+* Test Set: Roughly 3,670 sentence pairs.
+ 
+This dataset consists of ~28K unique english tokens and  ~32K unique french tokens. [TODO: check unique values!]<br/>
+
+### Tokenization
+In order to prepare the data for training we need tokenization - convert words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
+So what do computer understand? they understand numbers. in the core of computer it understands binary values ($`V_{low}`$ and $`V_{high}`$), but on higher levels it understand number and tensors (vectors, matrices, 3D matrices,...) and mathematical relation between them.
+In order to provide the computer workable data we decompose the sentence into tokens and covert every token to a dense vector (process called *Embedding*).
+
+```ruby
+sentence = "This Simple Transformer Guide!"
+⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
+```
+Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences (input sequence) `max_length`, and then we pad sentence that are shorter (This is the method in use here).
+* *Alternative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 5% will be truncated according to size (the percentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
+
+In order to give the model contextual sign and mange the data better, we use special tokens
+```
+special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
+
+<unk> - unknown words.
+<pad> - use for padding.
+<bos> - beginning of sentence.
+<eos> - end of sentence.
+
+We sets <unk> as the default. 
+```
+After sentence tokenization, we put before the sentence the beginning of sentence token, `<bos>`, and after it the end of sentence token, `<eos>`, and pad with padding token, `<pad>`, the remainder of the sentence up to `max_length`.<br/>
+The unknown word token ,`<unk>`, use for words that are not in the vocabulary and dealing with failures, and for that reason we sets `<unk>` as the default. 
+```ruby
+sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
+⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
+```
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+### Embedding
+
+Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. 
+In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`, for more information on [*Real Vector Space*](https://en.wikipedia.org/wiki/Real_coordinate_space)) and we get for every sequence a matrix of size $`ℝ^{M×E}`$.
+
+#### Intuitive understanding of Embedding
+
+<img align="right" width="500"  src="https://github.com/user-attachments/assets/edf0a13e-fa50-4dbd-a040-940fcf3c0d76">
+
+This explanation is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would expect, for good embedding, the next mathematical semantic connection:
+```math
+e_{king} - e_{queen} = e_{man} - e_{woman}
+```
+
+And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is a direction of gender, the more manly attributes the token has the further the vector will go in that direction and the same for womanly attributes in the opposite direction. 
+We can also look at this mathematical semantic connection: 
+```math
+e_{king} - e_{man} = e_{queen} - e_{woman}
+```
+We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen, meaning a royal direction.<br/>
+And also it expected to get from the king vector to the queen vector we will do: 
+&emsp;&emsp;&emsp;&emsp; $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
+<br/>
+#### How Can $`ℝ^{E}`$ Holds Language Semantics?
+
+In Reality that is not what exactly happening. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, so that an object in this space when getting shifted in the 'Royal' direction it would not be shifted in unrelated direction like 'Size', 'Metallic' etc. meaning larger the embedding space the more semantics it can hold. However, a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).
+<br/>
+We would like the embedding space to hold relevant semantics as much as it can, however increasing E will result in space and computing cost. Nevertheless, we can see that not so large embedding spaces supply the semantics demand, and there is a hypothesis that tries to explain this phenomenon.<br/>
+According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) if we "cram" more vectors in the space and ease the rigid demand of [*Orthogonality*](https://en.wikipedia.org/wiki/Orthogonality) a little bit and allow a slight deviation, $`0<ε<1`$. Meaning we can arrange the vectors, not in exactly 90° between each other, but in a range of $`90°-ε \le ∡e_{i}e_{j} \le 90°+ε`$ between them, each vector will have an angle of $`[90°-ε , 90°+ε]`$ with all other vectors. Then the *lemma* tells us we can arrange D vectors in $`ℝ^{E}`$, when *D ≈* *****O*****$`\big( exp(E·ε^2) \big)`$.<br/>
+For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vectors/directions/semantics and that is a lot of semantics!
+
+
+* Alternative method to embedding: *Token IDs* - token IDs id a simple method which every token gets a unique integer. This is a more simple approach that reduce the computing and space complexity, However it misses the contextual connection between tokens because of that simplicity.
 
 
 ## Typical Run 
