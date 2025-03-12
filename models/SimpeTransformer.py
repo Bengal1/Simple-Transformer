@@ -122,97 +122,6 @@ class NormLayer(nn.Module):
         return self.gamma * normalized + self.beta
 
 
-# class MultiHeadAttention(nn.Module):
-#     """
-#     Implements the Multi-Head Attention mechanism used in the Transformer model.
-#
-#     Parameters:
-#     - max_length (int): The maximum length of the sequence.
-#     - embed_dim (int): The embedding dimension for the input and output.
-#     - num_heads (int): The number of attention heads.
-#     - cross_attn (bool, optional): Whether this is a cross-attention layer (decoder), default is False.
-#     - masked_attn (bool, optional): Whether this is a masked attention layer (for causal attention), default is False.
-#     """
-#
-#     def __init__(self, max_length: int, embed_dim: int, num_heads: int = 8, d_k: int = 64,
-#                  d_v: int = 128, cross_attn: bool = False, masked_attn: bool = False):
-#         super(MultiHeadAttention, self).__init__()
-#
-#         assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
-#         self.max_length = max_length
-#         self.embed_dim = embed_dim
-#         self.num_heads = num_heads
-#         self.d_k = embed_dim // num_heads
-#
-#         self.cross_attn = cross_attn
-#         self.masked_attn = masked_attn
-#
-#         # Linear projections for Q, K, V
-#         self.w_q = nn.Linear(embed_dim, d_k)
-#         self.w_k = nn.Linear(embed_dim, d_k)
-#         self.w_v = nn.Linear(embed_dim, d_v)
-#         self.w_out = nn.Linear(d_v*num_heads, embed_dim)
-#
-#         if masked_attn:
-#             mask = torch.triu(torch.ones(1, 1, max_length, max_length, dtype=torch.bool), diagonal=1)
-#             self.register_buffer("mask", mask)
-#
-#     def scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
-#                                      mask: torch.Tensor = None) -> (torch.Tensor, torch.Tensor):
-#         """
-#         Computes the scaled dot-product attention.
-#
-#         Parameters:
-#         - Q (Tensor): Query tensor of shape (batch_size, num_heads, max_length, d_k)
-#         - K (Tensor): Key tensor of shape (batch_size, num_heads, max_length, d_k)
-#         - V (Tensor): Value tensor of shape (batch_size, num_heads, max_length, d_k)
-#         - mask (Tensor, optional): Mask tensor for masking certain positions, default is None.
-#
-#         Returns:
-#         - Tensor: Attention output tensor.
-#         """
-#         attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=Q.dtype, device=Q.device))
-#
-#         if mask is not None:
-#             attn_scores = attn_scores.masked_fill(mask, float('-inf'))
-#
-#         attn_probs = F.softmax(attn_scores, dim=-1)
-#         return torch.matmul(attn_probs, V), attn_probs
-#
-#     def forward(self, x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
-#         """
-#         Forward pass for multi-head attention.
-#
-#         Parameters:
-#         - x (Tensor): Input tensor of shape (batch_size, seq_len, embed_dim)
-#         - y (Tensor, optional): Tensor for cross-attention, default is None.
-#
-#         Returns:
-#         - Tensor: Output tensor of shape (batch_size, seq_len, embed_dim)
-#         """
-#         batch_size, max_length, _ = x.shape
-#
-#         # Compute Q, K, V
-#         K, V = self.w_k(y if self.cross_attn and y is not None else x), self.w_v(y if self.cross_attn and y is not None else x)
-#         Q = self.w_q(x)
-#
-#         # Debug: Check the shape before reshaping
-#         print(f"Q shape before reshaping: {Q.shape}")
-#         print(f"K shape before reshaping: {K.shape}")
-#         print(f"V shape before reshaping: {V.shape}")
-#
-#         # Reshape Q, K, V for multi-head attention
-#         Q = Q.view(batch_size, max_length, self.num_heads, self.d_k).transpose(1, 2)
-#         K = K.view(batch_size, max_length, self.num_heads, self.d_k).transpose(1, 2)
-#         V = V.view(batch_size, max_length, self.num_heads, self.d_v).transpose(1, 2)
-#
-#         mask = self.mask if self.masked_attn else None
-#         attention_output, _ = self.scaled_dot_product_attention(Q, K, V, mask)
-#
-#         # Concatenate heads and project to output dimension
-#         attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, max_length, -1)
-#         return self.w_out(attention_output)
-
 class MultiHeadAttention(nn.Module):
     """
     Implements the Multi-Head Attention mechanism used in the Transformer model.
@@ -321,11 +230,7 @@ class SimpleTransformer(nn.Module):
     def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int, max_length: int,
                  num_heads: int = 8, d_k: int = 64, d_v: int = 128):
         super(SimpleTransformer, self).__init__()
-        self.heads = num_heads
-        self.d_v = d_v
-        self.embed_dim = embed_dim
-        self.max_length = max_length
-        self.trg_vocab_size = trg_vocab_size
+
         # Encoder components
         self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim)
         self.positional_encoding_encoder = PositionalEncoding(max_length, embed_dim)

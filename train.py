@@ -6,12 +6,13 @@ from data.iwslt14 import IWSLT14Dataset
 # import time
 
 
+torch.autograd.set_detect_anomaly(True)
 # Hyperparameters
 embed_dim = 256          # Embedding dimension
 num_heads = 8            # Number of attention heads
 d_k = 32                 # Dimension for K-space
 d_v = 128                # Dimension for V-space (attention output)
-batch_size = 16          # Batch size
+batch_size = 32          # Batch size
 epochs = 10              # Number of epochs
 learning_rate = 1e-4     # Learning rate
 
@@ -21,7 +22,8 @@ print('Using', device, '\n')
 
 # Data #
 # dataset = IWSLT14Dataset()
-dataset = IWSLT14Dataset(local_file="iwslt14_debug.json")  # debug code!!!
+dataset = IWSLT14Dataset(local_file="iwslt14_full.json")  # debug code!!!
+
 train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 src_vocab_size, trg_vocab_size = dataset.get_vocab_sizes()
 max_length = dataset.get_max_length()
