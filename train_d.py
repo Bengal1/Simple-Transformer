@@ -3,8 +3,8 @@ import time
 import torch
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from models import SimpleTransformer
-from datasets import IWSLT14Dataset
+from models.SimpeTransformer import SimpleTransformer
+from data.iwslt14 import IWSLT14Dataset
 import torch.nn.functional as F
 
 # Hyperparameters
