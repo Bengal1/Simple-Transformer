@@ -16,7 +16,7 @@ This Repository is built for learning purposes, and its goal is to help people w
 * [spaCy](https://spacy.io/)
 
 ## Transformer
-<img align="right" width="400"  src="https://github.com/user-attachments/assets/e55c4e75-3ed1-4b12-95d6-49bdf9dc10a6">
+<img align="right" width="400"  src="https://github.com/user-attachments/assets/63544640-b22d-4c1e-94f3-d5c101ae05fd">
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The transformer is Encoder-Decoder ... <br/>
 ### Attention
