@@ -207,7 +207,7 @@ Dataset size:
 * Validation Set: About 903 sentence pairs.
 * Test Set: Roughly 3,670 sentence pairs.
  
-This dataset consists of ~28K unique english tokens and  ~32K unique french tokens. [TODO: check unique values!]<br/>
+This dataset consists of 56K unique english tokens (vocabulary) and 73K unique french tokens. <br/>
 
 ### Tokenization
 In order to prepare the data for training we need tokenization - convert words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
