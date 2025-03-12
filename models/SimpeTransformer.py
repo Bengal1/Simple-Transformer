@@ -11,12 +11,6 @@ class PositionalEncoding(nn.Module):
     - seq_len (int): The length of the sequence.
     - d_model (int): The dimension of the model's embeddings.
     - n (int, optional): The scaling factor for the encoding, default is 10000.
-
-    Input:
-    - x (Tensor): Tensor of shape (batch_size, seq_len, d_model)
-
-    Output:
-    - Tensor: The same input tensor with added positional encoding.
     """
 
     def __init__(self, seq_len: int, d_model: int, n: int = 10000):
@@ -224,6 +218,7 @@ class SimpleTransformer(nn.Module):
     - embed_dim (int): The embedding dimension for both source and target embeddings.
     - max_length (int): Maximum sequence length.
     - num_heads (int): Number of attention heads.
+    - d_k (int, optional):
     - d_v (int, optional): The dimension of the value vectors in multi-head attention, default is 10.
     """
 

@@ -41,6 +41,7 @@ optimizer = optim.Adam(st_model.parameters(), lr=learning_rate)
 def shift_trg_right(batch, eos_token_idx=3, pad_token_idx=1):
     """
     Convert <eos> token to <pad> token for each sentence in a batch of tensors.
+    Designed for right-shift the target sequence in training transformer
 
     Parameters:
     - batch (Tensor): A batch of sentences (shape: [batch_size, seq_len]).
@@ -56,6 +57,16 @@ def shift_trg_right(batch, eos_token_idx=3, pad_token_idx=1):
 
 # Function to save the model checkpoint
 def save_model(epoch, model, optimizer, loss, path="model_checkpoint.pth"):
+    """
+    Save model checkpoint.
+
+    Args:
+        epoch (int): Current epoch number
+        model (nn.Module): Model to save
+        optimizer (torch.optim.Optimizer): Optimizer state to save
+        loss (float): Current loss value
+        filepath (str): Path to save the checkpoint
+    """
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
