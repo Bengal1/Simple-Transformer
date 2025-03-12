@@ -24,6 +24,7 @@ class IWSLT14Dataset(Dataset):
 
     def _load_dataset(self):
         """Loads the IWSLT14 dataset and tokenizes sentences."""
+
         # debug code!!!
         """Loads the dataset (from local file if specified)."""
         if self.local_file:
@@ -34,6 +35,7 @@ class IWSLT14Dataset(Dataset):
             print("Loading full IWSLT14 dataset...")
             iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr")["train"]
         # debug code!!!
+
         # iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr")["train"]
         self.tokenized_en = [self._tokenize_text(sentence, self.en_nlp) for sentence in iwslt_data["en"]]
         self.tokenized_fr = [self._tokenize_text(sentence, self.fr_nlp) for sentence in iwslt_data["fr"]]
