@@ -2,11 +2,7 @@ import torch
 import sacrebleu
 from nltk.translate.bleu_score import corpus_bleu
 from rouge_score import rouge_scorer
-
 import matplotlib.pyplot as plt
-
-from rouge_score import rouge_scorer
-import sacrebleu
 
 def evaluate(model, dataloader, vocab, max_length, device):
     """

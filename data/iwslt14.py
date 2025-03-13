@@ -24,34 +24,68 @@ class IWSLT14Dataset(Dataset):
         self.en_nlp = spacy.load("en_core_web_sm")
         self.fr_nlp = spacy.load("fr_core_news_sm")
 
+
     def _load_dataset(self):
         """Loads the specified split of the IWSLT14 dataset and tokenizes sentences."""
-        # Check if we are using a local file
         if self.local_file:
             print(f"Loading local dataset from {self.local_file}...")
             with open(self.local_file, "r", encoding="utf-8") as f:
                 iwslt_data = json.load(f)
 
-            # Tokenize the specified split
-            self.tokenized_data = {
-                self.split: (
-                    [self._tokenize_text(sentence, self.en_nlp) for sentence in iwslt_data[self.split]["en"]],
-                    [self._tokenize_text(sentence, self.fr_nlp) for sentence in iwslt_data[self.split]["fr"]]
-                )
-            }
+            # # Debugging: Print available keys
+            # print("Loaded JSON keys:", iwslt_data.keys())
+
+            # Handle nested structure for splits like "train", "validation", "test"
+            if self.split in iwslt_data:
+                en_sentences = iwslt_data[self.split]["en"]
+                fr_sentences = iwslt_data[self.split]["fr"]
+            else:
+                # This assumes the dataset does not contain the split key (i.e., it's flat)
+                raise KeyError(f"The dataset for the split '{self.split}' is not found in the file.")
 
         else:
-            # Load only the specified split from Hugging Face
+            # Load the dataset from Hugging Face
             print(f"Loading IWSLT14 {self.split} dataset...")
             iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr", split=self.split)
+            en_sentences = iwslt_data["en"]
+            fr_sentences = iwslt_data["fr"]
 
-            # Tokenize English and French for the specified split
-            self.tokenized_data = {
-                self.split: (
-                    [self._tokenize_text(sentence, self.en_nlp) for sentence in iwslt_data["en"]],
-                    [self._tokenize_text(sentence, self.fr_nlp) for sentence in iwslt_data["fr"]]
-                )
-            }
+        # Tokenize
+        self.tokenized_data = {
+            self.split: (
+                [self._tokenize_text(sentence, self.en_nlp) for sentence in en_sentences],
+                [self._tokenize_text(sentence, self.fr_nlp) for sentence in fr_sentences],
+            )
+        }
+
+    # def _load_dataset(self):
+    #     """Loads the specified split of the IWSLT14 dataset and tokenizes sentences."""
+    #     # Check if we are using a local file
+    #     if self.local_file:
+    #         print(f"Loading local dataset from {self.local_file}...")
+    #         with open(self.local_file, "r", encoding="utf-8") as f:
+    #             iwslt_data = json.load(f)
+    #
+    #         # Tokenize the specified split
+    #         self.tokenized_data = {
+    #             self.split: (
+    #                 [self._tokenize_text(sentence, self.en_nlp) for sentence in iwslt_data[self.split]["en"]],
+    #                 [self._tokenize_text(sentence, self.fr_nlp) for sentence in iwslt_data[self.split]["fr"]]
+    #             )
+    #         }
+    #
+    #     else:
+    #         # Load only the specified split from Hugging Face
+    #         print(f"Loading IWSLT14 {self.split} dataset...")
+    #         iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr", split=self.split)
+    #
+    #         # Tokenize English and French for the specified split
+    #         self.tokenized_data = {
+    #             self.split: (
+    #                 [self._tokenize_text(sentence, self.en_nlp) for sentence in iwslt_data["en"]],
+    #                 [self._tokenize_text(sentence, self.fr_nlp) for sentence in iwslt_data["fr"]]
+    #             )
+    #         }
 
     @staticmethod
     def _tokenize_text(text: str, nlp_model) -> list:

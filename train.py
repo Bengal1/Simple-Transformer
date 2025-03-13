@@ -62,7 +62,6 @@ def shift_trg_right(batch, eos_token_idx=3, pad_token_idx=1):
     batch[batch == eos_token_idx] = pad_token_idx
     return batch
 
-# Function to save the model checkpoint
 def save_model(epoch, model, opt, loss, filepath="model_checkpoint.pth"):
     """
     Save model checkpoint.
