@@ -32,11 +32,9 @@ test_dataset = IWSLT14Dataset(split="test")
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
 src_vocab_size, trg_vocab_size = train_dataset.get_vocab_sizes()
 max_length = train_dataset.get_max_length()
-# src_vocab_size, trg_vocab_size = test_dataset.get_vocab_sizes()
-# max_length = test_dataset.get_max_length()
-# print(f"max_length = {max_length}, src_vocab_size = {src_vocab_size}, trg_vocab_size = {trg_vocab_size}") # debug code!!!
 
 # Initialize the model #
 st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim, max_length,
@@ -87,6 +85,13 @@ def save_model(epoch, model, optimizer, loss, path="model_checkpoint.pth"):
 
 # Training loop
 def train():
+    """
+    Performs one epoch of training on the model.
+
+    :rtype: float
+    :return: The average loss for the epoch.
+    """
+
     st_model.train()
     total_loss = 0
     # start_time = time.time()
@@ -119,6 +124,12 @@ def train():
 
 # Train #
 def train_model():
+    """
+    Trains the model and evaluates it on the validation set after each epoch.
+    Saves the model if the validation loss improves.
+
+    :rtype: None
+    """
     st_model.train()
     best_loss = float('inf')
 
@@ -136,6 +147,8 @@ def train_model():
             best_loss = avg_loss
             save_model(epoch, st_model, optimizer, avg_loss)
 
+if __name__ == "__main__":
+    train_model()
 
 # def train_model():
 #     best_loss = float('inf')
@@ -170,17 +183,6 @@ def train_model():
 #     plot_training_progress(history)
 
 
-# def train_model():
-#     best_loss = float('inf')
-#
-#     for epoch in range(epochs):
-#         print(f"\nEpoch {epoch + 1}/{epochs}")
-#         avg_loss = train()
-#
-#         # Save the model if the loss is the best so far
-#         # if avg_loss < best_loss:
-#         #     best_loss = avg_loss
-#         #     save_model(epoch, st_model, optimizer, avg_loss)
 
-if __name__ == "__main__":
-    train_model()
+
+
