@@ -41,7 +41,7 @@ st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim, max_leng
                              num_heads=num_heads, d_k=d_k, d_v=d_v).to(device)
 
 # Loss & Optimization #
-criterion = torch.nn.CrossEntropyLoss(ignore_index=test_dataset.get_padding_index())  # Ignore padding token
+criterion = torch.nn.CrossEntropyLoss(ignore_index=test_dataset.get_padding_index()).to(device)  # Ignore padding token
 optimizer = optim.Adam(st_model.parameters(), lr=learning_rate)
 
 
@@ -63,24 +63,24 @@ def shift_trg_right(batch, eos_token_idx=3, pad_token_idx=1):
     return batch
 
 # Function to save the model checkpoint
-def save_model(epoch, model, optimizer, loss, path="model_checkpoint.pth"):
+def save_model(epoch, model, opt, loss, filepath="model_checkpoint.pth"):
     """
     Save model checkpoint.
 
     Args:
         epoch (int): Current epoch number
         model (nn.Module): Model to save
-        optimizer (torch.optim.Optimizer): Optimizer state to save
+        opt (torch.optim.Optimizer): Optimizer state to save
         loss (float): Current loss value
         filepath (str): Path to save the checkpoint
     """
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
+        'optimizer_state_dict': opt.state_dict(),
         'loss': loss
     }
-    torch.save(checkpoint, path)
+    torch.save(checkpoint, filepath)
     print(f"Model checkpoint saved at epoch {epoch}.")
 
 # Training loop
