@@ -3,6 +3,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from models.SimpeTransformer import SimpleTransformer
 from data.iwslt14 import IWSLT14Dataset
+import evaluate
 # import time
 
 
@@ -21,20 +22,28 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using', device, '\n')
 
 # Data #
-# dataset = IWSLT14Dataset()
-dataset = IWSLT14Dataset(local_file="iwslt14_full.json")  # debug code!!!
 
-train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-src_vocab_size, trg_vocab_size = dataset.get_vocab_sizes()
-max_length = dataset.get_max_length()
-print(f"max_length = {max_length}, src_vocab_size = {src_vocab_size}, trg_vocab_size = {trg_vocab_size}") # debug code!!!
+# train_dataset = IWSLT14Dataset(local_file="iwslt14_debug.json")  # debug code!!!
+train_dataset = IWSLT14Dataset(split="train")
+val_dataset = IWSLT14Dataset(split="validation")
+test_dataset = IWSLT14Dataset(split="test")
+
+# DataLoaders
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+src_vocab_size, trg_vocab_size = train_dataset.get_vocab_sizes()
+max_length = train_dataset.get_max_length()
+# src_vocab_size, trg_vocab_size = test_dataset.get_vocab_sizes()
+# max_length = test_dataset.get_max_length()
+# print(f"max_length = {max_length}, src_vocab_size = {src_vocab_size}, trg_vocab_size = {trg_vocab_size}") # debug code!!!
 
 # Initialize the model #
 st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim, max_length,
                              num_heads=num_heads, d_k=d_k, d_v=d_v).to(device)
 
 # Loss & Optimization #
-criterion = torch.nn.CrossEntropyLoss(ignore_index=dataset.get_padding_index())  # Ignore padding token
+criterion = torch.nn.CrossEntropyLoss(ignore_index=test_dataset.get_padding_index())  # Ignore padding token
 optimizer = optim.Adam(st_model.parameters(), lr=learning_rate)
 
 
@@ -110,16 +119,68 @@ def train():
 
 # Train #
 def train_model():
+    st_model.train()
     best_loss = float('inf')
 
     for epoch in range(epochs):
         print(f"\nEpoch {epoch + 1}/{epochs}")
         avg_loss = train()
 
+        # Evaluate on validation set
+        val_scores = evaluate.evaluate(st_model, val_loader, train_dataset.fr_vocab, max_length, device)
+        print(f"Validation Scores - BLEU: {val_scores['BLEU']:.2f}, ROUGE-1: "
+              f"{val_scores['ROUGE-1']:.4f}, ROUGE-L: {val_scores['ROUGE-L']:.4f}")
+
         # Save the model if the loss is the best so far
-        # if avg_loss < best_loss:
-        #     best_loss = avg_loss
-        #     save_model(epoch, st_model, optimizer, avg_loss)
+        if avg_loss < best_loss:
+            best_loss = avg_loss
+            save_model(epoch, st_model, optimizer, avg_loss)
+
+
+# def train_model():
+#     best_loss = float('inf')
+#
+#     history = {
+#         "train_loss": [],
+#         "bleu": [],
+#         "rouge1": [],
+#         "rougeL": []
+#     }
+#
+#     for epoch in range(epochs):
+#         print(f"\nEpoch {epoch + 1}/{epochs}")
+#         avg_loss = train()
+#         history["train_loss"].append(avg_loss)
+#
+#         # Evaluate on validation set
+#         val_scores = evaluate(st_model, val_loader, train_dataset.fr_vocab, max_length, device)
+#         history["bleu"].append(val_scores["BLEU"])
+#         history["rouge1"].append(val_scores["ROUGE-1"])
+#         history["rougeL"].append(val_scores["ROUGE-L"])
+#
+#         print(
+#             f"Validation Scores - BLEU: {val_scores['BLEU']:.2f}, ROUGE-1: {val_scores['ROUGE-1']:.4f}, ROUGE-L: {val_scores['ROUGE-L']:.4f}")
+#
+#         # Save the model if the loss is the best so far
+#         if avg_loss < best_loss:
+#             best_loss = avg_loss
+#             save_model(epoch, st_model, optimizer, avg_loss)
+#
+#     # Plot training progress
+#     plot_training_progress(history)
+
+
+# def train_model():
+#     best_loss = float('inf')
+#
+#     for epoch in range(epochs):
+#         print(f"\nEpoch {epoch + 1}/{epochs}")
+#         avg_loss = train()
+#
+#         # Save the model if the loss is the best so far
+#         # if avg_loss < best_loss:
+#         #     best_loss = avg_loss
+#         #     save_model(epoch, st_model, optimizer, avg_loss)
 
 if __name__ == "__main__":
     train_model()
