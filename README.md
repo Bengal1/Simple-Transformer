@@ -215,7 +215,7 @@ So what do computer understand? they understand numbers. in the core of computer
 In order to provide the computer workable data we decompose the sentence into tokens and covert every token to a dense vector (process called *Embedding*).
 
 ```ruby
-sentence = "This Simple Transformer Guide!"
+sentence = "This is Simple Transformer Guide!"
 ⇨ sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
 ```
 Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences (input sequence) `max_length`, and then we pad sentence that are shorter (This is the method in use here).
