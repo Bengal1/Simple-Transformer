@@ -61,7 +61,7 @@ class FeedForward(nn.Module):
     - dropout (float, optional): The dropout probability, default is 0.1.
     """
 
-    def __init__(self, d_model: int, hidden_dim: int = 2048, dropout: float = 0.1):
+    def __init__(self, d_model: int, hidden_dim: int = 512, dropout: float = 0.1):
         super(FeedForward, self).__init__()
         self.fc1 = nn.Linear(d_model, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, d_model)
@@ -218,12 +218,12 @@ class SimpleTransformer(nn.Module):
     - embed_dim (int): The embedding dimension for both source and target embeddings.
     - max_length (int): Maximum sequence length.
     - num_heads (int): Number of attention heads.
-    - d_k (int, optional):
-    - d_v (int, optional): The dimension of the value vectors in multi-head attention, default is 10.
+    - d_k (int, optional): The dimension of the query and key vectors in multi-head attention, default is 32
+    - d_v (int, optional): The dimension of the value vectors in multi-head attention, default is 64.
     """
 
     def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int, max_length: int,
-                 num_heads: int = 8, d_k: int = 64, d_v: int = 128):
+                 num_heads: int = 8, d_k: int = 32, d_v: int = 64):
         super(SimpleTransformer, self).__init__()
 
         # Encoder components

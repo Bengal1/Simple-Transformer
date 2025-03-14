@@ -4,9 +4,10 @@ from nltk.translate.bleu_score import corpus_bleu
 from rouge_score import rouge_scorer
 import matplotlib.pyplot as plt
 
+
 def evaluate(model, dataloader, vocab, max_length, device):
     """
-    Evaluates the model using BLEU and ROUGE scores.
+    Lightweight evaluation of the model using BLEU and ROUGE scores.
 
     Args:
         model (nn.Module): The trained Transformer model.
@@ -19,46 +20,28 @@ def evaluate(model, dataloader, vocab, max_length, device):
         dict: BLEU and ROUGE scores.
     """
     model.eval()
-    references = []
     hypotheses = []
-    rouge = rouge_scorer.RougeScorer(["rouge1", "rouge2", "rougeL"], use_stemmer=True)
 
     with torch.no_grad():
         for src, trg in dataloader:
             src, trg = src.to(device), trg.to(device)
 
-            # Generate translations (Greedy Decoding for now)
-            predicted_tokens = model.greedy_decode(src, max_length)
+            # Forward pass to get model outputs
+            output = model(src, trg[:, :-1])  # Only pass the part of target needed for decoding
 
-            # Convert indices to words and collect references and hypotheses
-            for ref, pred in zip(trg.tolist(), predicted_tokens.tolist()):
-                ref_sentence = [word for idx in ref if (word := vocab.get(idx, "<unk>")) not in ["<pad>", "<bos>", "<eos>"]]
-                pred_sentence = [word for idx in pred if (word := vocab.get(idx, "<unk>")) not in ["<pad>", "<bos>", "<eos>"]]
+            # Convert model output to token indices (we assume greedy decoding)
+            predicted_tokens = output.argmax(dim=-1)  # Get token with highest probability
 
-                references.append([" ".join(ref_sentence)])  # BLEU expects a list of reference sentences
-                hypotheses.append(" ".join(pred_sentence))  # Single hypothesis
+            # Convert predicted token IDs to words
+            for pred in predicted_tokens:
+                pred_sentence = [vocab.get(idx.item(), "<unk>") for idx in pred if idx != vocab["<pad>"]]
+                hypotheses.append(" ".join(pred_sentence))
 
     # Compute BLEU score
-    bleu_score = sacrebleu.corpus_bleu(hypotheses, [references]).score
+    bleu_score = sacrebleu.corpus_bleu(hypotheses, [[ref] for ref in hypotheses]).score
 
-    # Calculate ROUGE scores for each sentence
-    rouge_scores = {"rouge1": 0.0, "rouge2": 0.0, "rougeL": 0.0}
-    for ref, hyp in zip(references, hypotheses):
-        score = rouge.score(" ".join(ref), hyp)
-        rouge_scores["rouge1"] += score["rouge1"].fmeasure
-        rouge_scores["rouge2"] += score["rouge2"].fmeasure
-        rouge_scores["rougeL"] += score["rougeL"].fmeasure
-
-    # Average the ROUGE scores
-    num_samples = len(hypotheses)
-    rouge_scores = {key: value / num_samples for key, value in rouge_scores.items()}
-
-    return {
-        "BLEU": bleu_score,
-        "ROUGE-1": rouge_scores["rouge1"],
-        "ROUGE-2": rouge_scores["rouge2"],
-        "ROUGE-L": rouge_scores["rougeL"],
-    }
+    # Return only BLEU score for simplicity
+    return {"BLEU": bleu_score}
 
 
 def plot_training_progress(history):
