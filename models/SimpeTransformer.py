@@ -6,11 +6,10 @@ class PositionalEncoding(nn.Module):
     """
     Adds positional encoding to the input tensor. The positional encoding is
     based on the formula from 'Attention Is All You Need'.
-
-    Parameters:
-    - seq_len (int): The length of the sequence.
-    - d_model (int): The dimension of the model's embeddings.
-    - n (int, optional): The scaling factor for the encoding, default is 10000.
+    Args:
+        seq_len (int): The length of the sequence.
+        d_model (int): The dimension of the model's embeddings.
+        n (int, optional): The base for the sinusoidal encoding, default is 10000.
     """
 
     def __init__(self, seq_len: int, d_model: int, n: int = 10000):
@@ -23,11 +22,11 @@ class PositionalEncoding(nn.Module):
         """
         Creates the positional encoding matrix.
 
-        Parameters:
-        - seq_len (int): Length of the sequence for positional encoding.
+        Args:
+            seq_len (int): Length of the sequence for positional encoding.
 
         Returns:
-        - Tensor: The positional encoding matrix of shape (seq_len, d_model).
+            Tensor: The positional encoding matrix of shape (seq_len, d_model).
         """
         pos_encoding = torch.zeros(seq_len, self.d_model)
         k_pos = torch.arange(0, seq_len).unsqueeze(dim=1).float()
@@ -41,11 +40,11 @@ class PositionalEncoding(nn.Module):
         """
         Adds positional encoding to the input tensor.
 
-        Parameters:
-        - x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
+        Args:
+            x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
 
         Returns:
-        - Tensor: Tensor with added positional encoding.
+            Tensor: Tensor with added positional encoding.
         """
         x += self.pos_encoding
         return x
@@ -55,10 +54,10 @@ class FeedForward(nn.Module):
     """
     A FeedForward neural network as used in the Transformer model.
 
-    Parameters:
-    - d_model (int): The dimension of the input and output embeddings.
-    - hidden_dim (int, optional): The hidden dimension in the feed-forward network, default is 2048.
-    - dropout (float, optional): The dropout probability, default is 0.1.
+    Args:
+        d_model (int): The dimension of the input and output embeddings.
+        hidden_dim (int, optional): The hidden dimension in the feed-forward network, default is 512.
+        dropout (float, optional): The dropout probability, default is 0.1.
     """
 
     def __init__(self, d_model: int, hidden_dim: int = 512, dropout: float = 0.1):
@@ -72,11 +71,13 @@ class FeedForward(nn.Module):
         """
         Forward pass through the FeedForward network.
 
-        Parameters:
-        - x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
+        Applies two linear transformations with a ReLU activation and dropout in between.
+
+        Args:
+            x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
 
         Returns:
-        - Tensor: Output tensor of shape (batch_size, seq_len, d_model)
+            Tensor: Output tensor of shape (batch_size, seq_len, d_model)
         """
         x = self.fc1(x)
         x = self.relu(x)
@@ -89,9 +90,9 @@ class NormLayer(nn.Module):
     """
     Implements layer normalization used in the Transformer.
 
-    Parameters:
-    - d_model (int): The dimension of the input tensor.
-    - epsilon (float, optional): A small value added to variance for numerical stability, default is 1e-15.
+    Args:
+        d_model (int): The dimension of the input tensor.
+        epsilon (float, optional): A small value added to variance for numerical stability, default is 1e-15.
     """
 
     def __init__(self, d_model: int, epsilon: float = 1e-15):
@@ -104,11 +105,11 @@ class NormLayer(nn.Module):
         """
         Applies layer normalization.
 
-        Parameters:
-        - x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
+        Args:
+            x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
 
         Returns:
-        - Tensor: Normalized tensor of the same shape as input.
+            Tensor: Normalized tensor of the same shape as input.
         """
         mean = x.mean(dim=-1, keepdim=True)
         var = x.var(dim=-1, unbiased=False, keepdim=True)
@@ -120,12 +121,12 @@ class MultiHeadAttention(nn.Module):
     """
     Implements the Multi-Head Attention mechanism used in the Transformer model.
 
-    Parameters:
-    - max_length (int): The maximum length of the sequence.
-    - embed_dim (int): The embedding dimension for the input and output.
-    - num_heads (int): The number of attention heads.
-    - cross_attn (bool, optional): Whether this is a cross-attention layer (decoder), default is False.
-    - masked_attn (bool, optional): Whether this is a masked attention layer (for causal attention), default is False.
+    Args:
+        max_length (int): The maximum length of the sequence.
+        embed_dim (int): The embedding dimension for the input and output.
+        num_heads (int): The number of attention heads.
+        cross_attn (bool, optional): Whether this is a cross-attention layer (decoder), default is False.
+        masked_attn (bool, optional): Whether this is a masked attention layer (for causal attention), default is False.
     """
 
     def __init__(self, max_length: int, embed_dim: int, num_heads: int = 8, d_k: int = 64,
@@ -156,14 +157,14 @@ class MultiHeadAttention(nn.Module):
         """
         Computes the scaled dot-product attention.
 
-        Parameters:
-        - Q (Tensor): Query tensor of shape (batch_size, num_heads, max_length, d_k)
-        - K (Tensor): Key tensor of shape (batch_size, num_heads, max_length, d_k)
-        - V (Tensor): Value tensor of shape (batch_size, num_heads, max_length, d_k)
-        - mask (Tensor, optional): Mask tensor for masking certain positions, default is None.
+        Args:
+            Q (Tensor): Query tensor of shape (batch_size, num_heads, max_length, d_k).
+            K (Tensor): Key tensor of shape (batch_size, num_heads, max_length, d_k).
+            V (Tensor): Value tensor of shape (batch_size, num_heads, max_length, d_k).
+            mask (Tensor, optional): Mask tensor for masking certain positions, default is None.
 
         Returns:
-        - Tensor: Attention output tensor.
+            Tensor: Attention output tensor.
         """
         attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=Q.dtype, device=Q.device))
 
@@ -177,12 +178,12 @@ class MultiHeadAttention(nn.Module):
         """
         Forward pass for multi-head attention.
 
-        Parameters:
-        - x (Tensor): Input tensor of shape (batch_size, seq_len, embed_dim)
-        - y (Tensor, optional): Tensor for cross-attention, default is None.
+        Args:
+            x (Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
+            y (Tensor, optional): Tensor for cross-attention, default is None.
 
         Returns:
-        - Tensor: Output tensor of shape (batch_size, seq_len, embed_dim)
+            Tensor: Output tensor of shape (batch_size, seq_len, embed_dim)
         """
         batch_size, max_length, _ = x.shape
 
@@ -212,14 +213,14 @@ class SimpleTransformer(nn.Module):
     """
     Implements the full Transformer model for sequence-to-sequence tasks.
 
-    Parameters:
-    - src_vocab_size (int): Vocabulary size for the source language.
-    - trg_vocab_size (int): Vocabulary size for the target language.
-    - embed_dim (int): The embedding dimension for both source and target embeddings.
-    - max_length (int): Maximum sequence length.
-    - num_heads (int): Number of attention heads.
-    - d_k (int, optional): The dimension of the query and key vectors in multi-head attention, default is 32
-    - d_v (int, optional): The dimension of the value vectors in multi-head attention, default is 64.
+    Args:
+        src_vocab_size (int): Vocabulary size for the source language.
+        trg_vocab_size (int): Vocabulary size for the target language.
+        embed_dim (int): The embedding dimension for both source and target embeddings.
+        max_length (int): Maximum sequence length.
+        num_heads (int): Number of attention heads.
+        d_k (int, optional): The dimension of the query and key vectors in multi-head attention, default is 32.
+        d_v (int, optional): The dimension of the value vectors in multi-head attention, default is 64.
     """
 
     def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int, max_length: int,
@@ -254,12 +255,12 @@ class SimpleTransformer(nn.Module):
         """
         Forward pass for the SimpleTransformer model.
 
-        Parameters:
-        - src (Tensor): Source tensor of shape (batch_size, src_seq_len).
-        - trg (Tensor): Target tensor of shape (batch_size, trg_seq_len).
+        Args:
+            src (Tensor): Source tensor of shape (batch_size, src_seq_len).
+            trg (Tensor): Target tensor of shape (batch_size, trg_seq_len).
 
         Returns:
-        - Tensor: Output tensor of shape (batch_size, trg_seq_len, trg_vocab_size).
+            Tensor: Output tensor of shape (batch_size, trg_seq_len, trg_vocab_size).
         """
 
         # Embedding and positional encoding
@@ -286,3 +287,4 @@ class SimpleTransformer(nn.Module):
         # Output
         out = self.w_o(dec_out)
         return self.softmax(out)
+

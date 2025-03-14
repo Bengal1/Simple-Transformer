@@ -22,11 +22,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using', device, '\n')
 
 # Data #
-
-# train_dataset = IWSLT14Dataset(local_file="iwslt14_debug.json")  # debug code!!!
 train_dataset = IWSLT14Dataset(split="train")
 val_dataset = IWSLT14Dataset(split="validation")
 test_dataset = IWSLT14Dataset(split="test")
+
+# train_dataset = IWSLT14Dataset(local_file="iwslt14_debug.json")  # debug code!!!
 
 # DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -50,13 +50,13 @@ def shift_trg_right(batch, eos_token_idx=3, pad_token_idx=1):
     Convert <eos> token to <pad> token for each sentence in a batch of tensors.
     Designed for right-shift the target sequence in training transformer
 
-    Parameters:
-    - batch (Tensor): A batch of sentences (shape: [batch_size, seq_len]).
-    - eos_token_idx (int): The index of the <eos> token.
-    - pad_token_idx (int): The index of the <pad> token.
+    Args:
+        batch (Tensor): A batch of sentences (shape: [batch_size, seq_len]).
+        eos_token_idx (int): The index of the <eos> token.
+        pad_token_idx (int): The index of the <pad> token.
 
     Returns:
-    - Tensor: The batch with <eos> replaced by <pad> for each sentence.
+        Tensor: The batch with <eos> replaced by <pad> for each sentence.
     """
     # Replace eos_token_idx with pad_token_idx in the batch
     batch[batch == eos_token_idx] = pad_token_idx
@@ -87,8 +87,8 @@ def train():
     """
     Performs one epoch of training on the model.
 
-    :rtype: float
-    :return: The average loss for the epoch.
+    Returns:
+        float: The average loss for the epoch.
     """
 
     st_model.train()
@@ -126,8 +126,6 @@ def train_model():
     """
     Trains the model and evaluates it on the validation set after each epoch.
     Saves the model if the validation loss improves.
-
-    :rtype: None
     """
     st_model.train()
     best_loss = float('inf')
@@ -147,41 +145,13 @@ def train_model():
             save_model(epoch, st_model, optimizer, avg_loss)
 
 if __name__ == "__main__":
+    """
+    Entry point for training the model.
+
+    This block of code runs when the script is executed directly. It calls the
+    `train_model` function to start the model training process.
+    """
     train_model()
-
-
-# def train_model():
-#     best_loss = float('inf')
-#
-#     history = {
-#         "train_loss": [],
-#         "bleu": [],
-#         "rouge1": [],
-#         "rougeL": []
-#     }
-#
-#     for epoch in range(epochs):
-#         print(f"\nEpoch {epoch + 1}/{epochs}")
-#         avg_loss = train()
-#         history["train_loss"].append(avg_loss)
-#
-#         # Evaluate on validation set
-#         val_scores = evaluate(st_model, val_loader, train_dataset.fr_vocab, max_length, device)
-#         history["bleu"].append(val_scores["BLEU"])
-#         history["rouge1"].append(val_scores["ROUGE-1"])
-#         history["rougeL"].append(val_scores["ROUGE-L"])
-#
-#         print(
-#             f"Validation Scores - BLEU: {val_scores['BLEU']:.2f}, ROUGE-1: {val_scores['ROUGE-1']:.4f}, ROUGE-L: {val_scores['ROUGE-L']:.4f}")
-#
-#         # Save the model if the loss is the best so far
-#         if avg_loss < best_loss:
-#             best_loss = avg_loss
-#             save_model(epoch, st_model, optimizer, avg_loss)
-#
-#     # Plot training progress
-#     plot_training_progress(history)
-
 
 
 

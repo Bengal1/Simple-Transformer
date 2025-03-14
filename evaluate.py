@@ -30,7 +30,7 @@ def evaluate(model, dataloader, vocab, max_length, device):
             output = model(src, trg[:, :-1])  # Only pass the part of target needed for decoding
 
             # Convert model output to token indices (we assume greedy decoding)
-            predicted_tokens = output.argmax(dim=-1)  # Get token with highest probability
+            predicted_tokens = output.argmax(dim=-1)  # Get token with the highest probability
 
             # Convert predicted token IDs to words
             for pred in predicted_tokens:
@@ -45,6 +45,25 @@ def evaluate(model, dataloader, vocab, max_length, device):
 
 
 def plot_training_progress(history):
+    """
+    Plots the training progress by visualizing the loss and evaluation metrics (BLEU and ROUGE scores) over epochs.
+
+    Args:
+        history (dict): A dictionary containing the training history with the following keys:
+            - "train_loss" (list): A list of training loss values per epoch.
+            - "bleu" (list): A list of BLEU scores per epoch.
+            - "rouge1" (list): A list of ROUGE-1 scores per epoch.
+            - "rougeL" (list): A list of ROUGE-L scores per epoch.
+
+    Returns:
+        None: Displays the plots using `matplotlib.pyplot.show()`.
+
+    This function generates two subplots:
+    1. A plot of the training loss per epoch.
+    2. A plot of BLEU, ROUGE-1, and ROUGE-L scores per epoch.
+
+    The plots include labels, titles, legends, and gridlines to facilitate understanding of the training progress.
+    """
     epochs_range = range(1, len(history["train_loss"]) + 1)
 
     plt.figure(figsize=(12, 5))
