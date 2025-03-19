@@ -105,8 +105,10 @@ Masked-Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} + Mask \Bigg)·
 <br/>
 
 ### Multihead-Attention
+<img align="right" width="220" src="https://github.com/user-attachments/assets/a0e99d43-2f85-4a85-980f-deba698aedfc">
 
-Multi-head attention is an extension of the attention mechanism that allows the model to focus on different parts of the input sequence simultaneously, using multiple attention heads. Each head computes attention independently, and the results are combined to form a more comprehensive representation.
+Multi-head attention is an extension of the attention mechanism that allows the model to focus on different parts of the input sequence simultaneously, using multiple attention heads. Each head computes attention independently, and the results are combined to form a more comprehensive representation.<br/>
+Instead of performing a single attention operation, multi-head attention runs multiple attention operations in parallel (with different parameterized projections) and then concatenates the results. Each head learns a different representation by attending to different parts of the input sequence. This allows the model to capture various kinds of dependencies in the input sequence simultaneously.
 
 ```math
 head_i = Attention(QW_{Q_{i}},KW_{K_{i}},VW_{V_{i}})
@@ -215,8 +217,8 @@ So what do computer understand? they understand numbers. in the core of computer
 In order to provide the computer workable data we decompose the sentence into tokens and covert every token to a dense vector (process called *Embedding*).
 
 ```ruby
-sentence = "This Simple Transformer Guide!"
-⇨ sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
+sentence = "This is Simple Transformer Guide!"
+⇨ sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
 ```
 Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences (input sequence) `max_length`, and then we pad sentence that are shorter (This is the method in use here).
 * *Alternative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 5% will be truncated according to size (the percentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
@@ -235,8 +237,8 @@ We sets <unk> as the default.
 After sentence tokenization, we put before the sentence the beginning of sentence token, `<bos>`, and after it the end of sentence token, `<eos>`, and pad with padding token, `<pad>`, the remainder of the sentence up to `max_length`.<br/>
 The unknown word token ,`<unk>`, use for words that are not in the vocabulary and dealing with failures, and for that reason we sets `<unk>` as the default. 
 ```ruby
-sentence_tokenized = ['This', 'Simple', 'Transformer', 'Guide', '!']
-⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
+sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
+⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'is', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
 ```
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -271,7 +273,7 @@ In Reality that is not what exactly happening. There is no equality in the mathe
 <br/>
 We would like the embedding space to hold relevant semantics as much as it can, however increasing E will result in space and computing cost. Nevertheless, we can see that not so large embedding spaces supply the semantics demand, and there is a hypothesis that tries to explain this phenomenon.<br/>
 According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) if we "cram" more vectors in the space and ease the rigid demand of [*Orthogonality*](https://en.wikipedia.org/wiki/Orthogonality) a little bit and allow a slight deviation, $`0<ε<1`$. Meaning we can arrange the vectors, not in exactly 90° between each other, but in a range of $`90°-ε \le ∡e_{i}e_{j} \le 90°+ε`$ between them, each vector will have an angle of $`[90°-ε , 90°+ε]`$ with all other vectors. Then the *lemma* tells us we can arrange D vectors in $`ℝ^{E}`$, when *D ≈* *****O*****$`\big( exp(E·ε^2) \big)`$.<br/>
-For example in $`ℝ^{100}`$ we can arrange ~exp(100) ≈ $`2.68·10^{43}`$ vectors/directions/semantics and that is a lot of semantics!
+For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{35}`$ vectors/directions/semantics and that is a lot of semantics!
 
 
 ## Typical Run 
