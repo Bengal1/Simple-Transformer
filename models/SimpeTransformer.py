@@ -3,52 +3,54 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class PositionalEncoding(nn.Module):
-    """
-    Adds positional encoding to the input tensor. The positional encoding is
-    based on the formula from 'Attention Is All You Need'.
+    """Adds positional encoding to the input tensor.
+    The positional encoding is based on the formula from 'Attention Is All You Need'.
+
     Args:
-        seq_len (int): The length of the sequence.
-        d_model (int): The dimension of the model's embeddings.
-        n (int, optional): The base for the sinusoidal encoding, default is 10000.
+        embed_dim (int): The embedding dimension of the model.
+        n (int, optional): The base for the sinusoidal encoding. Default is 10000.
     """
 
-    def __init__(self, seq_len: int, d_model: int, n: int = 10000):
-        super(PositionalEncoding, self).__init__()
-        self.d_model = d_model
+    def __init__(self, embed_dim: int, n: int = 10000):
+        super().__init__()
+        self.embed_dim = embed_dim
         self.n = n
-        self.pos_encoding = self._create_positional_encoding(seq_len)
+        # pos_encoding = self._create_positional_encoding(seq_len)
+        # self.register_buffer('pos_encoding', pos_encoding)
 
-    def _create_positional_encoding(self, seq_len: int):
-        """
-        Creates the positional encoding matrix.
+    def _create_positional_encoding(self, seq_len: int,  device: torch.device):
+        """Creates the positional encoding matrix.
 
         Args:
             seq_len (int): Length of the sequence for positional encoding.
+            device (torch.device): Device where the tensor should be allocated.
 
         Returns:
-            Tensor: The positional encoding matrix of shape (seq_len, d_model).
+            Tensor: The positional encoding matrix of shape (seq_len, embed_dim).
         """
-        pos_encoding = torch.zeros(seq_len, self.d_model)
-        k_pos = torch.arange(0, seq_len).unsqueeze(dim=1).float()
-        _2i = torch.arange(0, self.d_model, step=2).float()
+        pos_encoding = torch.zeros(seq_len, self.embed_dim, device=device)
+        k_pos = torch.arange(seq_len, device=device).unsqueeze(dim=1).float()
+        _2i = torch.arange(0, self.embed_dim, step=2, device=device).float()
 
-        pos_encoding[:, 0::2] = torch.sin(k_pos / self.n ** (_2i / self.d_model))
-        pos_encoding[:, 1::2] = torch.cos(k_pos / self.n ** (_2i / self.d_model))
+        pos_encoding[:, 0::2] = torch.sin(k_pos / self.n ** (_2i / self.embed_dim))
+        pos_encoding[:, 1::2] = torch.cos(k_pos / self.n ** (_2i / self.embed_dim))
+
         return pos_encoding
 
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Adds positional encoding to the input tensor.
+        """Adds positional encoding to the input tensor.
 
         Args:
-            x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
+            x (Tensor): Input tensor of shape (batch_size, seq_len, embed_dim)
 
         Returns:
             Tensor: Tensor with added positional encoding.
         """
-        x += self.pos_encoding
-        return x
+        batch_size, seq_len, _ = x.shape
+        pos_encoding = self._create_positional_encoding(seq_len, x.device)
 
+        return x + pos_encoding.unsqueeze(0)  # Broadcast across batch
 
 class FeedForward(nn.Module):
     """
@@ -61,15 +63,14 @@ class FeedForward(nn.Module):
     """
 
     def __init__(self, d_model: int, hidden_dim: int = 512, dropout: float = 0.1):
-        super(FeedForward, self).__init__()
+        super().__init__()
         self.fc1 = nn.Linear(d_model, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, d_model)
         self.relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass through the FeedForward network.
+        """Forward pass through the FeedForward network.
 
         Applies two linear transformations with a ReLU activation and dropout in between.
 
@@ -96,14 +97,13 @@ class NormLayer(nn.Module):
     """
 
     def __init__(self, d_model: int, epsilon: float = 1e-15):
-        super(NormLayer, self).__init__()
+        super().__init__()
         self.gamma = nn.Parameter(torch.ones(d_model))
         self.beta = nn.Parameter(torch.zeros(d_model))
         self.epsilon = epsilon
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Applies layer normalization.
+        """Applies layer normalization.
 
         Args:
             x (Tensor): Input tensor of shape (batch_size, seq_len, d_model)
@@ -119,19 +119,23 @@ class NormLayer(nn.Module):
 
 class MultiHeadAttention(nn.Module):
     """
-    Implements the Multi-Head Attention mechanism used in the Transformer model.
+    Multi-Head Attention module for Transformers.
+
+    This module implements the multi-head attention mechanism used in Transformer models.
+    It supports both self-attention and cross-attention.
 
     Args:
-        max_length (int): The maximum length of the sequence.
-        embed_dim (int): The embedding dimension for the input and output.
-        num_heads (int): The number of attention heads.
-        cross_attn (bool, optional): Whether this is a cross-attention layer (decoder), default is False.
-        masked_attn (bool, optional): Whether this is a masked attention layer (for causal attention), default is False.
+        embed_dim (int): Dimension of input embeddings.
+        num_heads (int): Number of attention heads.
+        d_k (int): Dimension of key vectors per head.
+        d_v (int): Dimension of value vectors per head.
+        cross_attn (bool, optional): If True, performs cross-attention (decoder). Defaults to False.
+        masked_attn (bool, optional): If True, applies a causal mask for autoregressive decoding. Defaults to False.
     """
 
-    def __init__(self, max_length: int, embed_dim: int, num_heads: int = 8, d_k: int = 64,
+    def __init__(self, embed_dim: int, num_heads: int = 8, d_k: int = 64,
                  d_v: int = 128, cross_attn: bool = False, masked_attn: bool = False):
-        super(MultiHeadAttention, self).__init__()
+        super().__init__()
 
         assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
 
@@ -148,44 +152,40 @@ class MultiHeadAttention(nn.Module):
         self.w_v = nn.ModuleList([nn.Linear(embed_dim, d_v) for _ in range(num_heads)])
         self.w_out = nn.Linear(d_v * num_heads, embed_dim)
 
-        if masked_attn:
-            mask = torch.triu(torch.ones(1, 1, max_length, max_length, dtype=torch.bool), diagonal=1)
-            self.register_buffer("mask", mask)
-
-    def scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
+    def _scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
                                      mask: torch.Tensor = None) -> (torch.Tensor, torch.Tensor):
-        """
-        Computes the scaled dot-product attention.
+        """Computes scaled dot-product attention.
 
         Args:
-            Q (Tensor): Query tensor of shape (batch_size, num_heads, max_length, d_k).
-            K (Tensor): Key tensor of shape (batch_size, num_heads, max_length, d_k).
-            V (Tensor): Value tensor of shape (batch_size, num_heads, max_length, d_k).
-            mask (Tensor, optional): Mask tensor for masking certain positions, default is None.
+            Q (torch.Tensor): Query tensor of shape (batch_size, num_heads, src_len, d_k).
+            K (torch.Tensor): Key tensor of shape (batch_size, num_heads, tgt_len, d_k).
+            V (torch.Tensor): Value tensor of shape (batch_size, num_heads, tgt_len, d_v).
+            mask (torch.Tensor, optional): Attention mask of shape (1, 1, src_len, tgt_len), with -inf for masked positions.
 
         Returns:
-            Tensor: Attention output tensor.
+            torch.Tensor: Attention output of shape (batch_size, num_heads, src_len, d_v).
         """
         attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=Q.dtype, device=Q.device))
 
         if mask is not None:
-            attn_scores = attn_scores.masked_fill(mask, float('-inf'))
+            attn_scores = attn_scores + mask
 
         attn_probs = F.softmax(attn_scores, dim=-1)
         return torch.matmul(attn_probs, V), attn_probs
 
     def forward(self, x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
-        """
-        Forward pass for multi-head attention.
+        """Performs forward pass of multi-head attention.
 
         Args:
-            x (Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
-            y (Tensor, optional): Tensor for cross-attention, default is None.
+            x (torch.Tensor): Source tensor of shape (batch_size, src_len, embed_dim).
+            y (torch.Tensor, optional): Target tensor for cross-attention, shape (batch_size, tgt_len, embed_dim).
+                                        If None, self-attention is performed.
 
         Returns:
-            Tensor: Output tensor of shape (batch_size, seq_len, embed_dim)
+            torch.Tensor: Output tensor of shape (batch_size, src_len, embed_dim).
         """
-        batch_size, max_length, _ = x.shape
+        batch_size, src_len, _ = x.shape
+        _, trg_len, _ = y.shape if self.cross_attn else x.shape
 
         # Initialize Q, K, V for each head
         Q, K, V = [], [], []
@@ -196,16 +196,21 @@ class MultiHeadAttention(nn.Module):
             V.append(self.w_v[i](x if not self.cross_attn else y))
 
         # Stack the Q, K, V tensors into one tensor of shape (batch_size, num_heads, max_length, d_k/d_v)
-        Q = torch.stack(Q, dim=1)  # [batch_size, num_heads, max_length, d_k]
-        K = torch.stack(K, dim=1)  # [batch_size, num_heads, max_length, d_k]
-        V = torch.stack(V, dim=1)  # [batch_size, num_heads, max_length, d_v]
+        Q = torch.stack(Q, dim=1)
+        K = torch.stack(K, dim=1)
+        V = torch.stack(V, dim=1)
+
+        # Create dynamic mask of shape (1, 1, M, L)
+        mask = None
+        if self.masked_attn:
+            mask = torch.triu(torch.full((src_len, trg_len), float('-inf'), device=x.device), diagonal=1)
+            mask = mask.unsqueeze(0).unsqueeze(1)  # (1, 1, src_len, trg_len)
 
         # Apply scaled dot-product attention
-        mask = self.mask if self.masked_attn else None
-        attention_output, _ = self.scaled_dot_product_attention(Q, K, V, mask)
+        attention_output, _ = self._scaled_dot_product_attention(Q, K, V, mask)
 
         # Concatenate heads and project to output dimension
-        attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, max_length, -1)
+        attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, src_len, -1)
         return self.w_out(attention_output)
 
 
@@ -217,32 +222,31 @@ class SimpleTransformer(nn.Module):
         src_vocab_size (int): Vocabulary size for the source language.
         trg_vocab_size (int): Vocabulary size for the target language.
         embed_dim (int): The embedding dimension for both source and target embeddings.
-        max_length (int): Maximum sequence length.
-        num_heads (int): Number of attention heads.
+        num_heads (int, optional): Number of attention heads, default is 8.
         d_k (int, optional): The dimension of the query and key vectors in multi-head attention, default is 32.
         d_v (int, optional): The dimension of the value vectors in multi-head attention, default is 64.
     """
 
-    def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int, max_length: int,
-                 num_heads: int = 8, d_k: int = 32, d_v: int = 64):
-        super(SimpleTransformer, self).__init__()
+    def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim:
+                    int,num_heads: int = 8, d_k: int = 32, d_v: int = 64):
+        super().__init__()
 
         # Encoder components
         self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim)
-        self.positional_encoding_encoder = PositionalEncoding(max_length, embed_dim)
+        self.positional_encoding_encoder = PositionalEncoding(embed_dim)
 
-        self.attention_encoder = MultiHeadAttention(max_length, embed_dim, num_heads, d_k, d_v)
+        self.attention_encoder = MultiHeadAttention(embed_dim, num_heads, d_k, d_v)
         self.norm1_enc = NormLayer(embed_dim)
         self.ff_enc = FeedForward(embed_dim)
         self.norm2_enc = NormLayer(embed_dim)
 
         # Decoder components
         self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim)
-        self.positional_encoding_decoder = PositionalEncoding(max_length, embed_dim)
+        self.positional_encoding_decoder = PositionalEncoding(embed_dim)
 
-        self.attention_masked_dec = MultiHeadAttention(max_length, embed_dim, num_heads, d_k, d_v, masked_attn=True)
+        self.attention_masked_dec = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, masked_attn=True)
         self.norm1_dec = NormLayer(embed_dim)
-        self.attention_cross_dec = MultiHeadAttention(max_length, embed_dim, num_heads, d_k, d_v, cross_attn=True)
+        self.attention_cross_dec = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, cross_attn=True)
         self.norm2_dec = NormLayer(embed_dim)
         self.ff_dec = FeedForward(embed_dim)
         self.norm3_dec = NormLayer(embed_dim)
@@ -252,8 +256,7 @@ class SimpleTransformer(nn.Module):
         self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass for the SimpleTransformer model.
+        """Forward pass for the SimpleTransformer model.
 
         Args:
             src (Tensor): Source tensor of shape (batch_size, src_seq_len).
@@ -288,3 +291,45 @@ class SimpleTransformer(nn.Module):
         out = self.w_o(dec_out)
         return self.softmax(out)
 
+    def translate(self, src: torch.Tensor) -> torch.Tensor:
+        """Translates a given source sequence into the target language using greedy decoding.
+
+        Args:
+            src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).
+
+        Returns:
+            torch.Tensor: Predicted target sequence of shape (batch_size, trg_seq_len).
+        """
+        with torch.no_grad():
+            bos_token_id, eos_token_id = 2, 3  # <bos> and <eos> token IDs
+            batch_size, max_target_length = src.shape  # Extract input dimensions
+
+            # Encoder
+            src_embed = self.embedding_encoder(src)
+            src_pe = self.positional_encoding_encoder(src_embed)
+            attn_enc = self.attention_encoder(src_pe)
+            norm1_enc = self.norm1_enc(attn_enc + src_pe)
+            ff_enc = self.ff_enc(norm1_enc)
+            enc_out = self.norm2_enc(ff_enc + norm1_enc)  # Final encoder output
+
+            # Decoder
+            trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+
+            for _ in range(max_target_length):
+                trg_embed = self.embedding_decoder(trg_seq)
+                trg_pe = self.positional_encoding_decoder(trg_embed)
+                attn_masked_dec = self.attention_masked_dec(trg_pe)
+                norm1_dec = self.norm1_dec(attn_masked_dec + trg_pe)
+                attn_cross_dec = self.attention_cross_dec(norm1_dec, enc_out)
+                norm2_dec = self.norm2_dec(attn_cross_dec + norm1_dec)
+                ff_dec = self.ff_dec(norm2_dec)
+                dec_out = self.norm3_dec(ff_dec + norm2_dec)
+
+                out_logits = self.w_o(dec_out[:, -1, :])
+                next_token = out_logits.argmax(dim=-1, keepdim=True)
+                trg_seq = torch.cat([trg_seq, next_token], dim=1)
+
+                if (next_token == eos_token_id).all():
+                    break
+
+            return trg_seq

@@ -3,7 +3,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from models.SimpeTransformer import SimpleTransformer
 from data.iwslt14 import IWSLT14Dataset
-import evaluate
+import evaluation
 # import time
 
 
@@ -22,11 +22,19 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using', device, '\n')
 
 # Data #
-train_dataset = IWSLT14Dataset(split="train")
-val_dataset = IWSLT14Dataset(split="validation")
-test_dataset = IWSLT14Dataset(split="test")
+# train_dataset = IWSLT14Dataset(split="train")
+# val_dataset = IWSLT14Dataset(split="validation")
+# test_dataset = IWSLT14Dataset(split="test")
 
-# train_dataset = IWSLT14Dataset(local_file="iwslt14_debug.json")  # debug code!!!
+# Local files
+# train_dataset = IWSLT14Dataset(split="train",local_file="iwslt14_train.json")
+# val_dataset = IWSLT14Dataset(split="validation",local_file="iwslt14_validation.json")
+# test_dataset = IWSLT14Dataset(split="test",local_file="iwslt14_test.json")
+
+# Debug #
+train_dataset = IWSLT14Dataset(split="train",local_file="iwslt14_train_debug.json")
+val_dataset = IWSLT14Dataset(split="validation",local_file="iwslt14_validation_debug.json")
+test_dataset = IWSLT14Dataset(split="test",local_file="iwslt14_test_debug.json")
 
 # DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -37,7 +45,7 @@ src_vocab_size, trg_vocab_size = train_dataset.get_vocab_sizes()
 max_length = train_dataset.get_max_length()
 
 # Initialize the model #
-st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim, max_length,
+st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
                              num_heads=num_heads, d_k=d_k, d_v=d_v).to(device)
 
 # Loss & Optimization #
@@ -98,11 +106,11 @@ def train():
     for batch_idx, (src, trg) in enumerate(train_loader):
         # Move data to device (GPU/CPU)
         src, trg = src.to(device), trg.to(device)
-        trg_shifted = shift_trg_right(trg)
+        trg_shifted = shift_trg_right(trg).to(device) # Remove the last token from target (teacher forcing)
 
         # Forward pass
         optimizer.zero_grad()
-        output = st_model(src, trg_shifted)  # Remove the last token from target (teacher forcing)
+        output = st_model(src, trg_shifted)
 
         # Compute loss
         loss = criterion(output.view(-1, trg_vocab_size), trg.view(-1))  # Shift target by 1
@@ -118,7 +126,7 @@ def train():
 
     avg_loss = total_loss / len(train_loader)
     # elapsed_time = time.time() - start_time
-    print(f"Epoch complete, Average Loss: {avg_loss:.4f}") #, Time: {elapsed_time:.2f} seconds")
+    print(f"Epoch complete, Average Loss: {avg_loss:.4f}") #(, Time: {elapsed_time:.2f} seconds)
     return avg_loss
 
 # Train #
@@ -134,15 +142,14 @@ def train_model():
         print(f"\nEpoch {epoch + 1}/{epochs}")
         avg_loss = train()
 
-        # Evaluate on validation set
-        val_scores = evaluate.evaluate(st_model, val_loader, train_dataset.fr_vocab, max_length, device)
-        print(f"Validation Scores - BLEU: {val_scores['BLEU']:.2f}, ROUGE-1: "
-              f"{val_scores['ROUGE-1']:.4f}, ROUGE-L: {val_scores['ROUGE-L']:.4f}")
+        # Evaluate BLEU on the validation set
+        val_scores = evaluation.evaluate_model(st_model, val_loader, train_dataset.fr_vocab, max_length, device)
+        print(f"  BLEU on val set: {val_scores['BLEU']:.2f}")
 
         # Save the model if the loss is the best so far
         if avg_loss < best_loss:
             best_loss = avg_loss
-            save_model(epoch, st_model, optimizer, avg_loss)
+            save_model(epoch + 1, st_model, optimizer, avg_loss)
 
 if __name__ == "__main__":
     """
