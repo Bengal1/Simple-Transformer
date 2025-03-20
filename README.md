@@ -120,6 +120,8 @@ MultiHead-Attention = Concat(head_1,...,head_h)·W_{out}
 
 Where $`W_{Q_{i}}, W_{K_{i}}, W_{V_{i}}`$ and $`W_{out}`$ are learnable weight matrices.
 
+For more information on Transformer and Attention there is a video series [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) 
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### FeedForward Network
@@ -281,4 +283,3 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 ## References
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
-[3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
