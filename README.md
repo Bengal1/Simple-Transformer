@@ -83,7 +83,7 @@ $$
 → ΔX'·W_{out} = ΔX∈ℝ^{M×E}
 $$
 $$
-&emsp;&emsp;&emsp;&ensp; ⇨ Y = ΔX + X &ensp; (Residual - Connection)
+ ⇨ Y = ΔX + X &ensp; (Residual - Connection)
 $$
 
 <br/>
@@ -119,6 +119,9 @@ MultiHead-Attention = Concat(head_1,...,head_h)·W_{out}
 <br/>
 
 Where $`W_{Q_{i}}, W_{K_{i}}, W_{V_{i}}`$ and $`W_{out}`$ are learnable weight matrices.
+
+For more information on Transformer and Attention there is a video series [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) 
+
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -244,9 +247,12 @@ sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Embedding
+<img align="right" width="400"  src="https://github.com/user-attachments/assets/2cde7e51-70ed-4c5e-9575-33e8e0590083">
 
-Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. 
-In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`, for more information on [*Real Vector Space*](https://en.wikipedia.org/wiki/Real_coordinate_space)) and we get for every sequence a matrix of size $`ℝ^{M×E}`$.
+Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. <br/>
+Word embedding is a technique used in Natural Language Processing (NLP) to represent words as dense numerical vectors. These vectors capture semantic relationships between words based on their context in large text corpora. <br/>
+In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`, for more information on [*Real Vector Space*](https://en.wikipedia.org/wiki/Real_coordinate_space)) and we get for every sequence a matrix of size $`ℝ^{M×E}`$. <br/>
+
 
 #### Intuitive understanding of Embedding
 
@@ -267,9 +273,9 @@ We can interpret it as if we strip the king from his gender then the vector that
 And also it expected to get from the king vector to the queen vector we will do: 
 &emsp;&emsp;&emsp;&emsp; $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
 <br/>
-#### How Can $`ℝ^{E}`$ Holds Language Semantics?
+#### How Can $`ℝ^{E}`$ Holds Rich Language Semantics?
 
-In Reality that is not what exactly happening. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, so that an object in this space when getting shifted in the 'Royal' direction it would not be shifted in unrelated direction like 'Size', 'Metallic' etc. meaning larger the embedding space the more semantics it can hold. However, a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).
+In Reality that is not what exactly happening. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, so that an object in this space when getting shifted in the 'Royal' direction it would not be shifted in unrelated direction like 'Size', 'Metallic', 'Temperature' and much more. Meaning larger the embedding space the more semantics it can hold. However, a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).
 <br/>
 We would like the embedding space to hold relevant semantics as much as it can, however increasing E will result in space and computing cost. Nevertheless, we can see that not so large embedding spaces supply the semantics demand, and there is a hypothesis that tries to explain this phenomenon.<br/>
 According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) if we "cram" more vectors in the space and ease the rigid demand of [*Orthogonality*](https://en.wikipedia.org/wiki/Orthogonality) a little bit and allow a slight deviation, $`0<ε<1`$. Meaning we can arrange the vectors, not in exactly 90° between each other, but in a range of $`90°-ε \le ∡e_{i}e_{j} \le 90°+ε`$ between them, each vector will have an angle of $`[90°-ε , 90°+ε]`$ with all other vectors. Then the *lemma* tells us we can arrange D vectors in $`ℝ^{E}`$, when *D ≈* *****O*****$`\big( exp(E·ε^2) \big)`$.<br/>
@@ -281,4 +287,3 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 ## References
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
-[3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
