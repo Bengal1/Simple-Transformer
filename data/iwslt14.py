@@ -20,16 +20,30 @@ class IWSLT14Dataset(Dataset):
         pad_idx (int): Index of the padding token.
         unk_idx (int): Index of the unknown token.
 
-     Class Attributes:
-        en_vocab (dict): Shared English vocabulary mapping tokens to indices across all dataset splits.
-        fr_vocab (dict): Shared French vocabulary mapping tokens to indices across all dataset splits.
-        special_tokens (list): List of special tokens used in the dataset.
+    Class Attributes:
+        en_vocab (dict): English vocabulary mapping tokens to indices. This dictionary is
+                            updated dynamically with each dataset split.
+        fr_vocab (dict): French vocabulary mapping tokens to indices. Like `en_vocab`, it expands
+                            with each dataset instance.
+        special_tokens (list): List of special tokens (`"<unk>"`, `"<pad>"`, `"<bos>"`, `"<eos>"`)
+                            used for handling unknown words, padding, and marking sentence boundaries.
     """
+
     en_vocab = {"<unk>": 0, "<pad>": 1, "<bos>": 2, "<eos>": 3}
     fr_vocab = {"<unk>": 0, "<pad>": 1, "<bos>": 2, "<eos>": 3}
     special_tokens = ["<unk>", "<pad>", "<bos>", "<eos>"]
 
     def __init__(self, split="train", local_file=None):
+        """Initializes the IWSLT14Dataset.
+
+        Args:
+            split (str, optional): The dataset split to load ('train', 'validation', or 'test'). Defaults to "train".
+            local_file (str, optional): Path to a local dataset file. If provided, the dataset is loaded from this file
+                                        instead of being fetched from Hugging Face.
+
+        Raises:
+            KeyError: If the specified split is not found in the local dataset file.
+        """
         super().__init__()
         self.split = split  # Store split type
         self.local_file = local_file  # Debugging option
