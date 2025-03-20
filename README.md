@@ -122,6 +122,7 @@ Where $`W_{Q_{i}}, W_{K_{i}}, W_{V_{i}}`$ and $`W_{out}`$ are learnable weight m
 
 For more information on Transformer and Attention there is a video series [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) 
 
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### FeedForward Network
