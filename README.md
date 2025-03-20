@@ -270,7 +270,7 @@ We can interpret it as if we strip the king from his gender then the vector that
 And also it expected to get from the king vector to the queen vector we will do: 
 &emsp;&emsp;&emsp;&emsp; $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
 <br/>
-#### How Can $`ℝ^{E}`$ Holds Language Semantics?
+#### How Can $`ℝ^{E}`$ Holds Rich Language Semantics?
 
 In Reality that is not what exactly happening. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, so that an object in this space when getting shifted in the 'Royal' direction it would not be shifted in unrelated direction like 'Size', 'Metallic' etc. meaning larger the embedding space the more semantics it can hold. However, a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).
 <br/>
