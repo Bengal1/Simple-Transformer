@@ -2,12 +2,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class PositionalEncoding(nn.Module):
     """
     Adds positional encoding to the input tensor.The positional encoding is based
     on the formula from 'Attention Is All You Need'.
 
-    Args:
+    Attributes:
         embed_dim (int): The embedding dimension of the model.
         n (int, optional): The base for the sinusoidal encoding. Default is 10000.
     """
@@ -55,7 +56,7 @@ class FeedForward(nn.Module):
     """
     A FeedForward neural network as used in the Transformer model.
 
-    Args:
+    Attributes:
         d_model (int): The dimension of the input and output embeddings.
         hidden_dim (int, optional): The hidden dimension in the feed-forward network, default is 512.
         dropout (float, optional): The dropout probability, default is 0.1.
@@ -89,7 +90,7 @@ class NormLayer(nn.Module):
     """
     Implements layer normalization used in the Transformer.
 
-    Args:
+    Attributes:
         d_model (int): The dimension of the input tensor.
         epsilon (float, optional): A small value added to variance for numerical stability, default is 1e-15.
     """
@@ -122,16 +123,16 @@ class MultiHeadAttention(nn.Module):
     This module implements the multi-head attention mechanism used in Transformer models.
     It supports both self-attention and cross-attention.
 
-    Args:
+    Attributes:
         embed_dim (int): Dimension of input embeddings.
-        num_heads (int): Number of attention heads.
-        d_k (int): Dimension of key vectors per head.
-        d_v (int): Dimension of value vectors per head.
-        cross_attn (bool, optional): If True, performs cross-attention (decoder). Defaults to False.
-        masked_attn (bool, optional): If True, applies a causal mask for autoregressive decoding. Defaults to False.
+        num_heads (int): Number of attention heads, default is 1.
+        d_k (int): Dimension of key vectors per head, default is 64.
+        d_v (int): Dimension of value vectors per head, default is 128.
+        cross_attn (bool, optional): If True, performs cross-attention (decoder), Defaults is False.
+        masked_attn (bool, optional): If True, applies a causal mask for autoregressive decoding, Defaults is False.
     """
 
-    def __init__(self, embed_dim: int, num_heads: int = 8, d_k: int = 64,
+    def __init__(self, embed_dim: int, num_heads: int = 1, d_k: int = 64,
                  d_v: int = 128, cross_attn: bool = False, masked_attn: bool = False):
         super().__init__()
 
@@ -216,7 +217,7 @@ class SimpleTransformer(nn.Module):
     """
     Implements the full Transformer model for sequence-to-sequence tasks.
 
-    Args:
+    Attributes:
         src_vocab_size (int): Vocabulary size for the source language.
         trg_vocab_size (int): Vocabulary size for the target language.
         embed_dim (int): The embedding dimension for both source and target embeddings.
