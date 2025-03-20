@@ -83,7 +83,7 @@ $$
 → ΔX'·W_{out} = ΔX∈ℝ^{M×E}
 $$
 $$
-&emsp;&emsp;&emsp;&ensp; ⇨ Y = ΔX + X &ensp; (Residual - Connection)
+ ⇨ Y = ΔX + X &ensp; (Residual - Connection)
 $$
 
 <br/>
