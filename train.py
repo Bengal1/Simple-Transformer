@@ -98,7 +98,6 @@ def train():
     Returns:
         float: The average loss for the epoch.
     """
-
     st_model.train()
     total_loss = 0
     # start_time = time.time()
@@ -143,22 +142,20 @@ def train_model():
         avg_loss = train()
 
         # Evaluate BLEU on the validation set
-        val_scores = evaluation.evaluate_model(st_model, val_loader, train_dataset.fr_vocab, max_length, device)
-        print(f"  BLEU on val set: {val_scores['BLEU']:.2f}")
+        val_scores = evaluation.evaluate_model(st_model, val_loader, val_dataset.fr_vocab, device)
+        print(f"  BLEU on validation set: {val_scores:.2f}")
+
 
         # Save the model if the loss is the best so far
         if avg_loss < best_loss:
             best_loss = avg_loss
             save_model(epoch + 1, st_model, optimizer, avg_loss)
 
+# Entry point
 if __name__ == "__main__":
-    """
-    Entry point for training the model.
-
-    This block of code runs when the script is executed directly. It calls the
-    `train_model` function to start the model training process.
-    """
     train_model()
+    test_scores = evaluation.evaluate_model(st_model, test_loader, test_dataset.fr_vocab,  device)
+    print(f"  BLEU on test set: {test_scores:.2f}")
 
 
 

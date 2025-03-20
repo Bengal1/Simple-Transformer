@@ -3,8 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class PositionalEncoding(nn.Module):
-    """Adds positional encoding to the input tensor.
-    The positional encoding is based on the formula from 'Attention Is All You Need'.
+    """
+    Adds positional encoding to the input tensor.The positional encoding is based
+    on the formula from 'Attention Is All You Need'.
 
     Args:
         embed_dim (int): The embedding dimension of the model.
@@ -15,10 +16,8 @@ class PositionalEncoding(nn.Module):
         super().__init__()
         self.embed_dim = embed_dim
         self.n = n
-        # pos_encoding = self._create_positional_encoding(seq_len)
-        # self.register_buffer('pos_encoding', pos_encoding)
 
-    def _create_positional_encoding(self, seq_len: int,  device: torch.device):
+    def _create_positional_encoding(self, seq_len: int,  device: torch.device) -> torch.tensor:
         """Creates the positional encoding matrix.
 
         Args:
@@ -71,7 +70,6 @@ class FeedForward(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the FeedForward network.
-
         Applies two linear transformations with a ReLU activation and dropout in between.
 
         Args:
@@ -119,7 +117,7 @@ class NormLayer(nn.Module):
 
 class MultiHeadAttention(nn.Module):
     """
-    Multi-Head Attention module for Transformers.
+    Multi-Head Attention module.
 
     This module implements the multi-head attention mechanism used in Transformer models.
     It supports both self-attention and cross-attention.
@@ -137,7 +135,7 @@ class MultiHeadAttention(nn.Module):
                  d_v: int = 128, cross_attn: bool = False, masked_attn: bool = False):
         super().__init__()
 
-        assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
+        # assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
 
         self.num_heads = num_heads
         self.d_k = d_k  # size of the key dimension
@@ -232,7 +230,7 @@ class SimpleTransformer(nn.Module):
         super().__init__()
 
         # Encoder components
-        self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim)
+        self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim, padding_idx=1)
         self.positional_encoding_encoder = PositionalEncoding(embed_dim)
 
         self.attention_encoder = MultiHeadAttention(embed_dim, num_heads, d_k, d_v)
@@ -241,7 +239,7 @@ class SimpleTransformer(nn.Module):
         self.norm2_enc = NormLayer(embed_dim)
 
         # Decoder components
-        self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim)
+        self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim, padding_idx=1)
         self.positional_encoding_decoder = PositionalEncoding(embed_dim)
 
         self.attention_masked_dec = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, masked_attn=True)

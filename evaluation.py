@@ -2,7 +2,7 @@ import torch
 import evaluate as hf_evaluate
 
 
-def evaluate_model(model, val_loader, trg_vocab, max_length, device):
+def evaluate_model(model, val_loader, trg_vocab, device):
     """Evaluates the model and computes the BLEU score using Hugging Face evaluate."""
     bleu_metric = hf_evaluate.load("bleu")
 
@@ -15,34 +15,26 @@ def evaluate_model(model, val_loader, trg_vocab, max_length, device):
     with torch.no_grad():
         for src, trg in val_loader:
             src, trg = src.to(device), trg.to(device)
-            batch_size = src.shape[0]
-            decoded_sentences = [["<bos>"] for _ in range(batch_size)]
+            output = model.translate(src)
+            output = output.cpu().tolist()
 
-            for _ in range(max_length):
-                trg_tensor = torch.tensor(
-                    [[trg_vocab.get(token, 0) for token in sent] for sent in decoded_sentences],
-                    dtype=torch.long, device=device
-                )
-                output = model.translate(src)
-                next_tokens = output.argmax(-1)[:, -1].tolist()
+            # Convert token indices to words
+            decoded_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent] for sent in output]
+            reference_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent.tolist()] for sent in trg]
+            print(f"Output: {decoded_sentences}") # Debug
 
-                for i, token in enumerate(next_tokens):
-                    decoded_sentences[i].append(token)
-                    if token == trg_vocab["<eos>"]:
-                        decoded_sentences[i] = decoded_sentences[i][1:]  # Remove <bos>
-
-            # Convert token indices back to words
-            decoded_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent] for sent in decoded_sentences]
-            reference_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent.tolist()] for sent in trg.cpu()]
-
-            # Remove special tokens (<bos>, <eos>, <pad>)
-            decoded_sentences = [[word for word in sent if word not in ["<bos>", "<eos>", "<pad>"]] for sent in decoded_sentences]
-            reference_sentences = [[word for word in sent if word not in ["<bos>", "<eos>", "<pad>"]] for sent in reference_sentences]
+            # Remove special tokens
+            decoded_sentences = [[word for word in sent if word not in ["<bos>", "<eos>", "<pad>"]] for sent in
+                                 decoded_sentences]
+            reference_sentences = [[word for word in sent if word not in ["<bos>", "<eos>", "<pad>"]] for sent in
+                                   reference_sentences]
 
             predictions.extend([" ".join(sent) for sent in decoded_sentences])
             references.extend([[" ".join(sent)] for sent in reference_sentences])
 
+    # print(f"Predictions: {predictions}") # Debug
+    # print(f"References: {references}") # Debug
+
     # Compute BLEU score
     bleu_score = bleu_metric.compute(predictions=predictions, references=references)["bleu"]
     return bleu_score
-

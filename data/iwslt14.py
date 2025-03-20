@@ -16,20 +16,27 @@ class IWSLT14Dataset(Dataset):
         local_file (str, optional): Path to a local dataset file (if provided, loads from disk instead of Hugging Face).
         en_nlp (spacy.Language): spaCy tokenizer for English.
         fr_nlp (spacy.Language): spaCy tokenizer for French.
-        en_vocab (dict): Token-to-index mapping for English.
-        fr_vocab (dict): Token-to-index mapping for French.
         max_length (int): Maximum sequence length, including special tokens.
         pad_idx (int): Index of the padding token.
         unk_idx (int): Index of the unknown token.
+
+     Class Attributes:
+        en_vocab (dict): Shared English vocabulary mapping tokens to indices across all dataset splits.
+        fr_vocab (dict): Shared French vocabulary mapping tokens to indices across all dataset splits.
+        special_tokens (list): List of special tokens used in the dataset.
     """
+    en_vocab = {"<unk>": 0, "<pad>": 1, "<bos>": 2, "<eos>": 3}
+    fr_vocab = {"<unk>": 0, "<pad>": 1, "<bos>": 2, "<eos>": 3}
+    special_tokens = ["<unk>", "<pad>", "<bos>", "<eos>"]
 
     def __init__(self, split="train", local_file=None):
         super().__init__()
         self.split = split  # Store split type
         self.local_file = local_file  # Debugging option
+
         self._load_tokenizers()
         self._load_dataset()
-        self._build_vocabularies()
+        self._update_global_vocab()
         self._set_special_indices()
         self._compute_max_length()
 
@@ -83,31 +90,22 @@ class IWSLT14Dataset(Dataset):
         """
         return [token.text for token in nlp_model(text)]
 
-    def _build_vocabularies(self):
-        """Builds English and French vocabularies based on tokenized data."""
-        self.special_tokens = ["<unk>", "<pad>", "<bos>", "<eos>"]
-
-        # Construct vocabulary from dataset tokens
-        tokenized_en, tokenized_fr = self.tokenized_data[self.split]
-        self.en_vocab = self._build_vocab(tokenized_en)
-        self.fr_vocab = self._build_vocab(tokenized_fr)
-
-    def _build_vocab(self, tokenized_sentences: list) -> dict:
-        """Builds a vocabulary mapping from token to index.
-
-        Args:
-            tokenized_sentences (list): A list of tokenized sentences.
-
-        Returns:
-            dict: Token-to-index mapping.
+    def _update_global_vocab(self):
         """
-        unique_tokens = set(token for sentence in tokenized_sentences for token in sentence)
-        return {token: idx for idx, token in enumerate(self.special_tokens + list(unique_tokens))}
+        Updates the global English and French vocabularies with tokens from the current dataset split.
+        """
+        tokenized_en, tokenized_fr = self.tokenized_data[self.split]
+        for token in set(token for sentence in tokenized_en for token in sentence):
+            if token not in IWSLT14Dataset.en_vocab:
+                IWSLT14Dataset.en_vocab[token] = len(IWSLT14Dataset.en_vocab)
+        for token in set(token for sentence in tokenized_fr for token in sentence):
+            if token not in IWSLT14Dataset.fr_vocab:
+                IWSLT14Dataset.fr_vocab[token] = len(IWSLT14Dataset.fr_vocab)
 
     def _set_special_indices(self):
         """Sets indices for special tokens."""
-        self.unk_idx = self.en_vocab["<unk>"]
-        self.pad_idx = self.en_vocab["<pad>"]
+        self.unk_idx = IWSLT14Dataset.en_vocab["<unk>"]
+        self.pad_idx = IWSLT14Dataset.en_vocab["<pad>"]
 
     def _compute_max_length(self):
         """Determines the maximum sentence length in the dataset."""
@@ -120,8 +118,15 @@ class IWSLT14Dataset(Dataset):
         """Returns the number of sentence pairs in the selected split."""
         return len(self.tokenized_data[self.split][0])
 
-    def __getitem__(self, idx: int):
-        """Retrieves tokenized and padded sentences for the selected split."""
+    def __getitem__(self, idx: int) -> tuple:
+        """Retrieves tokenized and padded sentences for the selected split.
+        
+        Args:
+            idx (int): Index of the sentence pair.
+        
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: Token indices for English and French sentences.
+        """
         tokenized_en, tokenized_fr = self.tokenized_data[self.split]
 
         # Add <bos> and <eos> tokens
@@ -133,10 +138,15 @@ class IWSLT14Dataset(Dataset):
         fr_sentence += ["<pad>"] * (self.max_length - len(fr_sentence))
 
         # Convert tokens to indices
-        en_indices = [self.en_vocab.get(token, self.unk_idx) for token in en_sentence]
-        fr_indices = [self.fr_vocab.get(token, self.unk_idx) for token in fr_sentence]
+        en_indices = [IWSLT14Dataset.en_vocab.get(token, self.unk_idx) for token in en_sentence]
+        fr_indices = [IWSLT14Dataset.fr_vocab.get(token, self.unk_idx) for token in fr_sentence]
 
         return torch.tensor(en_indices), torch.tensor(fr_indices)
+
+    @classmethod
+    def get_vocab_sizes(cls) -> tuple:
+        """Returns the total vocabulary size for both English and French."""
+        return len(cls.en_vocab), len(cls.fr_vocab)
 
     def get_padding_index(self) -> int:
         """Returns the padding index for embedding layers."""
@@ -145,10 +155,6 @@ class IWSLT14Dataset(Dataset):
     def get_unknown_index(self) -> int:
         """Returns the unknown token index."""
         return self.unk_idx
-
-    def get_vocab_sizes(self):
-        """Returns the sizes of the English and French vocabularies."""
-        return len(self.en_vocab), len(self.fr_vocab)
 
     def get_max_length(self) -> int:
         """Returns the maximum sentence length, considering <bos> and <eos>."""

@@ -2,7 +2,7 @@ import json
 from datasets import load_dataset
 
 
-def make_iwslt14_local(split: str, debug: bool = False, debug_size: int = 1000):
+def make_iwslt14_local_file(split: str, debug: bool = False, debug_size: int = 1000):
     """
     Saves the IWSLT14 dataset as a JSON file.
 
@@ -14,10 +14,10 @@ def make_iwslt14_local(split: str, debug: bool = False, debug_size: int = 1000):
     dataset = load_dataset("ahazeemi/iwslt14-en-fr")[split]
     # debug mode is enabled
     if debug:
-        dataset = dataset.select(range(100))  # Select only 100 samples for debugging
+        dataset = dataset.select(range(debug_size))  # Select only 100 samples for debugging
 
     # Save dataset under the correct split
-    full_dataset = {
+    local_dataset = {
         split: {
             "en": dataset["en"],
             "fr": dataset["fr"]
@@ -26,12 +26,12 @@ def make_iwslt14_local(split: str, debug: bool = False, debug_size: int = 1000):
 
     filename = f"iwslt14_{split}_debug.json" if debug else f"iwslt14_{split}.json"
     with open(filename, "w", encoding="utf-8") as f:
-        json.dump(full_dataset, f, ensure_ascii=False, indent=4)
+        json.dump(local_dataset, f, ensure_ascii=False, indent=4)
 
     print(f"{split} dataset saved as {filename} ({'debug' if debug else 'full'})")
 
 
 # Generate full and debug datasets for train, validation, and test splits
-for split in ["train", "validation", "test"]:
-    make_iwslt14_local(split=split, debug=False)  # Full dataset
-    make_iwslt14_local(split=split, debug=True)  # Debug dataset
+for sp in ["train", "validation", "test"]:
+    make_iwslt14_local_file(split=sp, debug=False)  # Full dataset
+    make_iwslt14_local_file(split=sp, debug=True)  # Debug dataset
