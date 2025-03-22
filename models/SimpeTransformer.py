@@ -388,10 +388,12 @@ class SimpleTransformer(nn.Module):
                 ff_dec = self.ff_dec(norm2_dec)
                 dec_out = self.norm3_dec(ff_dec + norm2_dec)
 
+                # Predict next token
                 out_logits = self.w_o(dec_out[:, -1, :])
                 next_token = out_logits.argmax(dim=-1, keepdim=True)
                 trg_seq = torch.cat([trg_seq, next_token], dim=1)
 
+                # Stop if all sequences generated <eos>
                 if (next_token == eos_token_id).all():
                     break
 

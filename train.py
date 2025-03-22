@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from models.SimpeTransformer import SimpleTransformer
 from data.iwslt14 import IWSLT14Dataset
 import evaluation
+import utils
 # import time
 
 
@@ -134,29 +135,36 @@ def train_model():
     Trains the model and evaluates it on the validation set after each epoch.
     Saves the model if the validation loss improves.
     """
+    train_loss = []
+    validation_loss = []
+
     st_model.train()
     best_loss = float('inf')
 
     for epoch in range(epochs):
         print(f"\nEpoch {epoch + 1}/{epochs}")
         avg_loss = train()
+        train_loss.append(avg_loss)
 
         # Evaluate BLEU on the validation set
-        val_scores = evaluation.evaluate_model(st_model, val_loader, val_dataset.fr_vocab, device)
-        print(f"  BLEU on validation set: {val_scores:.2f}")
-
+        val_loss = evaluation.evaluate_model(st_model, val_loader, criterion, device)
+        print(f"Validation loss: {val_loss:.2f}")
+        validation_loss.append(val_loss)
 
         # Save the model if the loss is the best so far
         if avg_loss < best_loss:
             best_loss = avg_loss
             save_model(epoch + 1, st_model, optimizer, avg_loss)
 
+    return {'train': train_loss, 'validation': validation_loss}
+
 # Entry point
 if __name__ == "__main__":
-    train_model()
-    test_scores = evaluation.evaluate_model(st_model, test_loader, test_dataset.fr_vocab,  device)
-    print(f"  BLEU on test set: {test_scores:.2f}")
-
-
+    loss_record = train_model()
+    test_loss = evaluation.evaluate_model(st_model, test_loader, criterion,  device)
+    print(f"\nTest loss: {test_loss:.2f}")
+    # bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
+    # print(f"\nBLEU on test set: {bleu_score:.2f}")
+    utils.plot_losses(loss_record)
 
 
