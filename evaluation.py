@@ -75,7 +75,7 @@ def evaluate_bleu(model, val_loader, trg_vocab, device):
             predictions.extend([" ".join(sent) for sent in decoded_sentences])
             references.extend([[" ".join(sent)] for sent in reference_sentences])
 
-    # Debugging output:
+    # Debug
     print(f"Predictions (first 5): {predictions[:5]}")
     print(f"References (first 5): {references[:5]}")
 
@@ -87,3 +87,44 @@ def evaluate_bleu(model, val_loader, trg_vocab, device):
     # Compute BLEU score
     bleu_score = bleu_metric.compute(predictions=predictions, references=references)["bleu"]
     return bleu_score
+
+
+# ------------------------------------------------------------------------------ #
+
+# def evaluate_bleu(model, data_loader, vocab, device):
+#     predictions = []
+#     references = []
+#
+#     for src, trg in data_loader:
+#         src = src.to(device)
+#         trg = trg.to(device)
+#
+#         # Translate the source sequence to target language
+#         translated = model.translate(src)
+#
+#         # Convert translated tokens back to words (assuming you have a function to do this)
+#         translated_words = vocab.decode(translated.squeeze(0).cpu().numpy())
+#
+#         # Check if translation is empty, and handle it
+#         if not translated_words:
+#             translated_words = ["<unk>"] * len(trg[0])  # Fallback to <unk> if empty
+#
+#         predictions.append(translated_words)
+#         references.append([trg])
+#
+#     # Compute BLEU score
+#     bleu_score = bleu_metric.compute(predictions=predictions, references=references)["bleu"]
+#     return bleu_score
+#
+#
+# from collections import Counter
+#
+# def compute_bleu_safe(predictions, references):
+#     # Ensure no empty predictions or references
+#     valid_predictions = [p for p in predictions if len(p) > 0]
+#     valid_references = [r for r in references if len(r) > 0]
+#
+#     if not valid_predictions or not valid_references:
+#         return 0.0  # Return 0 BLEU score if there are no valid predictions
+#
+#     return bleu_metric.compute(predictions=valid_predictions, references=valid_references)["bleu"]

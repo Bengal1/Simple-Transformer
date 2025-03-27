@@ -364,7 +364,7 @@ class SimpleTransformer(nn.Module):
             torch.Tensor: Predicted target sequence of shape (batch_size, trg_seq_len).
         """
         with torch.no_grad():
-            bos_token_id, eos_token_id = 2, 3  # <bos> and <eos> token IDs
+            unk_token_id, bos_token_id, eos_token_id = 0, 2, 3  # <bos> and <eos> token IDs
             batch_size, max_target_length = src.shape  # Extract input dimensions
 
             # Encoder
@@ -377,6 +377,9 @@ class SimpleTransformer(nn.Module):
 
             # Decoder initialization
             trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+
+            # Track whether <eos> is generated in any sequence
+            generated_eos = torch.zeros(batch_size, dtype=torch.bool, device=src.device)
 
             for _ in range(max_target_length):
                 trg_embed = self.embedding_decoder(trg_seq)
@@ -391,11 +394,20 @@ class SimpleTransformer(nn.Module):
                 # Predict next token
                 out_logits = self.w_o(dec_out[:, -1, :])
                 next_token = out_logits.argmax(dim=-1, keepdim=True)
+
+                # Append predicted token to sequence
                 trg_seq = torch.cat([trg_seq, next_token], dim=1)
 
-                # Stop if all sequences generated <eos>
-                if (next_token == eos_token_id).all():
+                # Check if <eos> token is predicted for any sequence in the batch
+                generated_eos |= (next_token.squeeze(-1) == eos_token_id)
+
+                # Stop early if all sequences have generated <eos> token
+                if generated_eos.all():
                     break
+
+            # Ensure that the output is not empty
+            if trg_seq.shape[1] == 1:
+                trg_seq = torch.tensor([[unk_token_id]], dtype=torch.long, device=src.device).expand(batch_size, 2)
 
             return trg_seq
 
