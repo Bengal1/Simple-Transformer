@@ -57,7 +57,7 @@ optimizer = optim.Adam(st_model.parameters(), lr=learning_rate)
 
 
 # Training loop
-def train():
+def train() -> float:
     """
     Performs one epoch of training on the model.
 
@@ -95,10 +95,14 @@ def train():
     return avg_loss
 
 # Train #
-def train_model():
+def train_model() -> dict:
     """
     Trains the model and evaluates it on the validation set after each epoch.
-    Saves the model if the validation loss improves.
+
+    Returns:
+        dict: A dictionary containing the recorded losses for training and validation, with the keys:
+            - 'train' (list of float): Average training loss per epoch.
+            - 'validation' (list of float): Validation loss per epoch.
     """
     loss_record = {'train': [], 'validation': []}
 

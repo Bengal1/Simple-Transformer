@@ -105,8 +105,8 @@ class IWSLT14Dataset(Dataset):
         return [token.text for token in nlp_model(text)]
 
     def _update_global_vocab(self):
-        """
-        Updates the global English and French vocabularies with tokens from the current dataset split.
+        """Updates the global English and French vocabularies with tokens from the current
+        dataset split.
         """
         tokenized_en, tokenized_fr = self.tokenized_data[self.split]
         for token in set(token for sentence in tokenized_en for token in sentence):

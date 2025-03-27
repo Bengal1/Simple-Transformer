@@ -407,7 +407,8 @@ class SimpleTransformer(nn.Module):
 
             # Ensure that the output is not empty
             if trg_seq.shape[1] == 1:
-                trg_seq = torch.tensor([[unk_token_id]], dtype=torch.long, device=src.device).expand(batch_size, 2)
+                trg_seq = torch.tensor([[unk_token_id]], dtype=torch.long,
+                                       device=src.device).expand(batch_size, 2)
 
             return trg_seq
 

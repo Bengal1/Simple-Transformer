@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import os
 
 
-def save_model(epoch, model, opt, loss, checkpoint_path="model_checkpoint.pth"):
+def save_model(epoch: int, model: torch.nn.Module, opt: torch.optim.Optimizer, loss: float,
+               checkpoint_path: str = "model_checkpoint.pth"):
     """
     Saves the model and optimizer states, along with the current epoch and loss,
     to a checkpoint file.
@@ -28,7 +29,8 @@ def save_model(epoch, model, opt, loss, checkpoint_path="model_checkpoint.pth"):
     print(f"Model checkpoint saved at epoch {epoch}.")
 
 
-def load_checkpoint(model, optimizer, checkpoint_path="model_checkpoint.pth"):
+def load_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimizer,
+                    checkpoint_path: str = "model_checkpoint.pth") -> int:
     """
     Loads a model checkpoint from the specified path and restores the model
     and optimizer states. If a checkpoint exists, training resumes from the
@@ -48,31 +50,31 @@ def load_checkpoint(model, optimizer, checkpoint_path="model_checkpoint.pth"):
         checkpoint = torch.load(checkpoint_path)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        start_epoch = checkpoint['epoch'] + 1
-        print(f"Resuming from epoch {start_epoch}")
-        return start_epoch
-    return 0  # Start fresh if no checkpoint
+        next_epoch = checkpoint['epoch'] + 1
+        print(f"Resuming from epoch {next_epoch}")
+        return next_epoch
+    return 1  # Start fresh if no checkpoint
 
 
-def shift_trg_right(batch, eos_token_idx=3, pad_token_idx=1):
+def shift_trg_right(batch: torch.Tensor, eos_token_idx:  int = 3,
+                    pad_token_idx: int = 1) -> torch.Tensor:
     """
     Convert <eos> token to <pad> token for each sentence in a batch of tensors.
     Designed for right-shift the target sequence in training transformer
 
     Args:
-        batch (Tensor): A batch of sentences (shape: [batch_size, seq_len]).
+        batch (torch.Tensor): A batch of sentences (shape: [batch_size, seq_len]).
         eos_token_idx (int): The index of the <eos> token.
         pad_token_idx (int): The index of the <pad> token.
 
     Returns:
-        Tensor: The batch with <eos> replaced by <pad> for each sentence.
+        torch.Tensor: The batch with <eos> replaced by <pad> for each sentence.
     """
-    # Replace eos_token_idx with pad_token_idx in the batch
     batch[batch == eos_token_idx] = pad_token_idx
     return batch
 
 
-def plot_losses(loss_record):
+def plot_losses(loss_record: dict):
     """
     Plots the training and validation loss on the same graph for direct comparison.
 
@@ -91,8 +93,8 @@ def plot_losses(loss_record):
     epochs = range(1, len(train_loss) + 1)  # Assuming loss is recorded per epoch
 
     plt.figure(figsize=(10, 5))
-    plt.plot(epochs, train_loss, marker='o', linestyle='-', color='#1f77b4', label='Train Loss', linewidth=2)
-    plt.plot(epochs, validation_loss, marker='s', linestyle='-', color='#d62728', label='Validation Loss', linewidth=2)
+    plt.plot(epochs, train_loss, linestyle='-', color='#1f77b4', label='Train Loss', linewidth=2)
+    plt.plot(epochs, validation_loss, linestyle='-', color='#d62728', label='Validation Loss', linewidth=2)
 
     plt.title("Training & Validation Loss Over Epochs", fontsize=16, fontweight='bold')
     plt.xticks(epochs) # This ensures that xticks are integers
@@ -102,6 +104,21 @@ def plot_losses(loss_record):
     plt.grid(True, linestyle='--', alpha=0.6)
 
     plt.show()
+
+# --------------------------------------------------------------- #
+
+def count_parameters(model: torch.nn.Module) -> int:
+    """Returns the number of trainable parameters in a PyTorch model.
+
+    Args:
+        model (torch.nn.Module): The model whose parameters are to be counted.
+
+    Returns:
+        int: The total number of trainable parameters.
+    """
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+# print(f"Number of trainable parameters: {count_parameters(st_model):,}")
 
 
 def make_iwslt14_local_file(split: str, debug: bool = False, debug_size: int = 1000):

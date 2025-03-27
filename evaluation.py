@@ -1,7 +1,8 @@
 import torch
 import evaluate as hf_evaluate
 
-def evaluate_model(model, data_loader, loss_fn, device):
+def evaluate_model(model: torch.nn.Module, data_loader: torch.utils.data.DataLoader,
+                   loss_fn: torch.nn.modules.loss, device: torch.device) -> float:
     """Evaluates the model on a given dataset using a loss function.
 
     Args:
@@ -35,7 +36,8 @@ def evaluate_model(model, data_loader, loss_fn, device):
     return total_loss / num_batches if num_batches > 0 else float('inf')
 
 
-def evaluate_bleu(model, val_loader, trg_vocab, device):
+def evaluate_bleu(model: torch.nn.Module, val_loader: torch.utils.data.DataLoader,
+                  trg_vocab: dict, device: torch.device) -> float:
     """Computes the BLEU score for the model using Hugging Face's evaluate library.
 
     Args:
