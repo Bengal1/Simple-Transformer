@@ -282,7 +282,7 @@ According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Joh
 For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{35}`$ vectors/directions/semantics and that is a lot of semantics!
 
 
-## Typical Run 
+## Loss & Typical Run 
 
 ## References
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
