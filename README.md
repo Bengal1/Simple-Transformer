@@ -3,6 +3,7 @@ TODO:
 * Teacher forcing
 * token IDs
 * number of parameters: 3,851,322
+* scheduler learning rate
 
 # SimpleTransformer Guide
 
