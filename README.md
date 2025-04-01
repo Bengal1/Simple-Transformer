@@ -2,6 +2,7 @@ TODO:
 * BLEU score
 * Teacher forcing
 * token IDs
+* number of parameters: 3,851,322
 
 # SimpleTransformer Guide
 
