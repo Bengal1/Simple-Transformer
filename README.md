@@ -2,6 +2,9 @@ TODO:
 * BLEU score
 * Teacher forcing
 * token IDs
+* number of parameters: 3,851,322
+* scheduler learning rate
+* NoamLR - ```lr=dmodel−0.5​×min(step−0.5,step×warmup_steps−1.5)```
 
 # SimpleTransformer Guide
 
@@ -281,8 +284,11 @@ We would like the embedding space to hold relevant semantics as much as it can, 
 According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) if we "cram" more vectors in the space and ease the rigid demand of [*Orthogonality*](https://en.wikipedia.org/wiki/Orthogonality) a little bit and allow a slight deviation, $`0<ε<1`$. Meaning we can arrange the vectors, not in exactly 90° between each other, but in a range of $`90°-ε \le ∡e_{i}e_{j} \le 90°+ε`$ between them, each vector will have an angle of $`[90°-ε , 90°+ε]`$ with all other vectors. Then the *lemma* tells us we can arrange D vectors in $`ℝ^{E}`$, when *D ≈* *****O*****$`\big( exp(E·ε^2) \big)`$.<br/>
 For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{35}`$ vectors/directions/semantics and that is a lot of semantics!
 
+## Training and Optimization
 
-## Typical Run 
+
+## Loss & Typical Run 
+
 
 ## References
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
