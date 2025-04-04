@@ -1,59 +1,133 @@
+"""
+This module provides utility functions and classes for machine learning tasks,
+including model checkpoint saving/loading, learning rate scheduling, loss plotting,
+and dataset preprocessing for machine translation.
+
+Modules in this file include:
+- NoamLR: A custom learning rate scheduler based on the Noam scheme as described in the 'Attention is All You Need' paper.
+- save_model: Function for saving model checkpoints.
+- load_checkpoint: Function for loading model checkpoints.
+- shift_trg_right: A function to right-shift the target sequence during training in a transformer model.
+- plot_losses: A function to plot training and validation loss over epochs.
+- count_parameters: A function to count the number of trainable parameters in a PyTorch model.
+- make_iwslt14_local_file: A function to download and save the IWSLT14 dataset in local files.
+
+This module makes it easier to manage model training, handle checkpoints, visualize losses,
+and preprocess datasets for machine translation tasks.
+"""
+
+import os
 import json
 import torch
 from datasets import load_dataset
 import matplotlib.pyplot as plt
-import os
 
 
-def save_model(epoch: int, model: torch.nn.Module, opt: torch.optim.Optimizer, loss: float,
-               checkpoint_path: str = "model_checkpoint.pth"):
+class NoamLR(torch.optim.lr_scheduler._LRScheduler):
     """
-    Saves the model and optimizer states, along with the current epoch and loss,
-    to a checkpoint file.
+    Implements the Noam learning rate scheduler from 'Attention is All You Need'.
+
+    The learning rate increases linearly during warm-up and then decays as the
+    inverse square root of the step count after warm-up.
+
+    Attributes:
+        optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
+        model_size (int): The model size, used as a scaling factor.
+        warmup_steps (int): Number of warm-up steps before decay starts.
+        step_num (int): Tracks the current step count.
+    """
+
+    def __init__(self, optimizer, model_size=256, warmup_steps=4000, last_epoch=-1):
+        """Initializes the NoamLR scheduler.
+
+        Args:
+            optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
+            model_size (int, optional): The size of the model, used for scaling the learning rate.
+            warmup_steps (int, optional): Number of warm-up steps before decay starts.
+            last_epoch (int, optional): The index of the last epoch (for resuming training). Defaults to -1.
+        """
+        self.model_size = model_size
+        self.warmup_steps = warmup_steps
+        self.step_num = last_epoch + 1  # Tracks total steps (not epochs)
+        super().__init__(optimizer, last_epoch)
+
+    def _get_noam_lr(self):
+        """Computes the learning rate using the Noam schedule formula.
+
+        The learning rate follows:
+        lr = (model_size ** -0.5) * min(step_num ** -0.5, step_num * warmup_steps ** -1.5)
+
+        Returns:
+            list: A list containing the computed learning rate for each parameter group.
+        """
+        step = max(1, self.step_num)  # Prevent division by zero
+        scale = self.model_size ** -0.5
+        lr = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
+        return [lr for _ in self.base_lrs]
+
+    def step(self, epoch=None):
+        """Updates the learning rate at each optimizer step.
+
+        This method should be called after `optimizer.step()` to adjust the learning rate.
+
+        Args:
+            epoch (int, optional): Unused, included for compatibility with PyTorch's API.
+        """
+        self.step_num += 1
+        lr = self._get_noam_lr()
+        for param_group, new_lr in zip(self.optimizer.param_groups, lr):
+            param_group["lr"] = new_lr
+
+
+def save_model(epoch, model, opt, scheduler, loss, filepath="models/checkpoint/model_checkpoint.pth"):
+    """
+    Save model checkpoint.
 
     Args:
-        epoch (int): The current training epoch.
-        model (torch.nn.Module): The model whose state will be saved.
-        opt (torch.optim.Optimizer): The optimizer whose state will be saved.
-        loss (float): The loss value at the time of saving.
-        checkpoint_path (str, optional): The file path to save the checkpoint.
-                                         Defaults to "model_checkpoint.pth".
+        epoch (int): Current epoch number
+        model (nn.Module): Model to save
+        opt (torch.optim.Optimizer): Optimizer state to save
+        scheduler (torch.optim.lr_scheduler): Learning rate scheduler state to save
+        loss (float): Current loss value
+        filepath (str): Path to save the checkpoint
     """
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': opt.state_dict(),
+        'scheduler_state_dict': scheduler.state_dict(),
         'loss': loss
     }
-    torch.save(checkpoint, checkpoint_path)
+    torch.save(checkpoint, filepath)
     print(f"Model checkpoint saved at epoch {epoch}.")
 
 
-def load_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimizer,
-                    checkpoint_path: str = "model_checkpoint.pth") -> int:
+def load_checkpoint(model, optimizer, scheduler, checkpoint_path, device="cpu"):
     """
-    Loads a model checkpoint from the specified path and restores the model
-    and optimizer states. If a checkpoint exists, training resumes from the
-    saved epoch; otherwise, training starts from scratch.
+    Load model checkpoint.
 
     Args:
-        model (torch.nn.Module): The model whose state will be loaded.
-        optimizer (torch.optim.Optimizer): The optimizer whose state will be restored.
-        checkpoint_path (str, Optional): Path to the checkpoint file.
-                                         Defaults to "model_checkpoint.pth".
+        model (nn.Module): Model to load weights into
+        optimizer (torch.optim.Optimizer): Optimizer to load state into
+        scheduler (torch.optim.lr_scheduler): Scheduler to load state into
+        checkpoint_path (str): Path to the checkpoint file
+        device (str): Device to load model onto (default: "cpu")
 
     Returns:
-        int: The epoch number to resume training from (starting from the next epoch).
-             Returns 0 if no checkpoint is found, indicating fresh training.
+        int: Start epoch number
     """
     if os.path.exists(checkpoint_path):
-        checkpoint = torch.load(checkpoint_path)
-        model.load_state_dict(checkpoint['model_state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        next_epoch = checkpoint['epoch'] + 1
-        print(f"Resuming from epoch {next_epoch}")
-        return next_epoch
-    return 1  # Start fresh if no checkpoint
+        checkpoint = torch.load(checkpoint_path, map_location=device)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+        start_epoch = checkpoint["epoch"] + 1
+        last_loss = checkpoint["loss"]
+
+        print(f"Resuming from epoch {start_epoch}")
+        print(f"The last epoch loss: {last_loss}")
+        return start_epoch
+    return 1  # Start from epoch 1 if no checkpoint exists
 
 
 def shift_trg_right(batch: torch.Tensor, eos_token_idx:  int = 3,
@@ -118,6 +192,8 @@ def count_parameters(model: torch.nn.Module) -> int:
     """
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
+
+
 # print(f"Number of trainable parameters: {count_parameters(st_model):,}")
 
 
@@ -149,7 +225,66 @@ def make_iwslt14_local_file(split: str, debug: bool = False, debug_size: int = 1
 
     print(f"{split} dataset saved as {filename} ({'debug' if debug else 'full'})")
 
-# Generate full and debug datasets for train, validation, and test splits
+
+"""
+In order to generate full and debug datasets for train, validation, 
+and test splits of IWSLT14 Fr-En, uncomment the code below and run it
+"""
 # for sp in ["train", "validation", "test"]:
 #     make_iwslt14_local_file(split=sp, debug=False)  # Full dataset
 #     make_iwslt14_local_file(split=sp, debug=True)  # Debug dataset
+
+
+# ------------------------------ DRAFT --------------------------------- #
+
+# class NoamLR(torch.optim.lr_scheduler._LRScheduler): # noqa: Protected member access
+#     """
+#     Implements the Noam learning rate scheduler as described in the 'Attention is All You Need' paper.
+#
+#     The learning rate increases linearly during the warm-up phase and then decays as the inverse square root
+#     of the step number after the warm-up period. This scheduler is typically used in Transformer models.
+#
+#     Attributes:
+#         optimizer (torch.optim.Optimizer): The optimizer to apply the learning rate scheduler to.
+#         model_size (int): The size of the model, used to scale the learning rate.
+#         warmup_steps (int): The number of warm-up steps before the learning rate starts decaying.
+#     """
+#     def __init__(self, optimizer, model_size=256, warmup_steps=4000, last_epoch=-1):
+#         """Initializes the NoamLR scheduler.
+#
+#         Args:
+#             optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
+#             model_size (int): The size of the model, used to scale the learning rate.
+#             warmup_steps (int): The number of warm-up steps for the learning rate.
+#             last_epoch (int, optional): The index of the last epoch. Defaults to -1.
+#         """
+#         self.model_size = model_size
+#         self.warmup_steps = warmup_steps
+#         self.step_num = last_epoch + 1
+#         super().__init__(optimizer, last_epoch)
+#
+#     def get_lr(self):
+#         """Computes the learning rate for the current step.
+#
+#         During the warm-up period, the learning rate increases linearly, and after the warm-up,
+#         it decays as the inverse square root of the step number.
+#
+#         Returns:
+#             list: A list containing the learning rate for each parameter group.
+#         """
+#         step = max(1, self.step_num)  # Avoid division by zero
+#         lr = (self.model_size ** -0.5) * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
+#         return [lr for _ in self.optimizer.param_groups]
+#
+#     def step(self, epoch=None):
+#         """Updates the step count and applies the new learning rate.
+#
+#         This method should be called after each optimizer step to ensure the learning rate
+#         follows the Noam schedule.
+#
+#         Args:
+#             epoch (int, optional): The current epoch index. This argument is not used but
+#                                            is included for compatibility with PyTorch's scheduler API.
+#         """
+#         self.step_num += 1
+#         super().step(epoch)

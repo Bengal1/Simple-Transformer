@@ -2,10 +2,10 @@ import json
 import torch
 import spacy
 from datasets import load_dataset
-from torch.utils.data import Dataset
+# from torch.utils.data import Dataset
 
 
-class IWSLT14Dataset(Dataset):
+class IWSLT14Dataset(torch.utils.data.Dataset):
     """
     Custom PyTorch Dataset for the IWSLT14 English-French translation dataset.
 

@@ -1,9 +1,36 @@
+"""
+SimpleTransformer.py
+
+This module implements a simplified version of the Transformer model for
+sequence-to-sequence tasks, such as machine translation.
+The model consists of an encoder-decoder architecture, including multi-head attention,
+positional encoding, and feed-forward layers, as described in the "Attention Is All You Need" paper.
+
+Classes:
+    - PositionalEncoding: Adds positional encoding to the input tensor
+      to help the model retain the order of the sequence.
+    - FeedForward: A feed-forward neural network used in both the
+      encoder and decoder, with ReLU activation and dropout.
+    - NormLayer: Implements layer normalization to stabilize training
+      by normalizing inputs across the last dimension.
+    - MultiHeadAttention: Implements multi-head attention, a key
+      component of the Transformer model. This module can be used for
+      both self-attention and cross-attention.
+    - SimpleTransformer: The Transformer model, consisting of an
+      encoder-decoder architecture with attention mechanisms, feed-forward
+      networks, and positional encoding.
+
+The `SimpleTransformer` model can be used for tasks such as machine
+translation, where the input is a sequence in one language and the output
+is the translated sequence in another language.
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 
-class PositionalEncoding(nn.Module):
+class PositionalEncoding(torch.nn.Module):
     """
     Adds positional encoding to the input tensor.
 
@@ -64,7 +91,7 @@ class PositionalEncoding(nn.Module):
         return x + pos_encoding.unsqueeze(0)  # Broadcast across batch
 
 
-class FeedForward(nn.Module):
+class FeedForward(torch.nn.Module):
     """
     A FeedForward neural network used in the Transformer model.
 
@@ -78,7 +105,7 @@ class FeedForward(nn.Module):
         dropout (nn.Dropout): Dropout layer for regularization.
     """
 
-    def __init__(self, d_model: int, hidden_dim: int = 512, dropout: float = 0.1):
+    def __init__(self, d_model: int, hidden_dim: int = 2048, dropout: float = 0.1):
         """Initializes the FeedForward network.
 
         Args:
@@ -111,7 +138,7 @@ class FeedForward(nn.Module):
         return x
 
 
-class NormLayer(nn.Module):
+class NormLayer(torch.nn.Module):
     """
     Implements layer normalization used in the Transformer.
 
@@ -154,7 +181,7 @@ class NormLayer(nn.Module):
         return self.gamma * normalized + self.beta
 
 
-class MultiHeadAttention(nn.Module):
+class MultiHeadAttention(torch.nn.Module):
     """
     Multi-Head Attention module.
 
@@ -263,7 +290,7 @@ class MultiHeadAttention(nn.Module):
         return self.w_out(attention_output)
 
 
-class SimpleTransformer(nn.Module):
+class SimpleTransformer(torch.nn.Module):
     """
     Implements a Transformer model for sequence-to-sequence tasks.
 
@@ -319,6 +346,11 @@ class SimpleTransformer(nn.Module):
         # Output layer
         self.w_o = nn.Linear(embed_dim, trg_vocab_size)
         self.softmax = nn.Softmax(dim=-1)
+
+        # Apply Xavier initialization to all weight matrices
+        for p in self.parameters():
+            if p.dim() > 1:  # Skip biases (1D tensors)
+                nn.init.xavier_uniform_(p)
 
     def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
         """Forward pass of the SimpleTransformer model.
@@ -412,3 +444,23 @@ class SimpleTransformer(nn.Module):
 
             return trg_seq
 
+
+""" SEE IF ADD IT TO MODULE DOCSTRING
+Modules and their key components:
+- Encoder:
+    - Embedding layer for the source language.
+    - Multi-head self-attention layer.
+    - Feed-forward network with layer normalization.
+
+- Decoder:
+    - Embedding layer for the target language.
+    - Masked self-attention layer (for autoregressive generation).
+    - Cross-attention layer (between encoder and decoder outputs).
+    - Feed-forward network with layer normalization.
+
+- Output:
+    - Linear layer to project the decoder output to the target vocabulary size.
+    - Softmax activation for generating probabilities over the vocabulary.
+
+The model supports both training and inference, with the `forward` method for training and
+the `translate` method for greedy decoding during inference."""

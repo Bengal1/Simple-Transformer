@@ -5,19 +5,16 @@ from models.SimpeTransformer import SimpleTransformer
 from data.iwslt14 import IWSLT14Dataset
 import evaluation
 import utils
-import config
-# import time
 
 
-torch.autograd.set_detect_anomaly(True)
 # Hyperparameters
-embed_dim = 256          # Embedding dimension
-num_heads = 8            # Number of attention heads
-d_k = 32                 # Dimension for K-space
-d_v = 128                # Dimension for V-space (attention output)
-batch_size = 32          # Batch size
-epochs = 10              # Number of epochs
-learning_rate = 1e-4     # Learning rate
+embed_dim = 512         # Embedding dimension
+num_heads = 8           # Number of attention heads
+d_k = 64                # Dimension for K-space
+d_v = 64                # Dimension for V-space
+batch_size = 32         # Batch size
+epochs = 10             # Number of epochs
+learning_rate = 1e-3    # Learning rate
 
 # Set device #
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -29,14 +26,14 @@ print('Using', device, '\n')
 # test_dataset = IWSLT14Dataset(split="test")
 
 # Local files
-# train_dataset = IWSLT14Dataset(split="train",local_file="iwslt14_train.json")
-# val_dataset = IWSLT14Dataset(split="validation",local_file="iwslt14_validation.json")
-# test_dataset = IWSLT14Dataset(split="test",local_file="iwslt14_test.json")
+# train_dataset = IWSLT14Dataset(split="train",local_file="data/local_datasets/iwslt14_train.json")
+# val_dataset = IWSLT14Dataset(split="validation",local_file="data/local_datasets/iwslt14_validation.json")
+# test_dataset = IWSLT14Dataset(split="test",local_file="data/local_datasets/iwslt14_test.json")
 
 # Debug #
-train_dataset = IWSLT14Dataset(split="train",local_file="iwslt14_train_debug.json")
-val_dataset = IWSLT14Dataset(split="validation",local_file="iwslt14_validation_debug.json")
-test_dataset = IWSLT14Dataset(split="test",local_file="iwslt14_test_debug.json")
+train_dataset = IWSLT14Dataset(split="train",local_file="data/local_datasets/iwslt14_train_debug.json")
+val_dataset = IWSLT14Dataset(split="validation",local_file="data/local_datasets/iwslt14_validation_debug.json")
+test_dataset = IWSLT14Dataset(split="test",local_file="data/local_datasets/iwslt14_test_debug.json")
 
 # DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -53,7 +50,11 @@ st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
 
 # Loss & Optimization #
 criterion = torch.nn.CrossEntropyLoss(ignore_index=train_dataset.get_padding_index()).to(device)
-optimizer = optim.Adam(st_model.parameters(), lr=learning_rate)
+optimizer = optim.Adam(st_model.parameters(), lr=learning_rate, betas=(0.9, 0.98), eps=1e-9)
+
+# LambdaLR Scheduler for learning rate warmup and decay
+
+scheduler = utils.NoamLR(optimizer, model_size=embed_dim, warmup_steps=5)
 
 
 # Training loop
@@ -66,7 +67,6 @@ def train() -> float:
     """
     st_model.train()
     total_loss = 0
-    # start_time = time.time()
 
     for batch_idx, (src, trg) in enumerate(train_loader):
         # Move data to device (GPU/CPU)
@@ -81,18 +81,17 @@ def train() -> float:
         loss = criterion(output.view(-1, trg_vocab_size), trg.view(-1))  # Shift target by 1
         total_loss += loss.item()
 
-        # Backward pass and optimization
+        # Backpropagation and optimization
         loss.backward()
         optimizer.step()
 
-        # Print loss every few steps
-        # if batch_idx % 50 == 0:
-        #     print(f"Batch {batch_idx}, Loss: {loss.item()}")
+        # Scheduler step - Update learning rate
+        scheduler.step()
 
     avg_loss = total_loss / len(train_loader)
-    # elapsed_time = time.time() - start_time
-    print(f"Epoch complete, Average Train Loss: {avg_loss:.4f}") #(, Time: {elapsed_time:.2f} seconds)
+    print(f"Epoch complete, Average Train Loss: {avg_loss:.4f}")
     return avg_loss
+
 
 # Train #
 def train_model() -> dict:
@@ -122,7 +121,7 @@ def train_model() -> dict:
         # Save the model if the loss is the best so far
         if avg_loss < best_loss:
             best_loss = avg_loss
-            utils.save_model(epoch, st_model, optimizer, avg_loss)
+            utils.save_model(epoch, st_model, optimizer, scheduler, avg_loss)
 
     return loss_record
 
@@ -131,8 +130,10 @@ if __name__ == "__main__":
     loss_records = train_model()
     test_loss = evaluation.evaluate_model(st_model, test_loader, criterion,  device)
     print(f"\nTest loss: {test_loss:.2f}")
-    bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
-    print(f"\nBLEU on test set: {bleu_score:.2f}")
+    # bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
+    # print(f"\nBLEU on test set: {bleu_score:.2f}")
     utils.plot_losses(loss_records)
 
 
+
+# print(f"Number of trainable parameters: {count_parameters(st_model):,}")
