@@ -4,7 +4,7 @@ TODO:
 * token IDs
 * number of parameters: 3,851,322
 * scheduler learning rate
-* NoamLR - ```lr=dmodel−0.5​×min(step−0.5,step×warmup_steps−1.5)```
+* NoamLR - ```lr=dmodel−0.5​×min(step−0.5,step×warmup_steps−1.5)``` + alternative
 
 # SimpleTransformer Guide
 
