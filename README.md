@@ -286,6 +286,11 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 
 ## Training and Optimization
 
+### Adam Optimizer
+
+### Noam Learning Rate
+
+### Cross-Entropy Loss Function
 
 ## Loss & Typical Run 
 
