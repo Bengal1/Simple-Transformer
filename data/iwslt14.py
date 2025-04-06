@@ -1,3 +1,10 @@
+"""
+Module for loading and preprocessing the IWSLT14 English-French dataset.
+
+Defines a PyTorch Dataset class that handles tokenization, vocabulary building,
+and padding for training sequence-to-sequence translation models.
+"""
+
 import json
 import torch
 import spacy

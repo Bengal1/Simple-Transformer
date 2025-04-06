@@ -138,11 +138,22 @@ def train_model() -> dict:
 # Entry point
 if __name__ == "__main__":
     loss_records = train_model()
+
+    # Load Best Checkpoint
+    utils.load_checkpoint(st_model, optimizer, scheduler)
+
+    # Test Model
     test_loss = evaluation.evaluate_model(st_model, test_loader, criterion,  device)
     print(f"\nTest loss: {test_loss:.2f}")
-    # bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
-    # print(f"\nBLEU on test set: {bleu_score:.2f}")
+
+    # Test BLEU
+    bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
+    print(f"\nBLEU on test set: {bleu_score:.2f}")
+
+    # Plot Train & Validation Loss
     utils.plot_losses(loss_records)
-    # print(f"Number of trainable parameters: {utils.count_parameters(st_model):,}")
+
+
+# print(f"Number of trainable parameters: {utils.count_parameters(st_model):,}")
 
 

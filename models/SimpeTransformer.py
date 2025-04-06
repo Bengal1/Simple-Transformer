@@ -426,7 +426,7 @@ class SimpleTransformer(torch.nn.Module):
 
                 # Predict next token
                 out_logits = self.w_o(dec_out[:, -1, :])
-                probs = self.softmax(out_logits, dim=-1)
+                probs = self.softmax(out_logits)
                 next_token = out_logits.argmax(dim=-1, keepdim=True)
 
                 # Append predicted token to sequence
@@ -445,24 +445,3 @@ class SimpleTransformer(torch.nn.Module):
                                        device=src.device).expand(batch_size, 2)
 
             return trg_seq
-
-
-""" SEE IF ADD IT TO MODULE DOCSTRING
-Modules and their key components:
-- Encoder:
-    - Embedding layer for the source language.
-    - Multi-head self-attention layer.
-    - Feed-forward network with layer normalization.
-
-- Decoder:
-    - Embedding layer for the target language.
-    - Masked self-attention layer (for autoregressive generation).
-    - Cross-attention layer (between encoder and decoder outputs).
-    - Feed-forward network with layer normalization.
-
-- Output:
-    - Linear layer to project the decoder output to the target vocabulary size.
-    - Softmax activation for generating probabilities over the vocabulary.
-
-The model supports both training and inference, with the `forward` method for training and
-the `translate` method for greedy decoding during inference."""

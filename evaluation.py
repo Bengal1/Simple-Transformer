@@ -78,8 +78,8 @@ def evaluate_bleu(model: torch.nn.Module, val_loader: torch.utils.data.DataLoade
             references.extend([[" ".join(sent)] for sent in reference_sentences])
 
     # Debug
-    print(f"Predictions (first 5): {predictions[:5]}")
-    print(f"References (first 5): {references[:5]}")
+    # print(f"Predictions (first 5): {predictions[:5]}")
+    # print(f"References (first 5): {references[:5]}")
 
     # Handle empty references case
     if not references or not predictions or all(len(ref[0]) == 0 for ref in references):

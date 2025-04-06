@@ -102,7 +102,8 @@ def save_model(epoch, model, opt, scheduler, loss, filepath="models/checkpoint/m
     print(f"Model checkpoint saved at epoch {epoch}.")
 
 
-def load_checkpoint(model, optimizer, scheduler, checkpoint_path, device="cpu") -> int:
+def load_checkpoint(model, optimizer, scheduler,
+                    checkpoint_path="models/checkpoint/model_checkpoint.pth", device="cpu") -> int:
     """
     Load model checkpoint.
 
