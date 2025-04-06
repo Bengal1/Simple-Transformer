@@ -2,7 +2,6 @@ import json
 import torch
 import spacy
 from datasets import load_dataset
-# from torch.utils.data import Dataset
 
 
 class IWSLT14Dataset(torch.utils.data.Dataset):

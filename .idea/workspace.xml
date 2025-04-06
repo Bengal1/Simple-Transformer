@@ -5,15 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="233ecea4-48a8-41dd-9b02-d207854bb458" name="Changes" comment="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;train.py">
-      <change afterPath="$PROJECT_DIR$/data/local_datasets/iwslt14_test.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/local_datasets/iwslt14_test_debug.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/local_datasets/iwslt14_train.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/local_datasets/iwslt14_train_debug.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/local_datasets/iwslt14_validation.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/local_datasets/iwslt14_validation_debug.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/iwslt14.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/iwslt14.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/SimpeTransformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/SimpeTransformer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
@@ -382,7 +375,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743093269733</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;train.py">
+      <option name="closed" value="true" />
+      <created>1743735743575</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1743735743575</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

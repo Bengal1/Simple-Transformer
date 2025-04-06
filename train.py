@@ -14,7 +14,13 @@ d_k = 64                # Dimension for K-space
 d_v = 64                # Dimension for V-space
 batch_size = 32         # Batch size
 epochs = 10             # Number of epochs
+max_grad_clip = 1.0     # Max norm gradient
 learning_rate = 1e-3    # Learning rate
+weight_decay = 1e-4     # Weight decay (Lambda)
+betas = (0.9, 0.98)     # Adam Optimizer betas
+epsilon = 1e-9          # Optimizer epsilon
+warmup = 5              # Scheduler warmup period
+
 
 # Set device #
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -50,11 +56,11 @@ st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
 
 # Loss & Optimization #
 criterion = torch.nn.CrossEntropyLoss(ignore_index=train_dataset.get_padding_index()).to(device)
-optimizer = optim.Adam(st_model.parameters(), lr=learning_rate, betas=(0.9, 0.98), eps=1e-9)
+optimizer = optim.Adam(st_model.parameters(), lr=learning_rate, betas=betas, eps=epsilon,
+                        weight_decay=weight_decay)
 
-# LambdaLR Scheduler for learning rate warmup and decay
-
-scheduler = utils.NoamLR(optimizer, model_size=embed_dim, warmup_steps=5)
+# NoamLR Scheduler - Custom Scheduler
+scheduler = utils.NoamLR(optimizer, model_size=embed_dim, warmup_steps=warmup)
 
 
 # Training loop
@@ -71,18 +77,22 @@ def train() -> float:
     for batch_idx, (src, trg) in enumerate(train_loader):
         # Move data to device (GPU/CPU)
         src, trg = src.to(device), trg.to(device)
-        trg_shifted = utils.shift_trg_right(trg).to(device) # Remove the last token from target (teacher forcing)
 
         # Forward pass
         optimizer.zero_grad()
-        output = st_model(src, trg_shifted)
+        output = st_model(src, trg[:, :-1])  # Teacher forcing
+
+        # Flatten the output and target tensors for loss computation
+        output_flat = output.view(-1, trg_vocab_size)
+        trg_flat = trg[:, 1:].contiguous().view(-1)
 
         # Compute loss
-        loss = criterion(output.view(-1, trg_vocab_size), trg.view(-1))  # Shift target by 1
+        loss = criterion(output_flat, trg_flat)
         total_loss += loss.item()
 
         # Backpropagation and optimization
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(st_model.parameters(), max_grad_clip)
         optimizer.step()
 
         # Scheduler step - Update learning rate
@@ -133,7 +143,6 @@ if __name__ == "__main__":
     # bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
     # print(f"\nBLEU on test set: {bleu_score:.2f}")
     utils.plot_losses(loss_records)
+    # print(f"Number of trainable parameters: {utils.count_parameters(st_model):,}")
 
 
-
-# print(f"Number of trainable parameters: {count_parameters(st_model):,}")

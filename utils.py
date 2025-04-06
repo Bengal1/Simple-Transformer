@@ -51,7 +51,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         self.step_num = last_epoch + 1  # Tracks total steps (not epochs)
         super().__init__(optimizer, last_epoch)
 
-    def _get_noam_lr(self):
+    def _get_noam_lr(self) -> list:
         """Computes the learning rate using the Noam schedule formula.
 
         The learning rate follows:
@@ -102,7 +102,7 @@ def save_model(epoch, model, opt, scheduler, loss, filepath="models/checkpoint/m
     print(f"Model checkpoint saved at epoch {epoch}.")
 
 
-def load_checkpoint(model, optimizer, scheduler, checkpoint_path, device="cpu"):
+def load_checkpoint(model, optimizer, scheduler, checkpoint_path, device="cpu") -> int:
     """
     Load model checkpoint.
 
@@ -179,7 +179,6 @@ def plot_losses(loss_record: dict):
 
     plt.show()
 
-# --------------------------------------------------------------- #
 
 def count_parameters(model: torch.nn.Module) -> int:
     """Returns the number of trainable parameters in a PyTorch model.
@@ -233,58 +232,3 @@ and test splits of IWSLT14 Fr-En, uncomment the code below and run it
 # for sp in ["train", "validation", "test"]:
 #     make_iwslt14_local_file(split=sp, debug=False)  # Full dataset
 #     make_iwslt14_local_file(split=sp, debug=True)  # Debug dataset
-
-
-# ------------------------------ DRAFT --------------------------------- #
-
-# class NoamLR(torch.optim.lr_scheduler._LRScheduler): # noqa: Protected member access
-#     """
-#     Implements the Noam learning rate scheduler as described in the 'Attention is All You Need' paper.
-#
-#     The learning rate increases linearly during the warm-up phase and then decays as the inverse square root
-#     of the step number after the warm-up period. This scheduler is typically used in Transformer models.
-#
-#     Attributes:
-#         optimizer (torch.optim.Optimizer): The optimizer to apply the learning rate scheduler to.
-#         model_size (int): The size of the model, used to scale the learning rate.
-#         warmup_steps (int): The number of warm-up steps before the learning rate starts decaying.
-#     """
-#     def __init__(self, optimizer, model_size=256, warmup_steps=4000, last_epoch=-1):
-#         """Initializes the NoamLR scheduler.
-#
-#         Args:
-#             optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
-#             model_size (int): The size of the model, used to scale the learning rate.
-#             warmup_steps (int): The number of warm-up steps for the learning rate.
-#             last_epoch (int, optional): The index of the last epoch. Defaults to -1.
-#         """
-#         self.model_size = model_size
-#         self.warmup_steps = warmup_steps
-#         self.step_num = last_epoch + 1
-#         super().__init__(optimizer, last_epoch)
-#
-#     def get_lr(self):
-#         """Computes the learning rate for the current step.
-#
-#         During the warm-up period, the learning rate increases linearly, and after the warm-up,
-#         it decays as the inverse square root of the step number.
-#
-#         Returns:
-#             list: A list containing the learning rate for each parameter group.
-#         """
-#         step = max(1, self.step_num)  # Avoid division by zero
-#         lr = (self.model_size ** -0.5) * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
-#         return [lr for _ in self.optimizer.param_groups]
-#
-#     def step(self, epoch=None):
-#         """Updates the step count and applies the new learning rate.
-#
-#         This method should be called after each optimizer step to ensure the learning rate
-#         follows the Noam schedule.
-#
-#         Args:
-#             epoch (int, optional): The current epoch index. This argument is not used but
-#                                            is included for compatibility with PyTorch's scheduler API.
-#         """
-#         self.step_num += 1
-#         super().step(epoch)

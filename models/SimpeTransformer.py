@@ -384,7 +384,8 @@ class SimpleTransformer(torch.nn.Module):
 
         # Output
         out = self.w_o(dec_out)
-        return self.softmax(out)
+        # No explicit Softmax (handled by CrossEntropyLoss)
+        return out
 
     def translate(self, src: torch.Tensor) -> torch.Tensor:
         """Translates a given source sequence into the target language using greedy decoding.
@@ -425,6 +426,7 @@ class SimpleTransformer(torch.nn.Module):
 
                 # Predict next token
                 out_logits = self.w_o(dec_out[:, -1, :])
+                probs = self.softmax(out_logits, dim=-1)
                 next_token = out_logits.argmax(dim=-1, keepdim=True)
 
                 # Append predicted token to sequence
