@@ -294,6 +294,14 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 
 ## Loss & Typical Run 
 
+### Training & Validation Loss
+
+<img src="" align="center" width="1000"/>
+
+### Typical Run
+
+<img src="" align="center" width="1000"/>
+
 
 ## References
 [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
