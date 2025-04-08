@@ -22,15 +22,16 @@ def evaluate_model(model: torch.nn.Module, data_loader: torch.utils.data.DataLoa
         for src, trg in data_loader:
             src, trg = src.to(device), trg.to(device)
 
-            # Shift target: replace <eos> (ID=3) with <pad> (ID=1)
-            shifted_trg = trg.clone()
-            shifted_trg[shifted_trg == 3] = 1
+            output = model(src, trg[:, :-1])  # Forward pass
 
-            output = model(src, shifted_trg)  # Forward pass
-            target = trg.reshape(-1)
+            # Flatten the tensors for loss computation
+            output_flat = output.view(-1, output.size(-1))
+            trg_flat = trg[:, 1:].contiguous().view(-1)
 
-            loss = loss_fn(output.view(-1, output.shape[-1]), target)
+            # Compute loss
+            loss = loss_fn(output_flat, trg_flat)
             total_loss += loss.item()
+
             num_batches += 1
 
     return total_loss / num_batches if num_batches > 0 else float('inf')
