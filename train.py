@@ -148,7 +148,8 @@ if __name__ == "__main__":
 
     # Test BLEU
     bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
-    print(f"\nBLEU on test set: {bleu_score:.2f}")
+    print(bleu_score)
+    # print(f"\nBLEU on test set: {bleu_score:.2f}")
 
     # Plot Train & Validation Loss
     # utils.plot_losses(loss_records)

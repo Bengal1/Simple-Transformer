@@ -51,7 +51,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         self.step_num = last_epoch + 1  # Tracks total steps (not epochs)
         super().__init__(optimizer, last_epoch)
 
-    def _get_noam_lr(self) -> list:
+    def get_lr(self) -> list:
         """Computes the learning rate using the Noam schedule formula.
 
         The learning rate follows:
@@ -65,18 +65,18 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         lr = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
         return [lr for _ in self.base_lrs]
 
-    def step(self, epoch=None):
-        """Updates the learning rate at each optimizer step.
-
-        This method should be called after `optimizer.step()` to adjust the learning rate.
-
-        Args:
-            epoch (int, optional): Unused, included for compatibility with PyTorch's API.
-        """
-        self.step_num += 1
-        lr = self._get_noam_lr()
-        for param_group, new_lr in zip(self.optimizer.param_groups, lr):
-            param_group["lr"] = new_lr
+    # def step(self, epoch=None):
+    #     """Updates the learning rate at each optimizer step.
+    #
+    #     This method should be called after `optimizer.step()` to adjust the learning rate.
+    #
+    #     Args:
+    #         epoch (int, optional): Unused, included for compatibility with PyTorch's API.
+    #     """
+    #     self.step_num += 1
+    #     lr = self._get_noam_lr()
+    #     for param_group, new_lr in zip(self.optimizer.param_groups, lr):
+    #         param_group["lr"] = new_lr
 
 
 def save_model(epoch, model, opt, scheduler, loss, filepath="model_checkpoint.pth"):
