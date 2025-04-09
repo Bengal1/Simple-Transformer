@@ -25,58 +25,44 @@ import matplotlib.pyplot as plt
 
 class NoamLR(torch.optim.lr_scheduler._LRScheduler):
     """
-    Implements the Noam learning rate scheduler from 'Attention is All You Need'.
+    Implements the Noam learning rate schedule from 'Attention Is All You Need'.
 
-    The learning rate increases linearly during warm-up and then decays as the
-    inverse square root of the step count after warm-up.
+    This scheduler increases the learning rate linearly for the first `warmup_steps` training steps,
+    and then decreases it proportionally to the inverse square root of the step number.
+
+    Learning rate at step t is computed as:
+        lr = model_size^{-0.5} * min(t^{-0.5}, t * warmup_steps^{-1.5})
 
     Attributes:
-        optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
-        model_size (int): The model size, used as a scaling factor.
-        warmup_steps (int): Number of warm-up steps before decay starts.
-        step_num (int): Tracks the current step count.
+        model_size (int): The dimensionality of the model (used for scaling the learning rate).
+        warmup_steps (int): Number of steps to linearly increase the learning rate.
     """
 
     def __init__(self, optimizer, model_size=256, warmup_steps=4000, last_epoch=-1):
-        """Initializes the NoamLR scheduler.
+        """
+        Initializes the NoamLR scheduler.
 
         Args:
-            optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
-            model_size (int, optional): The size of the model, used for scaling the learning rate.
-            warmup_steps (int, optional): Number of warm-up steps before decay starts.
-            last_epoch (int, optional): The index of the last epoch (for resuming training). Defaults to -1.
+            optimizer (Optimizer): Wrapped optimizer.
+            model_size (int, optional): Dimensionality of the model (default: 256).
+            warmup_steps (int, optional): Number of warm-up steps (default: 4000).
+            last_epoch (int, optional): The index of last epoch. Default: -1.
         """
         self.model_size = model_size
         self.warmup_steps = warmup_steps
-        self.step_num = last_epoch + 1  # Tracks total steps (not epochs)
         super().__init__(optimizer, last_epoch)
 
-    def get_lr(self) -> list:
-        """Computes the learning rate using the Noam schedule formula.
-
-        The learning rate follows:
-        lr = (model_size ** -0.5) * min(step_num ** -0.5, step_num * warmup_steps ** -1.5)
+    def get_lr(self):
+        """
+        Computes the learning rate for the current step based on the Noam schedule.
 
         Returns:
-            list: A list containing the computed learning rate for each parameter group.
+            list: A list containing the learning rate for each parameter group.
         """
-        step = max(1, self.step_num)  # Prevent division by zero
+        step = max(1, self._step_count)  # Avoid division by zero
         scale = self.model_size ** -0.5
         lr = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
         return [lr for _ in self.base_lrs]
-
-    # def step(self, epoch=None):
-    #     """Updates the learning rate at each optimizer step.
-    #
-    #     This method should be called after `optimizer.step()` to adjust the learning rate.
-    #
-    #     Args:
-    #         epoch (int, optional): Unused, included for compatibility with PyTorch's API.
-    #     """
-    #     self.step_num += 1
-    #     lr = self._get_noam_lr()
-    #     for param_group, new_lr in zip(self.optimizer.param_groups, lr):
-    #         param_group["lr"] = new_lr
 
 
 def save_model(epoch, model, opt, scheduler, loss, filepath="model_checkpoint.pth"):
@@ -233,3 +219,60 @@ and test splits of IWSLT14 Fr-En, uncomment the code below and run it
 # for sp in ["train", "validation", "test"]:
 #     make_iwslt14_local_file(split=sp, debug=False)  # Full dataset
 #     make_iwslt14_local_file(split=sp, debug=True)  # Debug dataset
+
+
+
+# class NoamLR(torch.optim.lr_scheduler._LRScheduler):
+#     """
+#     Implements the Noam learning rate scheduler from 'Attention is All You Need'.
+#
+#     The learning rate increases linearly during warm-up and then decays as the
+#     inverse square root of the step count after warm-up.
+#
+#     Attributes:
+#         optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
+#         model_size (int): The model size, used as a scaling factor.
+#         warmup_steps (int): Number of warm-up steps before decay starts.
+#         step_num (int): Tracks the current step count.
+#     """
+#
+#     def __init__(self, optimizer, model_size=256, warmup_steps=4000, last_epoch=-1):
+#         """Initializes the NoamLR scheduler.
+#
+#         Args:
+#             optimizer (torch.optim.Optimizer): The optimizer to apply the scheduler to.
+#             model_size (int, optional): The size of the model, used for scaling the learning rate.
+#             warmup_steps (int, optional): Number of warm-up steps before decay starts.
+#             last_epoch (int, optional): The index of the last epoch (for resuming training). Defaults to -1.
+#         """
+#         self.model_size = model_size
+#         self.warmup_steps = warmup_steps
+#         self.step_num = last_epoch + 1  # Tracks total steps (not epochs)
+#         super().__init__(optimizer, last_epoch)
+#
+#     def get_lr(self) -> list:
+#         """Computes the learning rate using the Noam schedule formula.
+#
+#         The learning rate follows:
+#         lr = (model_size ** -0.5) * min(step_num ** -0.5, step_num * warmup_steps ** -1.5)
+#
+#         Returns:
+#             list: A list containing the computed learning rate for each parameter group.
+#         """
+#         step = max(1, self.step_num)  # Prevent division by zero
+#         scale = self.model_size ** -0.5
+#         lr = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
+#         return [lr for _ in self.base_lrs]
+#
+#     def step(self, epoch=None):
+#         """Updates the learning rate at each optimizer step.
+#
+#         This method should be called after `optimizer.step()` to adjust the learning rate.
+#
+#         Args:
+#             epoch (int, optional): Unused, included for compatibility with PyTorch's API.
+#         """
+#         self.step_num += 1
+#         lr = self._get_noam_lr()
+#         for param_group, new_lr in zip(self.optimizer.param_groups, lr):
+#             param_group["lr"] = new_lr
