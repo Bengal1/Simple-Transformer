@@ -52,7 +52,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         self.warmup_steps = warmup_steps
         super().__init__(optimizer, last_epoch)
 
-    def get_lr(self):
+    def get_lr(self) -> list:
         """
         Computes the learning rate for the current step based on the Noam schedule.
 
@@ -115,24 +115,6 @@ def load_checkpoint(model, optimizer, scheduler,
         print(f"The last epoch loss: {last_loss}")
         return start_epoch
     return 1  # Start from epoch 1 if no checkpoint exists
-
-
-def shift_trg_right(batch: torch.Tensor, eos_token_idx:  int = 3,
-                    pad_token_idx: int = 1) -> torch.Tensor:
-    """
-    Convert <eos> token to <pad> token for each sentence in a batch of tensors.
-    Designed for right-shift the target sequence in training transformer
-
-    Args:
-        batch (torch.Tensor): A batch of sentences (shape: [batch_size, seq_len]).
-        eos_token_idx (int): The index of the <eos> token.
-        pad_token_idx (int): The index of the <pad> token.
-
-    Returns:
-        torch.Tensor: The batch with <eos> replaced by <pad> for each sentence.
-    """
-    batch[batch == eos_token_idx] = pad_token_idx
-    return batch
 
 
 def plot_losses(loss_record: dict):
