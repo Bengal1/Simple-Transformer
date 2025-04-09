@@ -79,7 +79,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
             param_group["lr"] = new_lr
 
 
-def save_model(epoch, model, opt, scheduler, loss, filepath="models/checkpoint/model_checkpoint.pth"):
+def save_model(epoch, model, opt, scheduler, loss, filepath="model_checkpoint.pth"):
     """
     Save model checkpoint.
 
@@ -103,7 +103,7 @@ def save_model(epoch, model, opt, scheduler, loss, filepath="models/checkpoint/m
 
 
 def load_checkpoint(model, optimizer, scheduler,
-                    checkpoint_path="models/checkpoint/model_checkpoint.pth", device="cpu") -> int:
+                    checkpoint_path="model_checkpoint.pth", device="cpu") -> int:
     """
     Load model checkpoint.
 
@@ -125,7 +125,7 @@ def load_checkpoint(model, optimizer, scheduler,
         start_epoch = checkpoint["epoch"] + 1
         last_loss = checkpoint["loss"]
 
-        print(f"Resuming from epoch {start_epoch}")
+        print(f"Resuming model from epoch {start_epoch}")
         print(f"The last epoch loss: {last_loss}")
         return start_epoch
     return 1  # Start from epoch 1 if no checkpoint exists
