@@ -63,7 +63,7 @@ def evaluate_bleu(model: torch.nn.Module, val_loader: torch.utils.data.DataLoade
             src, trg = src.to(device), trg.to(device)
             output = model.translate(src)
             output = output.cpu().tolist()
-
+            print("Model output:", output[:3]) # Debug
             # Convert token indices to words
             decoded_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent] for sent in output]
             reference_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent.tolist()] for sent in trg]
@@ -74,6 +74,9 @@ def evaluate_bleu(model: torch.nn.Module, val_loader: torch.utils.data.DataLoade
                                  decoded_sentences]
             reference_sentences = [[word for word in sent if word not in ["<bos>", "<eos>", "<pad>"]] for sent in
                                    reference_sentences]
+            # Debug
+            # print("Decoded:", decoded_sentences[:3])
+            # print("Refs:", reference_sentences[:3])
 
             predictions.extend([" ".join(sent) for sent in decoded_sentences])
             references.extend([[" ".join(sent)] for sent in reference_sentences])
