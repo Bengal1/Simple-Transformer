@@ -27,7 +27,7 @@ In this method we use the learnable (trainable) parameters are the weights: $`W_
 Given: &nbsp; $`W_{Q}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{K}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{V}∈ℝ^{E×d_v}`$  and Input &nbsp; $`X∈ℝ^{M×E}`$:
 
 $$
-X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
+X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &nbsp; X·W_{V} = V
 $$
 
 Each token in the input sequence is represented using three matrices: <br/>
