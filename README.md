@@ -292,6 +292,7 @@ The Adam optimization algorithm is an extension to stochastic gradient descent (
 $$
 lr=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
 $$
+
 Where:
 * ***lr*** is the next learning rate.
 * ***$`d_{model}`$*** is the model (usualy embedding dimension).
