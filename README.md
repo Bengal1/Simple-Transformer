@@ -290,7 +290,7 @@ The Adam optimization algorithm is an extension to stochastic gradient descent (
 ### Noam Learning Rate
 
 $$
-learning rate=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
+learning&ensp;rate=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
 $$
 
 ### Cross-Entropy Loss Function
