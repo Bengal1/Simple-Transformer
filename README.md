@@ -294,7 +294,7 @@ lr=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
 $$
 Where:
 * ***lr*** is the next learning rate.
-* ***$`d_model`$*** is the model (usualy embedding dimension).
+* ***$`d_{model}`$*** is the model (usualy embedding dimension).
 * ***step*** is .
 * ***warmup*** is .
 
