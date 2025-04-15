@@ -55,7 +55,7 @@ st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
                              num_heads=num_heads, d_k=d_k, d_v=d_v).to(device)
 
 # Loss & Optimization #
-criterion = torch.nn.CrossEntropyLoss(ignore_index=train_dataset.get_padding_index()).to(device)
+criterion = torch.nn.CrossEntropyLoss(ignore_index=train_dataset.get_padding_index(), label_smoothing=0.1).to(device) # consider label_smoothing=0.1
 optimizer = optim.Adam(st_model.parameters(), lr=learning_rate, betas=betas, eps=epsilon,
                         weight_decay=weight_decay)
 
@@ -72,7 +72,7 @@ def train() -> float:
         float: The average loss for the epoch.
     """
     st_model.train()
-    total_loss = 0
+    total_train_loss = 0
 
     for batch_idx, (src, trg) in enumerate(train_loader):
         # Move data to device (GPU/CPU)
@@ -88,7 +88,7 @@ def train() -> float:
 
         # Compute loss
         loss = criterion(output_flat, trg_flat)
-        total_loss += loss.item()
+        total_train_loss += loss.item()
 
         # Backpropagation and optimization
         loss.backward()
@@ -98,8 +98,8 @@ def train() -> float:
         # Scheduler step - Update learning rate
         scheduler.step()
 
-    avg_loss = total_loss / len(train_loader)
-    print(f"Epoch complete, Average Train Loss: {avg_loss:.4f}")
+    avg_loss = total_train_loss / len(train_loader)
+
     return avg_loss
 
 
@@ -119,19 +119,20 @@ def train_model() -> dict:
     best_loss = float('inf')
 
     for epoch in range(1, epochs + 1):
-        print(f"\nEpoch {epoch}/{epochs}")
-        avg_loss = train()
-        loss_record['train'].append(avg_loss)
+        # print(f"\nEpoch {epoch}/{epochs}")
+        train_loss = train()
+        loss_record['train'].append(train_loss)
 
         # Evaluate BLEU on the validation set
         val_loss = evaluation.evaluate_model(st_model, val_loader, criterion, device)
-        print(f"Validation loss: {val_loss:.2f}")
         loss_record['validation'].append(val_loss)
+        print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
+              f"Validation Loss: {val_loss:.4f}")
 
         # Save the model if the loss is the best so far
-        if avg_loss < best_loss:
-            best_loss = avg_loss
-            utils.save_model(epoch, st_model, optimizer, scheduler, avg_loss)
+        if train_loss < best_loss:
+            best_loss = train_loss
+            utils.save_model(epoch, st_model, optimizer, scheduler, train_loss)
 
     return loss_record
 
@@ -147,8 +148,8 @@ if __name__ == "__main__":
     print(f"\nTest loss: {test_loss:.2f}")
 
     # Test BLEU
-    bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device)
-    print(f"\nBLEU on test set: {bleu_score:.2f}")
+    bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device, verbose=True)
+    # print(f"\nBLEU on test set: {bleu_score:.2f}")
 
     # Plot Train & Validation Loss
     utils.plot_losses(loss_records)
