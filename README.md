@@ -288,11 +288,9 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients.
  
 ### Noam Learning Rate
-```math
-lr=d_{model}^{−0.5}​⋅min(step^{−0.5},step⋅warmup^{−1.5})
-```
+
 $$
-lr=d_{model}^{−0.5}​×&nbsp;min(step^{−0.5},step &nbsp;×&nbsp; warmup^{−1.5})
+lr=d_{model}^{−0.5}​× &nbsp; min(step^{−0.5},step &nbsp; × &nbsp; warmup^{−1.5})
 $$
 
 ### Cross-Entropy Loss Function
