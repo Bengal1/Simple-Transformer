@@ -292,6 +292,12 @@ The Adam optimization algorithm is an extension to stochastic gradient descent (
 $$
 lr=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
 $$
+Where:
+* ***lr*** is the next learning rate.
+* ***$`d_model`$*** is the model (usualy embedding dimension).
+* ***step*** is .
+* ***warmup*** is .
+
 
 ### Cross-Entropy Loss Function
 This criterion computes the cross entropy loss between input logits and target. Loss function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "loss" associated with the event. The Cross Enthropy Loss function is commonly used in classification tasks both in traditional ML and deep learning, שnd it also has its advantages.
