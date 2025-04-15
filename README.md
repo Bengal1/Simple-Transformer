@@ -27,7 +27,7 @@ In this method we use the learnable (trainable) parameters are the weights: $`W_
 Given: &nbsp; $`W_{Q}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{K}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{V}∈ℝ^{E×d_v}`$  and Input &nbsp; $`X∈ℝ^{M×E}`$:
 
 $$
-X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &nbsp; X·W_{V} = V
+X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
 $$
 
 Each token in the input sequence is represented using three matrices: <br/>
@@ -290,7 +290,7 @@ The Adam optimization algorithm is an extension to stochastic gradient descent (
 ### Noam Learning Rate
 
 $$
-lr=d_{model}^{−0.5}​× &ensp; min(step^{−0.5},step &ensp; × &ensp; warmup^{−1.5})
+lr=d_{model}^{−0.5}​× &ensp; min(step^{−0.5},step &ensp; × &nbsp; warmup^{−1.5})
 $$
 
 ### Cross-Entropy Loss Function
