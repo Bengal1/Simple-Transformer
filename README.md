@@ -3,8 +3,6 @@ TODO:
 * Teacher forcing
 * token IDs
 * number of parameters: ###
-* scheduler learning rate
-* NoamLR - ```lr=dmodel−0.5​×min(step−0.5,step×warmup_steps−1.5)``` + alternative
 
 # SimpleTransformer Guide
 
@@ -290,6 +288,9 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients.
  
 ### Noam Learning Rate
+```math
+lr=dmodel−0.5​×min(step−0.5,step×warmup_steps−1.5)
+```
 
 ### Cross-Entropy Loss Function
 This criterion computes the cross entropy loss between input logits and target. Loss function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "loss" associated with the event. The Cross Enthropy Loss function is commonly used in classification tasks both in traditional ML and deep learning, שnd it also has its advantages.
