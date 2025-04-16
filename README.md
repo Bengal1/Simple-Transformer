@@ -5,7 +5,7 @@ TODO:
 * number of parameters: ###
 
 
-
+$$
 \begin{align*}
 &\text{1. Gradient of the loss at step } t: && g_t = \nabla_{\theta} J(\theta_t) \\[8pt]
 
@@ -19,7 +19,7 @@ TODO:
 
 &\text{6. Parameter update:} && \theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
 \end{align*}
-
+$$
 
 # SimpleTransformer Guide
 
