@@ -286,36 +286,30 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 
 ### Adam Optimizer
 The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
-$$
-\begin{align*}
-&\text{1. Gradient of the loss at step } t: && g_t = \nabla_{\theta} J(\theta_t) \\[8pt]
-
-&\text{2. First moment estimate (mean):} && m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t \\[8pt]
-
-&\text{3. Second moment estimate (variance):} && v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2 \\[8pt]
-
-&\text{4. Bias-corrected first moment:} &&  \\[8pt]
-
-&\text{5. Bias-corrected second moment:} &&  \\[8pt]
-
 
 1. Compute gradients:
 $$
-s
+g_t = \nabla_{\theta} J(\theta_t)
 $$
 
 2. Update biased first moment estimate (mean):
 $$
-s
+m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t
 $$
 
-3. Bias correction:
+3. Update biased second raw moment estimate (uncentered variance):
 
 $$
-\hat{v}_t = \frac{v_t}{1 - \beta_2^t} ; \hat{m}_t = \frac{m_t}{1 - \beta_1^t}
+v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2
 $$
 
-4. Update parameters:
+4. Bias correction:
+
+$$
+\hat{v}_t = \frac{v_t}{1 - \beta_2^t} \; ; \; \hat{m}_t = \frac{m_t}{1 - \beta_1^t}
+$$
+
+5. Update parameters:
 
 $$
 \theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
