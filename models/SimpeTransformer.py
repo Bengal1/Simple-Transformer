@@ -1,29 +1,55 @@
 """
-SimpleTransformer.py
+Simple Transformer Model in PyTorch.
 
-This module implements a simplified version of the Transformer model for
-sequence-to-sequence tasks, such as machine translation.
-The model consists of an encoder-decoder architecture, including multi-head attention,
-positional encoding, and feed-forward layers, as described in the "Attention Is All You Need" paper.
+This module implements a Transformer architecture for sequence-to-sequence
+tasks, particularly for machine translation. The model consists of the
+following core components:
 
-Classes:
-    - PositionalEncoding: Adds positional encoding to the input tensor
-      to help the model retain the order of the sequence.
-    - FeedForward: A feed-forward neural network used in both the
-      encoder and decoder, with ReLU activation and dropout.
-    - NormLayer: Implements layer normalization to stabilize training
-      by normalizing inputs across the last dimension.
-    - MultiHeadAttention: Implements multi-head attention, a key
-      component of the Transformer model. This module can be used for
-      both self-attention and cross-attention.
-    - SimpleTransformer: The Transformer model, consisting of an
-      encoder-decoder architecture with attention mechanisms, feed-forward
-      networks, and positional encoding.
+- Encoder: A stack of multi-head attention layers, feed-forward networks, and
+  layer normalization.
+- Decoder: A stack of multi-head attention layers with an additional
+  cross-attention mechanism that attends to the encoder's output.
+- MultiHeadAttention: A custom implementation of multi-head attention,
+  enabling the model to focus on different parts of the input sequence
+  simultaneously.
+- FeedForward: A position-wise feed-forward neural network that applies
+  non-linearity after the attention layers.
+- NormLayer: A layer normalization component to stabilize the training
+  process.
+- SimpleTransformer: The main Transformer model combining the encoder,
+  decoder, and an output linear layer for sequence generation.
+- PositionalEncoding: Adds positional information to the input sequence to
+  help the model learn token order.
 
-The `SimpleTransformer` model can be used for tasks such as machine
-translation, where the input is a sequence in one language and the output
-is the translated sequence in another language.
+The `SimpleTransformer` model can be used for machine translation, text
+generation, or other sequence-to-sequence tasks with appropriate tokenization
+and loss functions. It supports various hyperparameters to control the depth
+of the network, number of attention heads, and dimensionality of the model.
+
+Modules:
+  Encoder: Encodes the input sequence using self-attention and feed-forward
+    networks.
+  Decoder: Autoregressively generates the output sequence while attending to
+    the encoder's output and previous tokens.
+  MultiHeadAttention: Performs attention on the input sequence, allowing the
+    model to focus on different parts in parallel.
+  FeedForward: A feed-forward network that processes each token independently
+    after the attention mechanism.
+  NormLayer: Layer normalization applied at strategic points for training
+    stability.
+  PositionalEncoding: Adds information about the position of tokens in the
+    sequence to the input embeddings.
+  Dropout: Regularization is applied after key components (like attention
+    layers) to reduce overfitting.
+
+Usage:
+    The `SimpleTransformer` class encapsulates the entire Transformer
+    architecture. To train or evaluate the model, input sequences (tokenized)
+    and output sequences must be provided. A suitable optimizer, loss
+    function, and learning rate scheduler should be used for training.
 """
+
+
 
 import torch
 import torch.nn as nn
@@ -201,7 +227,7 @@ class MultiHeadAttention(torch.nn.Module):
     """
 
     def __init__(self, embed_dim: int, num_heads: int = 1, d_k: int = 64,
-                 d_v: int = 128, cross_attn: bool = False, masked_attn: bool = False):
+                 d_v: int = 128, dropout: float = 0.0, cross_attn: bool = False, masked_attn: bool = False):
         """Initializes the MultiHeadAttention module.
 
         Args:
@@ -224,7 +250,11 @@ class MultiHeadAttention(torch.nn.Module):
         self.w_q = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
         self.w_k = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
         self.w_v = nn.ModuleList([nn.Linear(embed_dim, d_v) for _ in range(num_heads)])
+
         self.w_out = nn.Linear(d_v * num_heads, embed_dim)
+        # Dropout
+        self.attn_dropout = nn.Dropout(dropout)
+        self.out_dropout = nn.Dropout(dropout)
 
     def _scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
                                       mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
@@ -247,6 +277,7 @@ class MultiHeadAttention(torch.nn.Module):
             attn_scores = attn_scores + mask
 
         attn_probs = F.softmax(attn_scores, dim=-1)
+        attn_probs = self.attn_dropout(attn_probs) # Dropout
         return torch.matmul(attn_probs, V), attn_probs
 
     def forward(self, x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
@@ -285,143 +316,209 @@ class MultiHeadAttention(torch.nn.Module):
         # Apply scaled dot-product attention
         attention_output, _ = self._scaled_dot_product_attention(Q, K, V, mask)
 
-        # Concatenate heads and project to output dimension
+        # Concatenate heads and project to output dimension + Dropout
         attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, src_len, -1)
-        return self.w_out(attention_output)
+        output = self.w_out(attention_output)
+        return self.out_dropout(output) # Dropout
 
 
-class SimpleTransformer(torch.nn.Module):
+class Encoder(nn.Module):
     """
-    Implements a Transformer model for sequence-to-sequence tasks.
-
-    This model consists of an encoder-decoder architecture, including multi-head attention,
-    positional encoding, and feed-forward layers.
-
-    Attributes:
-        embedding_encoder (nn.Embedding): Embedding layer for the source language.
-        embedding_decoder (nn.Embedding): Embedding layer for the target language.
-        positional_encoding_encoder (PositionalEncoding): Positional encoding for encoder inputs.
-        positional_encoding_decoder (PositionalEncoding): Positional encoding for decoder inputs.
-        attention_encoder (MultiHeadAttention): Self-attention for the encoder.
-        attention_masked_dec (MultiHeadAttention): Masked self-attention for the decoder.
-        attention_cross_dec (MultiHeadAttention): Cross-attention in the decoder.
-        norm1_enc, norm2_enc, norm1_dec, norm2_dec, norm3_dec (NormLayer): Normalization layers.
-        ff_enc, ff_dec (FeedForward): Feed-forward networks for encoder and decoder.
-        w_o (nn.Linear): Linear projection to map decoder output to vocabulary size.
-        softmax (nn.Softmax): Softmax activation for final predictions.
+    A single Transformer encoder block consisting of:
+    - Multi-head self-attention
+    - Layer normalization and residual connections
+    - Position-wise feedforward network
     """
 
-    def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int,
-                 num_heads: int = 8, d_k: int = 32, d_v: int = 64):
-        """Initializes the SimpleTransformer model.
+    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.0):
+        """
+        Initializes the Encoder block.
 
         Args:
-            src_vocab_size (int): Vocabulary size for the source language.
-            trg_vocab_size (int): Vocabulary size for the target language.
-            embed_dim (int): The embedding dimension for both source and target embeddings.
-            num_heads (int, optional): Number of attention heads. Default is 8.
-            d_k (int, optional): Dimension of the key vectors in multi-head attention. Default is 32.
-            d_v (int, optional): Dimension of the value vectors in multi-head attention. Default is 64.
+            embed_dim (int): Dimensionality of input embeddings.
+            num_heads (int): Number of attention heads.
+            d_k (int): Dimensionality of key vectors.
+            d_v (int): Dimensionality of value vectors.
+            dropout (float): Dropout probability.
         """
         super().__init__()
+        self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout)
+        self.norm1 = NormLayer(embed_dim)
 
-        # Encoder components
-        self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim, padding_idx=1)
-        self.positional_encoding_encoder = PositionalEncoding(embed_dim)
-        self.attention_encoder = MultiHeadAttention(embed_dim, num_heads, d_k, d_v)
-        self.norm1_enc = NormLayer(embed_dim)
-        self.ff_enc = FeedForward(embed_dim)
-        self.norm2_enc = NormLayer(embed_dim)
+        self.ff = FeedForward(embed_dim, dropout=dropout)
+        self.norm2 = NormLayer(embed_dim)
 
-        # Decoder components
-        self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim, padding_idx=1)
-        self.positional_encoding_decoder = PositionalEncoding(embed_dim)
-        self.attention_masked_dec = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, masked_attn=True)
-        self.norm1_dec = NormLayer(embed_dim)
-        self.attention_cross_dec = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, cross_attn=True)
-        self.norm2_dec = NormLayer(embed_dim)
-        self.ff_dec = FeedForward(embed_dim)
-        self.norm3_dec = NormLayer(embed_dim)
-
-        # Output layer
-        self.w_o = nn.Linear(embed_dim, trg_vocab_size)
-        self.softmax = nn.Softmax(dim=-1)
-
-        # Apply Xavier initialization to all weight matrices
-        for p in self.parameters():
-            if p.dim() > 1:  # Skip biases (1D tensors)
-                nn.init.xavier_uniform_(p)
-
-
-    def _encode(self, src: torch.Tensor) -> torch.Tensor:
+    def forward(self, enc_input: torch.Tensor) -> torch.Tensor:
         """
-        Encodes the input source tensor using embedding, positional encoding,
-        attention, and feed-forward layers.
+        Forward pass of the encoder block.
 
         Args:
-            src (torch.Tensor): The input source tensor of shape (batch_size, seq_len).
+            enc_input (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
 
         Returns:
-            torch.Tensor: The encoded output tensor of shape (batch_size, seq_len, d_model).
+            torch.Tensor: Output tensor with the same shape as input.
         """
-        src_embed = self.embedding_encoder(src)
-        src_pe = self.positional_encoding_encoder(src_embed)
+        # Multi-head self-attention + residual + norm
+        attn_out = self.attention(enc_input)
+        norm1_out = self.norm1(attn_out + enc_input)
 
-        attn_enc = self.attention_encoder(src_pe)
-        norm1_enc = self.norm1_enc(attn_enc + src_pe)
+        # Feedforward network + residual + norm
+        ff_out = self.ff(norm1_out)
+        enc_out = self.norm2(ff_out + norm1_out)
 
-        ff_enc = self.ff_enc(norm1_enc)
-        enc_out = self.norm2_enc(ff_enc + norm1_enc)
         return enc_out
 
 
-    def _decode(self, trg: torch.Tensor, enc_out: torch.Tensor) -> torch.Tensor:
+class Decoder(nn.Module):
+    """
+    A single Transformer decoder block consisting of:
+    - Masked multi-head self-attention
+    - Multi-head cross-attention with encoder output
+    - Layer normalization and residual connections
+    - Position-wise feedforward network
+    """
+
+    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
         """
-        Decodes the target tensor using embedding, positional encoding, masked
-        attention, cross-attention, and feed-forward layers.
+        Initializes the Decoder block.
 
         Args:
-            trg (torch.Tensor): The input target tensor of shape (batch_size, seq_len).
-            enc_out (torch.Tensor): The encoded source tensor from the encoder
-                                    with shape (batch_size, seq_len, d_model).
+            embed_dim (int): Dimensionality of input embeddings.
+            num_heads (int): Number of attention heads.
+            d_k (int): Dimensionality of key vectors.
+            d_v (int): Dimensionality of value vectors.
+            dropout (float): Dropout probability.
+        """
+        super().__init__()
+        self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout, masked_attn=True)
+        self.norm1 = NormLayer(embed_dim)
+
+        self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout, cross_attn=True)
+        self.norm2 = NormLayer(embed_dim)
+
+        self.ff = FeedForward(embed_dim, dropout=dropout)
+        self.norm3 = NormLayer(embed_dim)
+
+    def forward(self, dec_input: torch.Tensor, enc_output: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the decoder block.
+
+        Args:
+            dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, embed_dim).
+            enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, embed_dim).
 
         Returns:
-            torch.Tensor: The decoded output tensor of shape (batch_size, seq_len, d_model).
+            torch.Tensor: Output tensor of shape (batch_size, trg_seq_len, embed_dim).
         """
-        trg_embed = self.embedding_decoder(trg)
-        trg_pe = self.positional_encoding_decoder(trg_embed)
+        # Masked self-attention + residual + norm
+        attn_masked = self.attention_masked(dec_input)
+        norm1 = self.norm1(attn_masked + dec_input)
 
-        attn_masked_dec = self.attention_masked_dec(trg_pe)
-        norm1_dec = self.norm1_dec(attn_masked_dec + trg_pe)
+        # Cross-attention with encoder output + residual + norm
+        attn_cross = self.attention_cross(norm1, enc_output)
+        norm2 = self.norm2(attn_cross + norm1)
 
-        attn_cross_dec = self.attention_cross_dec(norm1_dec, enc_out)
-        norm2_dec = self.norm2_dec(attn_cross_dec + norm1_dec)
+        # Feedforward network + residual + norm
+        ff_out = self.ff(norm2)
+        dec_out = self.norm3(ff_out + norm2)
 
-        ff_dec = self.ff_dec(norm2_dec)
-        dec_out = self.norm3_dec(ff_dec + norm2_dec)
         return dec_out
 
 
-    def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
-        """Forward pass of the SimpleTransformer model.
+class SimpleTransformer(nn.Module):
+    """
+    A simplified Transformer model for sequence-to-sequence tasks like translation.
+    It consists of stacked encoder and decoder layers, embeddings, and a final linear projection.
+
+    Attributes:
+        embedding_encoder (nn.Embedding): Embedding layer for source tokens.
+        positional_encoding_encoder (PositionalEncoding): Adds position information to source embeddings.
+        embedding_decoder (nn.Embedding): Embedding layer for target tokens.
+        positional_encoding_decoder (PositionalEncoding): Adds position information to target embeddings.
+        encoder_layers (nn.ModuleList): Stacked encoder blocks.
+        decoder_layers (nn.ModuleList): Stacked decoder blocks.
+        w_o (nn.Linear): Final linear layer projecting decoder output to vocabulary logits.
+    """
+
+    def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int,
+                 num_heads: int = 8, num_layers: int = 6, d_k: int = 32, d_v: int = 64,
+                 dropout: float = 0.1
+    ):
+        """
+        Initializes the SimpleTransformer model.
 
         Args:
-            src (torch.Tensor): Source sequence tensor of shape (batch_size, src_seq_len).
-            trg (torch.Tensor): Target sequence tensor of shape (batch_size, trg_seq_len).
+            src_vocab_size (int): Size of the source vocabulary.
+            trg_vocab_size (int): Size of the target vocabulary.
+            embed_dim (int): Dimensionality of token embeddings.
+            num_heads (int): Number of attention heads.
+            num_layers (int): Number of encoder/decoder layers to stack.
+            d_k (int): Dimensionality of keys.
+            d_v (int): Dimensionality of values.
+            dropout (float): Dropout probability for regularization.
+        """
+
+        super().__init__()
+
+        # Embedding layers for source and target
+        self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim, padding_idx=1)
+        self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim, padding_idx=1)
+
+        # Positional encoding
+        self.positional_encoding_encoder = PositionalEncoding(embed_dim)
+        self.positional_encoding_decoder = PositionalEncoding(embed_dim)
+
+        # Dropout after embedding + positional encoding
+        self.dropout = nn.Dropout(dropout)
+
+        # Stacked encoder layers
+        self.encoder_layers = nn.ModuleList([
+            Encoder(embed_dim, num_heads, d_k, d_v) for _ in range(num_layers)
+        ])
+
+        # Stacked decoder layers
+        self.decoder_layers = nn.ModuleList([
+            Decoder(embed_dim, num_heads, d_k, d_v) for _ in range(num_layers)
+        ])
+
+        # Output block
+        self.w_o = nn.Linear(embed_dim, trg_vocab_size)
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the Transformer model.
+
+        Args:
+            src (torch.Tensor): Source input tensor of shape (batch_size, src_seq_len).
+            trg (torch.Tensor): Target input tensor of shape (batch_size, trg_seq_len).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, trg_seq_len, trg_vocab_size).
+            torch.Tensor: Output logits of shape (batch_size, trg_seq_len, trg_vocab_size).
         """
-        # Encoder
-        enc_out = self._encode(src)
+        # Source embeddings + positional encoding
+        src_embed = self.embedding_encoder(src)
+        src_pe = self.positional_encoding_encoder(src_embed)
+        # src_pe = self.dropout(src_pe)
 
-        # Decoder
-        dec_out = self._decode(trg, enc_out)
+        # Target embeddings + positional encoding
+        trg_embed = self.embedding_decoder(trg)
+        trg_pe = self.positional_encoding_decoder(trg_embed)
+        # trg_pe = self.dropout(trg_pe)
 
-        # Output
-        out = self.w_o(dec_out)
-        # No explicit Softmax (handled by nn.CrossEntropyLoss)
-        return out
+        # Pass through stacked Encoders
+        enc_output = src_pe
+        for layer in self.encoder_layers:
+            enc_output = layer(enc_output)
+
+        # Pass through stacked Decoders
+        dec_output = trg_pe
+        for layer in self.decoder_layers:
+            dec_output = layer(dec_output, enc_output)
+
+        # Output layer (no Softmax; handled by nn.CrossEntropyLoss)
+        output = self.w_o(dec_output)
+        return output
 
     def translate(self, src: torch.Tensor) -> torch.Tensor:
         """Translates a given source sequence into the target language using greedy decoding.
@@ -437,20 +534,26 @@ class SimpleTransformer(torch.nn.Module):
             batch_size, max_target_length = src.shape  # Extract input dimensions
 
             # Encoder step
-            enc_out = self._encode(src)
+            src_embed = self.embedding_encoder(src)
+            src_pe = self.positional_encoding_encoder(src_embed)
+            enc_output = src_pe
+            for layer in self.encoder_layers:
+                enc_output = layer(enc_output)
 
             # Decoder initialization
-            trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+            trg_seq = torch.full((batch_size, 1, 1), bos_token_id, dtype=torch.float, device=src.device)
 
             # Track whether <eos> is generated in any sequence
             generated_eos = torch.zeros(batch_size, dtype=torch.bool, device=src.device)
 
             for _ in range(max_target_length):
                 # Decoder step
-                dec_out = self._decode(trg_seq, enc_out)
+                dec_output = trg_seq
+                for layer in self.decoder_layers:
+                    dec_output = layer(dec_output, enc_output)
 
                 # Predict next token
-                out_logits = self.w_o(dec_out[:, -1, :])
+                out_logits = self.w_o(dec_output[:, -1, :])
                 probs = self.softmax(out_logits)
                 next_token = probs.argmax(dim=-1, keepdim=True)
 

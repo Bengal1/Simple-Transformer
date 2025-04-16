@@ -10,6 +10,7 @@ import utils
 # Hyperparameters
 embed_dim = 512         # Embedding dimension
 num_heads = 8           # Number of attention heads
+num_layer = 6           # Number of Encoder/Decoder layers
 d_k = 64                # Dimension for K-space
 d_v = 64                # Dimension for V-space
 batch_size = 32         # Batch size
@@ -20,7 +21,7 @@ weight_decay = 1e-4     # Weight decay (Lambda)
 betas = (0.9, 0.98)     # Adam Optimizer betas
 epsilon = 1e-9          # Optimizer epsilon
 warmup = 5              # Scheduler warmup period
-
+dropout = 0.1
 
 # Set device #
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -51,7 +52,8 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 src_vocab_size, trg_vocab_size = train_dataset.get_vocab_sizes()
 max_length = train_dataset.get_max_length()
 st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
-                             num_heads=num_heads, d_k=d_k, d_v=d_v).to(device)
+                             num_heads=num_heads, num_layers=num_layer, d_k=d_k, d_v=d_v,
+                             dropout=dropout).to(device)
 
 # Loss & Optimization #
 criterion = torch.nn.CrossEntropyLoss(ignore_index=train_dataset.get_padding_index(),
