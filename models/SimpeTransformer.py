@@ -541,14 +541,17 @@ class SimpleTransformer(nn.Module):
                 enc_output = layer(enc_output)
 
             # Decoder initialization
-            trg_seq = torch.full((batch_size, 1, 1), bos_token_id, dtype=torch.float, device=src.device)
+            trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
 
             # Track whether <eos> is generated in any sequence
             generated_eos = torch.zeros(batch_size, dtype=torch.bool, device=src.device)
 
             for _ in range(max_target_length):
                 # Decoder step
-                dec_output = trg_seq
+                trg_embed = self.embedding_decoder(trg_seq)
+                trg_pe = self.positional_encoding_decoder(trg_embed)
+
+                dec_output = trg_pe
                 for layer in self.decoder_layers:
                     dec_output = layer(dec_output, enc_output)
 

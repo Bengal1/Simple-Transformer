@@ -14,13 +14,13 @@ num_layer = 6           # Number of Encoder/Decoder layers
 d_k = 64                # Dimension for K-space
 d_v = 64                # Dimension for V-space
 batch_size = 32         # Batch size
-epochs = 10             # Number of epochs
+epochs = 10            # Number of epochs
 max_grad_clip = 1.0     # Max norm gradient
 learning_rate = 1e-3    # Learning rate
 weight_decay = 1e-4     # Weight decay (Lambda)
 betas = (0.9, 0.98)     # Adam Optimizer betas
 epsilon = 1e-9          # Optimizer epsilon
-warmup = 5              # Scheduler warmup period
+warmup = 3              # Scheduler warmup period
 dropout = 0.1
 
 # Set device #

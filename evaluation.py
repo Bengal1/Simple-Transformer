@@ -85,7 +85,7 @@ def evaluate_bleu(model: torch.nn.Module, data_loader: torch.utils.data.DataLoad
     special_tokens = data_loader.dataset.special_tokens
 
     with torch.no_grad():
-        for src, trg in data_loader: #tqdm(data_loader, desc="Evaluating BLEU", leave=False, dynamic_ncols=True):
+        for src, trg in data_loader:
             src, trg = src.to(device), trg.to(device)
             output = _translate_batch(model, src)
 
