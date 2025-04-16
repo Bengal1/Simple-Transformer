@@ -331,7 +331,7 @@ lr=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
 $$
 
 Where:
-* ***lr*** is the next learning rate.
+* ***$`lr`$*** is the next learning rate.
 * ***$`d_{model}`$*** is the model dimension (embedding dimension).
 * ***$`warmup`$*** is predefined hyperparameter.
 
