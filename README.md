@@ -4,11 +4,6 @@ TODO:
 * token IDs
 * number of parameters: ###
 
-
-$$
-lr=d_{model}^{−0.5}​×\hspace{0.5em}min(Step^{−0.5},Step\hspace{0.3em}×\hspace{0.3em}Warmup^{−1.5})
-$$
-
 # SimpleTransformer Guide
 
 This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to beginners who like to know how to start building a Transformer with Pytorch. *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need".<br/>
@@ -332,7 +327,7 @@ $$
 *NoamLR* scheduler was introduced in the original Transformer paper "Attention Is All You Need". Schedulers in deep learning are used to adjust the learning rate during training to improve convergence and performance. It sets the learning rate to increase linearly for a set number of warm-up steps and then decay proportionally to the inverse square root of the training step: 
 
 $$
-lr=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
+lr=d_{model}^{−0.5}​×\hspace{0.5em}min(Step^{−0.5},Step\hspace{0.3em}×\hspace{0.3em}Warmup^{−1.5})
 $$
 
 Where:
