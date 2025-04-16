@@ -3,8 +3,6 @@ TODO:
 * Teacher forcing
 * token IDs
 * number of parameters: ###
-* scheduler learning rate
-* NoamLR - ```lr=dmodel−0.5​×min(step−0.5,step×warmup_steps−1.5)``` + alternative
 
 # SimpleTransformer Guide
 
@@ -287,12 +285,70 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 ## Training and Optimization
 
 ### Adam Optimizer
-The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients.
- 
+The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
+
+#### Adam Algorithm:
+* $`\theta_t`$​ : parameters at time step *t*.
+* $`\beta_1,\beta_2​`$: exponential decay rates for moments estimation.
+* $`\alpha`$ : learning rate.
+* $`\epsilon`$ : small constant to prevent division by zero. <br/>
+
+1. Compute gradients:
+
+$$
+g_t = \nabla_{\theta} J(\theta_t)
+$$
+
+2. Update biased first moment estimate (mean):
+
+$$
+m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t
+$$
+
+3. Update biased second raw moment estimate (uncentered variance):
+
+$$
+v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2
+$$
+
+4. Bias correction:
+
+$$
+\hat{v}_t = \frac{v_t}{1 - \beta_2^t} \quad ; \quad \hat{m}_t = \frac{m_t}{1 - \beta_1^t}
+$$
+
+5. Update parameters:
+
+$$
+\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+$$
+
 ### Noam Learning Rate
+*NoamLR* scheduler was introduced in the original Transformer paper "Attention Is All You Need". Schedulers in deep learning are used to adjust the learning rate during training to improve convergence and performance. It sets the learning rate to increase linearly for a set number of warm-up steps and then decay proportionally to the inverse square root of the training step: 
+
+$$
+lr=d_{model}^{−0.5}​×\hspace{0.5em}min(Step^{−0.5},Step\hspace{0.3em}×\hspace{0.3em}Warmup^{−1.5})
+$$
+
+Where:
+* ***$`lr`$*** is the next learning rate.
+* ***$`d_{model}`$*** is the model dimension (embedding dimension).
+* ***$`warmup`$*** is predefined hyperparameter.
+
+This approach helps stabilize training in the early stages and allows the model to learn efficiently by avoiding large or unstable updates initially, while gradually reducing the learning rate to fine-tune the model later in training.
 
 ### Cross-Entropy Loss Function
-This criterion computes the cross entropy loss between input logits and target. Loss function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "loss" associated with the event. The Cross Enthropy Loss function is commonly used in classification tasks both in traditional ML and deep learning, שnd it also has its advantages.
+This criterion computes the cross entropy loss between input logits and target. Loss function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "loss" associated with the event. The Cross Enthropy Loss function is commonly used in classification tasks both in traditional ML and deep learning. It compares the predicted probability distribution over classes (logits) with the true class labels and penalizes incorrect or uncertain predictions.
+
+$$
+Loss = - \sum_{i=1}^{C} y_i \log(\hat{y}_i)
+$$
+
+Where:
+* $`C`$  is the number of classes.
+* $`y_i`$​  is the true probability for class *i* (usually 1 for the correct class and 0 for others).
+* $`\hat{y}_i`$  is the predicted probability for class *i*.
+
 
 ## Loss & Typical Run 
 
