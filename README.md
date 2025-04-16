@@ -288,7 +288,7 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
 #### Adam Algorithm:
-* $`\theta_t`$​: parameters at time step t.
+* $`\theta_t`$​: parameters at time step *t*.
 * $`\beta_{1}​,\beta_{2}​`$: exponential decay rates for moments estimation.
 * $`\alpha`$: learning rate.
 * $`\epsilon`$: small constant to prevent division by zero. <br/>
@@ -343,6 +343,12 @@ This criterion computes the cross entropy loss between input logits and target. 
 $$
 Loss = - \sum_{i=1}^{C} y_i \log(\hat{y}_i)
 $$
+
+Where:
+* $`C`$ is the number of classes.
+* $`y_i`$​ is the true probability for class ii (usually 1 for the correct class and 0 for others).
+* $`\hat{y}_i`$is the predicted probability for class *i*.
+
 
 ## Loss & Typical Run 
 
