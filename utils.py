@@ -85,7 +85,7 @@ def save_model(epoch, model, opt, scheduler, loss, filepath="model_checkpoint.pt
         'loss': loss
     }
     torch.save(checkpoint, filepath)
-    print(f"Model checkpoint saved at epoch {epoch}.")
+    # print(f"Model checkpoint saved at epoch {epoch}.")
 
 
 def load_checkpoint(model, optimizer, scheduler,
@@ -111,8 +111,8 @@ def load_checkpoint(model, optimizer, scheduler,
         start_epoch = checkpoint["epoch"] + 1
         last_loss = checkpoint["loss"]
 
-        print(f"Resuming model from epoch {start_epoch}")
-        print(f"The last epoch loss: {last_loss}")
+        # print(f"Resuming model from epoch {start_epoch}")
+        # print(f"The last epoch loss: {last_loss}")
         return start_epoch
     return 1  # Start from epoch 1 if no checkpoint exists
 
@@ -159,10 +159,6 @@ def count_parameters(model: torch.nn.Module) -> int:
         int: The total number of trainable parameters.
     """
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-
-
-# print(f"Number of trainable parameters: {count_parameters(st_model):,}")
 
 
 def make_iwslt14_local_file(split: str, debug: bool = False, debug_size: int = 1000):

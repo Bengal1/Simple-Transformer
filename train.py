@@ -40,22 +40,22 @@ print('Using', device, '\n')
 train_dataset = IWSLT14Dataset(split="train",local_file="data/local_datasets/iwslt14_train_debug.json")
 val_dataset = IWSLT14Dataset(split="validation",local_file="data/local_datasets/iwslt14_validation_debug.json")
 test_dataset = IWSLT14Dataset(split="test",local_file="data/local_datasets/iwslt14_test_debug.json")
+print()
 
 # DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-# Debug
+# Initialize the model #
 src_vocab_size, trg_vocab_size = train_dataset.get_vocab_sizes()
 max_length = train_dataset.get_max_length()
-
-# Initialize the model #
 st_model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
                              num_heads=num_heads, d_k=d_k, d_v=d_v).to(device)
 
 # Loss & Optimization #
-criterion = torch.nn.CrossEntropyLoss(ignore_index=train_dataset.get_padding_index(), label_smoothing=0.1).to(device) # consider label_smoothing=0.1
+criterion = torch.nn.CrossEntropyLoss(ignore_index=train_dataset.get_padding_index(),
+                                      label_smoothing=0.1).to(device)
 optimizer = optim.Adam(st_model.parameters(), lr=learning_rate, betas=betas, eps=epsilon,
                         weight_decay=weight_decay)
 
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     # Test Model
     test_loss = evaluation.evaluate_model(st_model, test_loader, criterion,  device)
-    print(f"\nTest loss: {test_loss:.2f}")
+    print(f"\nTest loss: {test_loss:.2f}\n")
 
     # Test BLEU
     bleu_score = evaluation.evaluate_bleu(st_model, test_loader, test_dataset.fr_vocab,  device, verbose=True)

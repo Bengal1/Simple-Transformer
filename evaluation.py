@@ -85,7 +85,7 @@ def evaluate_bleu(model: torch.nn.Module, data_loader: torch.utils.data.DataLoad
     special_tokens = data_loader.dataset.special_tokens
 
     with torch.no_grad():
-        for src, trg in tqdm(data_loader, desc="Evaluating BLEU", leave=False, dynamic_ncols=True):
+        for src, trg in data_loader: #tqdm(data_loader, desc="Evaluating BLEU", leave=False, dynamic_ncols=True):
             src, trg = src.to(device), trg.to(device)
             output = _translate_batch(model, src)
 
@@ -111,61 +111,3 @@ def evaluate_bleu(model: torch.nn.Module, data_loader: torch.utils.data.DataLoad
         print(f"Brevity Penalty: {result.get('brevity_penalty'):.4f}")
 
     return result["bleu"]
-
-
-# def evaluate_bleu(model: torch.nn.Module, val_loader: torch.utils.data.DataLoader,
-#                   trg_vocab: dict, device: torch.device) -> float:
-#     """Computes the BLEU score for the model using Hugging Face's evaluate library.
-#
-#     Args:
-#         model (nn.Module): The transformer model used for translation.
-#         val_loader (DataLoader): DataLoader for the validation dataset.
-#         trg_vocab (dict): Target language vocabulary mapping from tokens to indices.
-#         device (torch.device): The device (CPU or GPU) to run the evaluation on.
-#
-#     Returns:
-#         float: The BLEU score computed over the validation set.
-#     """
-#     bleu_metric = hf_evaluate.load("bleu")
-#
-#     model.eval()
-#     predictions = []
-#     references = []
-#
-#     idx_to_token = {idx: token for token, idx in trg_vocab.items()}  # Reverse vocab mapping
-#
-#     with torch.no_grad():
-#         for src, trg in val_loader:
-#             src, trg = src.to(device), trg.to(device)
-#             output = model.translate(src)
-#             output = output.cpu().tolist()
-#             print("Model output:", output[:3]) # Debug
-#             # Convert token indices to words
-#             decoded_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent] for sent in output]
-#             reference_sentences = [[idx_to_token.get(idx, "<unk>") for idx in sent.tolist()] for sent in trg]
-#             # print(f"Output: {decoded_sentences}") # Debug
-#
-#             # Remove special tokens
-#             decoded_sentences = [[word for word in sent if word not in ["<bos>", "<eos>", "<pad>"]] for sent in
-#                                  decoded_sentences]
-#             reference_sentences = [[word for word in sent if word not in ["<bos>", "<eos>", "<pad>"]] for sent in
-#                                    reference_sentences]
-#             # Debug
-#             # print("Decoded:", decoded_sentences[:3])
-#             # print("Refs:", reference_sentences[:3])
-#
-#             predictions.extend([" ".join(sent) for sent in decoded_sentences])
-#             references.extend([[" ".join(sent)] for sent in reference_sentences])
-#
-#     # Debug
-#     # print(f"Predictions (first 5): {predictions[:5]}")
-#     # print(f"References (first 5): {references[:5]}")
-#
-#     # Handle empty references case
-#     if not references or not predictions or all(len(ref[0]) == 0 for ref in references):
-#         print("Error: No valid references or predictions for BLEU computation.")
-#         return 0.0  # Prevent division by zero
-#
-#     # Compute BLEU score
-#     bleu_score = bleu_metric.compute(predictions=predictions, references=references)["bleu"]
-#     return bleu_score
