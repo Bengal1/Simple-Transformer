@@ -1,6 +1,6 @@
 import torch
-from nltk.translate.bleu_score import corpus_bleu
 import evaluate as hf_evaluate
+from nltk.translate.bleu_score import corpus_bleu
 from tqdm.notebook import tqdm
 
 

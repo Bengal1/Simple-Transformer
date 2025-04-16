@@ -136,6 +136,7 @@ def train_model() -> dict:
 
     return loss_record
 
+
 # Entry point
 if __name__ == "__main__":
     loss_records = train_model()

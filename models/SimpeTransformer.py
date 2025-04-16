@@ -352,6 +352,56 @@ class SimpleTransformer(torch.nn.Module):
             if p.dim() > 1:  # Skip biases (1D tensors)
                 nn.init.xavier_uniform_(p)
 
+
+    def _encode(self, src: torch.Tensor) -> torch.Tensor:
+        """
+        Encodes the input source tensor using embedding, positional encoding,
+        attention, and feed-forward layers.
+
+        Args:
+            src (torch.Tensor): The input source tensor of shape (batch_size, seq_len).
+
+        Returns:
+            torch.Tensor: The encoded output tensor of shape (batch_size, seq_len, d_model).
+        """
+        src_embed = self.embedding_encoder(src)
+        src_pe = self.positional_encoding_encoder(src_embed)
+
+        attn_enc = self.attention_encoder(src_pe)
+        norm1_enc = self.norm1_enc(attn_enc + src_pe)
+
+        ff_enc = self.ff_enc(norm1_enc)
+        enc_out = self.norm2_enc(ff_enc + norm1_enc)
+        return enc_out
+
+
+    def _decode(self, trg: torch.Tensor, enc_out: torch.Tensor) -> torch.Tensor:
+        """
+        Decodes the target tensor using embedding, positional encoding, masked
+        attention, cross-attention, and feed-forward layers.
+
+        Args:
+            trg (torch.Tensor): The input target tensor of shape (batch_size, seq_len).
+            enc_out (torch.Tensor): The encoded source tensor from the encoder
+                                    with shape (batch_size, seq_len, d_model).
+
+        Returns:
+            torch.Tensor: The decoded output tensor of shape (batch_size, seq_len, d_model).
+        """
+        trg_embed = self.embedding_decoder(trg)
+        trg_pe = self.positional_encoding_decoder(trg_embed)
+
+        attn_masked_dec = self.attention_masked_dec(trg_pe)
+        norm1_dec = self.norm1_dec(attn_masked_dec + trg_pe)
+
+        attn_cross_dec = self.attention_cross_dec(norm1_dec, enc_out)
+        norm2_dec = self.norm2_dec(attn_cross_dec + norm1_dec)
+
+        ff_dec = self.ff_dec(norm2_dec)
+        dec_out = self.norm3_dec(ff_dec + norm2_dec)
+        return dec_out
+
+
     def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
         """Forward pass of the SimpleTransformer model.
 
@@ -362,29 +412,15 @@ class SimpleTransformer(torch.nn.Module):
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, trg_seq_len, trg_vocab_size).
         """
-        # Embedding and positional encoding
-        src_embed = self.embedding_encoder(src)
-        src_pe = self.positional_encoding_encoder(src_embed)
-        trg_embed = self.embedding_decoder(trg)
-        trg_pe = self.positional_encoding_decoder(trg_embed)
-
         # Encoder
-        attn_enc = self.attention_encoder(src_pe)
-        norm1_e_out = self.norm1_enc(attn_enc + src_pe)
-        ff_e_out = self.ff_enc(norm1_e_out)
-        enc_out = self.norm2_enc(ff_e_out + norm1_e_out)
+        enc_out = self._encode(src)
 
         # Decoder
-        attn_masked_out = self.attention_masked_dec(trg_pe)
-        norm1_d_out = self.norm1_dec(trg_pe + attn_masked_out)
-        attn_cross_dec = self.attention_cross_dec(norm1_d_out, enc_out)
-        norm2_d_out = self.norm2_dec(norm1_d_out + attn_cross_dec)
-        ff_d_out = self.ff_dec(norm2_d_out)
-        dec_out = self.norm3_dec(norm2_d_out + ff_d_out)
+        dec_out = self._decode(trg, enc_out)
 
         # Output
         out = self.w_o(dec_out)
-        # No explicit Softmax (handled by CrossEntropyLoss)
+        # No explicit Softmax (handled by nn.CrossEntropyLoss)
         return out
 
     def translate(self, src: torch.Tensor) -> torch.Tensor:
@@ -400,13 +436,8 @@ class SimpleTransformer(torch.nn.Module):
             unk_token_id, bos_token_id, eos_token_id = 0, 2, 3  # <bos> and <eos> token IDs
             batch_size, max_target_length = src.shape  # Extract input dimensions
 
-            # Encoder
-            src_embed = self.embedding_encoder(src)
-            src_pe = self.positional_encoding_encoder(src_embed)
-            attn_enc = self.attention_encoder(src_pe)
-            norm1_enc = self.norm1_enc(attn_enc + src_pe)
-            ff_enc = self.ff_enc(norm1_enc)
-            enc_out = self.norm2_enc(ff_enc + norm1_enc)  # Final encoder output
+            # Encoder step
+            enc_out = self._encode(src)
 
             # Decoder initialization
             trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
@@ -415,14 +446,8 @@ class SimpleTransformer(torch.nn.Module):
             generated_eos = torch.zeros(batch_size, dtype=torch.bool, device=src.device)
 
             for _ in range(max_target_length):
-                trg_embed = self.embedding_decoder(trg_seq)
-                trg_pe = self.positional_encoding_decoder(trg_embed)
-                attn_masked_dec = self.attention_masked_dec(trg_pe)
-                norm1_dec = self.norm1_dec(attn_masked_dec + trg_pe)
-                attn_cross_dec = self.attention_cross_dec(norm1_dec, enc_out)
-                norm2_dec = self.norm2_dec(attn_cross_dec + norm1_dec)
-                ff_dec = self.ff_dec(norm2_dec)
-                dec_out = self.norm3_dec(ff_dec + norm2_dec)
+                # Decoder step
+                dec_out = self._decode(trg_seq, enc_out)
 
                 # Predict next token
                 out_logits = self.w_o(dec_out[:, -1, :])
