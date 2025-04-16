@@ -6,7 +6,7 @@ TODO:
 
 
 $$
-lr=d_{model}^{−0.5}​×\hspace{1em}min(Step^{−0.5},Step\hspace{0.5em}×\hspace{0.5em}Warmup^{−1.5})
+lr=d_{model}^{−0.5}​×\hspace{0.5em}min(Step^{−0.5},Step\hspace{0.5em}×\hspace{0.5em}Warmup^{−1.5})
 $$
 
 # SimpleTransformer Guide
