@@ -310,8 +310,9 @@ s
 $$
 
 3. Bias correction:
+
 $$
-\hat{v}_t = \frac{v_t}{1 - \beta_2^t} \hat{m}_t = \frac{m_t}{1 - \beta_1^t}
+\hat{v}_t = \frac{v_t}{1 - \beta_2^t} ; \hat{m}_t = \frac{m_t}{1 - \beta_1^t}
 $$
 
 4. Update parameters:
