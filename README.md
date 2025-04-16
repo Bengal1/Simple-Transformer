@@ -288,6 +288,7 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients.
  
 ### Noam Learning Rate
+*NoamLR* scheduler was introduced in the original Transformer paper "Attention Is All You Need". Schedulers in deep learning are used to adjust the learning rate during training to improve convergence and performance. It sets the learning rate to increase linearly for a set number of warm-up steps and then decay proportionally to the inverse square root of the training step: 
 
 $$
 lr=d_{model}^{−0.5}​ × min(Step^{−0.5},Step × Warmup^{−1.5})
@@ -295,10 +296,9 @@ $$
 
 Where:
 * ***lr*** is the next learning rate.
-* ***$`d_{model}`$*** is the model (usualy embedding dimension).
-* ***step*** is .
-* ***warmup*** is .
-
+* ***$`d_{model}`$*** is the model dimension (embedding dimension).
+* ***warmup*** is predefined hyperparameter.
+This approach helps stabilize training in the early stages and allows the model to learn efficiently by avoiding large or unstable updates initially, while gradually reducing the learning rate to fine-tune the model later in training.
 
 ### Cross-Entropy Loss Function
 This criterion computes the cross entropy loss between input logits and target. Loss function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "loss" associated with the event. The Cross Enthropy Loss function is commonly used in classification tasks both in traditional ML and deep learning, שnd it also has its advantages.
