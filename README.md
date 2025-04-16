@@ -305,7 +305,7 @@ $$
 4. Update parameters:
 
 $$
-\theta_{t+1}=\theta_{t}-\alpha\dot \frac{m_{t}}{\sqrt{v_{t}+\epsilon}}​​
+\theta_{t+1}=\theta_{t}-\alpha\dot ​​
 $$
 
 ### Noam Learning Rate
