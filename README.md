@@ -287,8 +287,25 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 ### Adam Optimizer
 The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
+1. Compute gradients:
 $$
-^t​=1−β2t​vt​​
+s
+$$
+
+2. Update biased first moment estimate (mean):
+$$
+s
+$$
+
+3. Bias correction:
+$$
+s
+$$
+
+4. Update parameters:
+
+$$
+\theta_{t+1}=\theta_{t}-\alpha\dot \frac{m_{t}}{\sqrt{v_{t}+\epsilon}}​​
 $$
 
 ### Noam Learning Rate
