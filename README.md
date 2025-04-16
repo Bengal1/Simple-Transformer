@@ -289,7 +289,7 @@ The Adam optimization algorithm is an extension to stochastic gradient descent (
 
 #### Adam Algorithm:
 $`θ_t`$​: parameters at time step t. <br/>
-$`β_1​,β2_​`$: exponential decay rates for moments estimation. <br/>
+$`β_{1}​,β_{2}​`$: exponential decay rates for moments estimation. <br/>
 $`α`$: learning rate. <br/>
 
 ϵϵ: small constant to prevent division by zero (e.g., 10−810−8)
