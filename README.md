@@ -346,7 +346,7 @@ $$
 
 Where:
 * $`C`$  is the number of classes.
-* $`y_i`$​  is the true probability for class ii (usually 1 for the correct class and 0 for others).
+* $`y_i`$​  is the true probability for class *i* (usually 1 for the correct class and 0 for others).
 * $`\hat{y}_i`$  is the predicted probability for class *i*.
 
 
