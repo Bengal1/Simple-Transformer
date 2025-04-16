@@ -4,23 +4,6 @@ TODO:
 * token IDs
 * number of parameters: ###
 
-
-$$
-\begin{align*}
-&\text{1. Gradient of the loss at step } t: && g_t = \nabla_{\theta} J(\theta_t) \\[8pt]
-
-&\text{2. First moment estimate (mean):} && m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t \\[8pt]
-
-&\text{3. Second moment estimate (variance):} && v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2 \\[8pt]
-
-&\text{4. Bias-corrected first moment:} && \hat{m}_t = \frac{m_t}{1 - \beta_1^t} \\[8pt]
-
-&\text{5. Bias-corrected second moment:} && \hat{v}_t = \frac{v_t}{1 - \beta_2^t} \\[8pt]
-
-&\text{6. Parameter update:} && \theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
-\end{align*}
-$$
-
 # SimpleTransformer Guide
 
 This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to beginners who like to know how to start building a Transformer with Pytorch. *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need".<br/>
@@ -303,6 +286,18 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 
 ### Adam Optimizer
 The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
+$$
+\begin{align*}
+&\text{1. Gradient of the loss at step } t: && g_t = \nabla_{\theta} J(\theta_t) \\[8pt]
+
+&\text{2. First moment estimate (mean):} && m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t \\[8pt]
+
+&\text{3. Second moment estimate (variance):} && v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2 \\[8pt]
+
+&\text{4. Bias-corrected first moment:} &&  \\[8pt]
+
+&\text{5. Bias-corrected second moment:} &&  \\[8pt]
+
 
 1. Compute gradients:
 $$
@@ -316,7 +311,7 @@ $$
 
 3. Bias correction:
 $$
-s
+\hat{v}_t = \frac{v_t}{1 - \beta_2^t} \hat{m}_t = \frac{m_t}{1 - \beta_1^t}
 $$
 
 4. Update parameters:
