@@ -308,6 +308,7 @@ The Adam optimization algorithm is an extension to stochastic gradient descent (
 $$
 g_t = \nabla_{\theta} J(\theta_t)
 $$
+
 2. Update biased first moment estimate (mean):
 
 $$
@@ -329,7 +330,7 @@ $$
 5. Update parameters:
 
 $$
-**\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}**
+***\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}***
 $$
 
 * In our model *Weight decay* is applied:
