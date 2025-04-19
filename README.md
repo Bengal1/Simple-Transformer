@@ -329,7 +329,7 @@ $$
 
 5. Update parameters:
 
-$$
+<span style="font-size:small;">$$
 **\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}**
 $$
 
