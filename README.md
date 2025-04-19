@@ -169,7 +169,7 @@ $$
 
 <br/>
 
-`k` - Position of an object in the input sequence, $`0 \le k <M`$ (M=sequence length).<br/>
+`k` - Position of an object in the input sequence, $`0 \le k <M-1`$ (M=sequence length).<br/>
 `n` - User defined scalar. Set to 10,000 in the article "Attention Is All You Need".<br/>
 `d` - Dimension of the model (output or output embedding space).<br/>
 `i` - Used for mapping column's/object's indices,  $`0 \le i < \frac{2}{d}`$.<br/>
@@ -185,7 +185,7 @@ $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}
 .<br/>
 $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
 
-After calculating the positional encoding vectors, $`[p_1, p_2, p_3,..., p_M]`$, we add them to the embedding vectors, $`[e_1, e_2, e_3,..., e_M]`$ :<br/> $`[e_1 + p_1, e_2 + p_2, e_3 + p_3,..., e_M + p_M]`$
+After calculating the positional encoding vectors, $`[p_0, p_2, p_3,..., p_{M-1}]`$, we add them to the embedding vectors, $`[e_0, e_2, e_3,..., e_{M-1}]`$ :<br/> $`[e_0 + p_0, e_2 + p_2, e_3 + p_3,..., e_{M-1} + p_{M-1}]`$
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
