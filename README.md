@@ -136,7 +136,7 @@ The Layers of the *FeedForward Network* consist of Dense layer, also called the 
 For a single layer, the output is calculated as:
 
 ```math
-y = f(Wx+b)
+y = W_{2}·f(W_{1}·x+b_{1}) + b_{2}
 ```
 Where:
 * ***x*** is the input vector.
