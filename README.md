@@ -300,7 +300,8 @@ The Adam optimization algorithm is an extension to stochastic gradient descent (
 * $`\theta_t`$​ : parameters at time step *t*.
 * $`\beta_1,\beta_2​`$: exponential decay rates for moments estimation.
 * $`\alpha`$ : learning rate.
-* $`\epsilon`$ : small constant to prevent division by zero. <br/>
+* $`\epsilon`$ : small constant to prevent division by zero.
+* $`\lambda`$ : weight decay coefficient. <br/>
 
 1. Compute gradients:
 
@@ -329,7 +330,7 @@ $$
 5. Update parameters:
 
 $$
-\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+**\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}**
 $$
 
 * In our model *Weight decay* is applied:
