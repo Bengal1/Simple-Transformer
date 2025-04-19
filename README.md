@@ -4,11 +4,12 @@ TODO:
 * token IDs
 * number of parameters: ###
 
-# SimpleTransformer Guide
+# Simple Transformer Guide
 
-This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to beginners who like to know how to start building a Transformer with Pytorch. *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need".<br/>
-SimpleTransformer architecture is built according to article "Attention Is All You Need", In this project we will use it for [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation). <br/>
-This Repository is built for learning purposes, and its goal is to help people who would like to start coding transformer executing [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
+This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to intermediate ML programmers who like to know how to build a Transformer with Pytorch (if you are a beginner I will suggest [Simple CNN Guide](https://github.com/Bengal1/Simple-CNN-Guide)). <br/>
+*The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need" <sup>[<a href="#ref1">1</a>]</sup>.
+SimpleTransformer architecture is built according to article "Attention Is All You Need", In this project we will use it for [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation).
+This Repository is built for learning purposes, it contain theoretical and practical in knowledge and its goal is to help people who would like to start coding transformer executing [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
 
 ## Requirements
 * Python 3
@@ -19,7 +20,8 @@ This Repository is built for learning purposes, and its goal is to help people w
 ## Transformer
 <img align="right" width="400"  src="https://github.com/user-attachments/assets/63544640-b22d-4c1e-94f3-d5c101ae05fd">
 
-*The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The transformer is Encoder-Decoder ... <br/>
+*The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The model is composed of an encoder and a decoder, each built from layers containing multi-head self-attention, feed-forward networks, residual connections, and layer normalization. The encoder processes the input sequence using self-attention and feed-forward layers to create context-aware representations. The decoder generates the output sequence using masked self-attention, attends to the encoder's output, and predicts the next token step by step. *Attention* is the core of the Transformer. It's what allows the model to weigh the importance of different words in a sequence—both in the input (via self-attention) and between input and output (via cross-attention). This mechanism replaces recurrence and convolution, making the model more efficient and better at capturing long-range dependencies. <br/>
+
 ### Attention
 The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
 In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$.
@@ -130,17 +132,20 @@ For more information on Transformer and Attention there is a video series [3Blue
 <img align="right" width="400"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
 
 A [*FeedForward Neural Network (FNN)*](https://en.wikipedia.org/wiki/Feedforward_neural_network) is a type of artificial neural network where connections between the nodes do not form cycles. The network consists of an input layer, one or more hidden layers, and an output layer. Information flows in one direction—from input to output—hence the name "feedforward."<br/>
-The Layers of the *FeedForward Network* consist of Dense layer, also called the fully-connected layer, and is used for abstract representations of input data. In this layer, neurons connect to every neuron in the preceding layer. In *Multilayer Perceptron* networks, these layers are stacked together.<br/>
-For a single layer, the output is calculated as:
+The Layers of the *FeedForward Network* consist of Dense layer, also called the fully-connected layer, and is used for abstract representations of input data. In this layer, neurons connect to every neuron in the preceding layer. In *Multilayer Perceptron* networks, these layers are stacked together. <br/> 
+In our model the *Feed-Forward* network compose of 2 fully-connected layers and a ReLU activation that applied between them. I also applied *Dropout* according to "Attention Is All You Need". <br/> 
+For a single Network 'layer', the output is calculated as:
 
 ```math
-y = f(Wx+b)
+y = W_{2}·f(W_{1}·x+b_{1}) + b_{2}
 ```
 Where:
-* ***x*** is the input vector.
-* ***W*** is the weight matrix.
-* ***b*** is the bias vector.
-* ***f*** is the activation function.
+* ***$`x`$*** is the input vector.
+* ***$`W_i`$*** is the weight matrix of layer *i*.
+* ***$`b_i`$*** is the bias vector of layer *i*.
+* ***$`f`$*** is the activation function - ReLU.
+
+The Dropout applies after the activation function.
 
 #### Activation Functions
 
@@ -164,7 +169,7 @@ $$
 
 <br/>
 
-`k` - Position of an object in the input sequence, $`0 \le k <M`$ (M=sequence length).<br/>
+`k` - Position of an object in the input sequence, $`0 \le k <M-1`$ (M=sequence length).<br/>
 `n` - User defined scalar. Set to 10,000 in the article "Attention Is All You Need".<br/>
 `d` - Dimension of the model (output or output embedding space).<br/>
 `i` - Used for mapping column's/object's indices,  $`0 \le i < \frac{2}{d}`$.<br/>
@@ -180,7 +185,11 @@ $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}
 .<br/>
 $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
 
-After calculating the positional encoding vectors, $`[p_1, p_2, p_3,..., p_M]`$, we add them to the embedding vectors, $`[e_1, e_2, e_3,..., e_M]`$ :<br/> $`[e_1 + p_1, e_2 + p_2, e_3 + p_3,..., e_M + p_M]`$
+After calculating the positional encoding vectors, $`[p_0, p_1, p_2,..., p_{M-1}]`$, we add them to the embedding vectors, $`[e_0, e_1, e_2,..., e_{M-1}]`$ :<br/> 
+
+$$
+[e_0 + p_0,\hspace{0.3em} e_1 + p_1,\hspace{0.3em} e_2 + p_2,\hspace{0.2em}...,\hspace{0.2em} e_{M-1} + p_{M-1}]
+$$
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -285,13 +294,14 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 ## Training and Optimization
 
 ### Adam Optimizer
-The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
+The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
 #### Adam Algorithm:
 * $`\theta_t`$​ : parameters at time step *t*.
 * $`\beta_1,\beta_2​`$: exponential decay rates for moments estimation.
 * $`\alpha`$ : learning rate.
-* $`\epsilon`$ : small constant to prevent division by zero. <br/>
+* $`\epsilon`$ : small constant to prevent division by zero.
+* $`\lambda`$ : weight decay coefficient. <br/>
 
 1. Compute gradients:
 
@@ -299,13 +309,13 @@ $$
 g_t = \nabla_{\theta} J(\theta_t)
 $$
 
-2. Update biased first moment estimate (mean):
+2. Update first moment estimate (mean):
 
 $$
 m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t
 $$
 
-3. Update biased second raw moment estimate (uncentered variance):
+3. Update second moment estimate (uncentered variance):
 
 $$
 v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2
@@ -323,17 +333,24 @@ $$
 \theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
 $$
 
+* In our model *Weight decay* is applied:
+
+$$
+\theta_{t+1} = \theta_t - \alpha \cdot \Bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \Bigg)
+$$
+
 ### Noam Learning Rate
 *NoamLR* scheduler was introduced in the original Transformer paper "Attention Is All You Need". Schedulers in deep learning are used to adjust the learning rate during training to improve convergence and performance. It sets the learning rate to increase linearly for a set number of warm-up steps and then decay proportionally to the inverse square root of the training step: 
 
 $$
-lr=d_{model}^{−0.5}​×\hspace{0.5em}min(Step^{−0.5},Step\hspace{0.3em}×\hspace{0.3em}Warmup^{−1.5})
+lr=d_{model}^{−0.5}​×\hspace{0.5em}min\bigg(Step^{−0.5},\hspace{0.1em}Step\hspace{0.3em}×\hspace{0.3em}Warmup^{−1.5}\bigg)
 $$
 
 Where:
 * ***$`lr`$*** is the next learning rate.
 * ***$`d_{model}`$*** is the model dimension (embedding dimension).
-* ***$`warmup`$*** is predefined hyperparameter.
+* ***$`Warmup`$*** is predefined hyperparameter.
+* ***$`Step`$*** is optimizer current step.
 
 This approach helps stabilize training in the early stages and allows the model to learn efficiently by avoiding large or unstable updates initially, while gradually reducing the learning rate to fine-tune the model later in training.
 
@@ -362,5 +379,7 @@ Where:
 
 
 ## References
-[Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+<b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+
+<b id="ref2">[2]</b> [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
