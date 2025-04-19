@@ -335,7 +335,7 @@ $$
 * In our model *Weight decay* is applied:
 
 $$
-\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t
+\theta_{t+1} = \theta_t - \alpha \cdot \bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \bigg)
 $$
 
 ### Noam Learning Rate
