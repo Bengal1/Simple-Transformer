@@ -158,4 +158,6 @@ if __name__ == "__main__":
     utils.plot_losses(loss_records)
 
 
-# print(f"Number of trainable parameters: {utils.count_parameters(st_model):,}")
+
+
+    # print(f"Number of trainable parameters: {utils.count_parameters(st_model):,}")
