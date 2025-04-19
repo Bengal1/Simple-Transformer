@@ -185,7 +185,11 @@ $`PE(k=1) = [sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}
 .<br/>
 $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg)]`$<br/>
 
-After calculating the positional encoding vectors, $`[p_0, p_2, p_3,..., p_{M-1}]`$, we add them to the embedding vectors, $`[e_0, e_2, e_3,..., e_{M-1}]`$ :<br/> $`[e_0 + p_0, e_2 + p_2, e_3 + p_3,..., e_{M-1} + p_{M-1}]`$
+After calculating the positional encoding vectors, $`[p_0, p_2, p_3,..., p_{M-1}]`$, we add them to the embedding vectors, $`[e_0, e_2, e_3,..., e_{M-1}]`$ :<br/> 
+
+$$
+[e_0 + p_0, e_2 + p_2, e_3 + p_3,..., e_{M-1} + p_{M-1}]
+$$
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
