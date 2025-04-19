@@ -381,5 +381,5 @@ Where:
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
-[Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
+<b id="ref1">[2]</b> [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
