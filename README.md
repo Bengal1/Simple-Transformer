@@ -7,7 +7,7 @@ TODO:
 # SimpleTransformer Guide
 
 This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to intermediate ML programmers who like to know how to build a Transformer with Pytorch (if you are a beginner I will suggest [Simple CNN Guide](https://github.com/Bengal1/Simple-CNN-Guide)). <br/>
-*The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need" <sup><a href="#ref1">[1]</a></sup>.
+*The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need" <sup>[<a href="#ref1">1</a>]</sup>.
 SimpleTransformer architecture is built according to article "Attention Is All You Need", In this project we will use it for [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation).
 This Repository is built for learning purposes, it contain theoretical and practical in knowledge and its goal is to help people who would like to start coding transformer executing [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
 
@@ -294,7 +294,7 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 ## Training and Optimization
 
 ### Adam Optimizer
-The Adam optimization algorithm is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
+The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
 #### Adam Algorithm:
 * $`\theta_t`$​ : parameters at time step *t*.
@@ -381,5 +381,5 @@ Where:
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 
-<b id="ref1">[2]</b> [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
+<b id="ref2">[2]</b> [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
