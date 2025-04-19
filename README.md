@@ -188,7 +188,7 @@ $`PE(k=M-1) = [sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\fra
 After calculating the positional encoding vectors, $`[p_0, p_1, p_2,..., p_{M-1}]`$, we add them to the embedding vectors, $`[e_0, e_1, e_2,..., e_{M-1}]`$ :<br/> 
 
 $$
-[e_0 + p_0, e_1 + p_1, e_2 + p_2,..., e_{M-1} + p_{M-1}]
+[e_0 + p_0,&nbsp; e_1 + p_1,&nbsp; e_2 + p_2,..., e_{M-1} + p_{M-1}]
 $$
 
 
