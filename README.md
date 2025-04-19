@@ -338,7 +338,8 @@ $$
 Where:
 * ***$`lr`$*** is the next learning rate.
 * ***$`d_{model}`$*** is the model dimension (embedding dimension).
-* ***$`warmup`$*** is predefined hyperparameter.
+* ***$`Warmup`$*** is predefined hyperparameter.
+* ***$`Step`$*** is optimizer current step.
 
 This approach helps stabilize training in the early stages and allows the model to learn efficiently by avoiding large or unstable updates initially, while gradually reducing the learning rate to fine-tune the model later in training.
 
