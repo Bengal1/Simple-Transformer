@@ -140,10 +140,10 @@ For a single Network 'layer', the output is calculated as:
 y = W_{2}·f(W_{1}·x+b_{1}) + b_{2}
 ```
 Where:
-* ***$`x`*** is the input vector.
-* ***$`W_i`*** is the weight matrix of layer *i*.
-* ***$`b_i`*** is the bias vector of layer *i*.
-* ***$`f`*** is the activation function - ReLU.
+* ***$`x`$*** is the input vector.
+* ***$`W_i`$*** is the weight matrix of layer *i*.
+* ***$`b_i`$*** is the bias vector of layer *i*.
+* ***$`f`$*** is the activation function - ReLU.
 
 #### Activation Functions
 
