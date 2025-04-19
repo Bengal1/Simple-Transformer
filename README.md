@@ -141,9 +141,9 @@ y = W_{2}·f(W_{1}·x+b_{1}) + b_{2}
 ```
 Where:
 * ***x*** is the input vector.
-* ***W*** is the weight matrix.
-* ***b*** is the bias vector.
-* ***f*** is the activation function.
+* ***W_i*** is the weight matrix of layer *i*.
+* ***b_i*** is the bias vector of layer *i*.
+* ***f*** is the activation function - ReLU.
 
 #### Activation Functions
 
