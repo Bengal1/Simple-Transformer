@@ -209,21 +209,24 @@ class NormLayer(torch.nn.Module):
 
 class MultiHeadAttention(torch.nn.Module):
     """
-    Multi-Head Attention module.
+    Multi-Head Attention module for Transformer models.
 
-    This module implements the multi-head attention mechanism used in Transformer models.
-    It supports both self-attention and cross-attention.
+    This module implements the multi-head attention mechanism used in Transformer
+    architectures. It supports both self-attention and cross-attention, and can
+    optionally apply a causal mask for autoregressive decoding.
 
     Attributes:
         num_heads (int): Number of attention heads.
         d_k (int): Dimension of key vectors per head.
         d_v (int): Dimension of value vectors per head.
-        cross_attn (bool): If True, performs cross-attention (decoder).
-        masked_attn (bool): If True, applies a causal mask for autoregressive decoding.
-        w_q (nn.ModuleList): Linear layers for projecting queries.
-        w_k (nn.ModuleList): Linear layers for projecting keys.
-        w_v (nn.ModuleList): Linear layers for projecting values.
-        w_out (nn.Linear): Linear layer for final projection after attention computation.
+        cross_attn (bool): Whether the module operates in cross-attention mode.
+        masked_attn (bool): Whether to apply a causal mask for decoding.
+        w_q (nn.ModuleList): List of linear layers for projecting query vectors.
+        w_k (nn.ModuleList): List of linear layers for projecting key vectors.
+        w_v (nn.ModuleList): List of linear layers for projecting value vectors.
+        w_out (nn.Linear): Output linear layer that projects concatenated attention outputs.
+        attn_dropout (nn.Dropout): Dropout applied to attention weights.
+        out_dropout (nn.Dropout): Dropout applied to the final output projection.
     """
 
     def __init__(self, embed_dim: int, num_heads: int = 1, d_k: int = 64,
@@ -231,12 +234,13 @@ class MultiHeadAttention(torch.nn.Module):
         """Initializes the MultiHeadAttention module.
 
         Args:
-            embed_dim (int): Dimension of input embeddings.
-            num_heads (int, optional): Number of attention heads. Default is 1.
-            d_k (int, optional): Dimension of key vectors per head. Default is 64.
-            d_v (int, optional): Dimension of value vectors per head. Default is 128.
-            cross_attn (bool, optional): If True, enables cross-attention mode (decoder). Default is False.
-            masked_attn (bool, optional): If True, applies a causal mask for autoregressive decoding. Default is False.
+            embed_dim (int): Dimension of the input embeddings.
+            num_heads (int, optional): Number of attention heads. Defaults to 1.
+            d_k (int, optional): Dimension of the key vectors per head. Defaults to 64.
+            d_v (int, optional): Dimension of the value vectors per head. Defaults to 128.
+            dropout (float, optional): Dropout rate applied to attention weights and output. Defaults to 0.0.
+            cross_attn (bool, optional): If True, enables cross-attention mode for use in the decoder. Defaults to False.
+            masked_attn (bool, optional): If True, applies causal (masked) attention for autoregressive decoding. Defaults to False.
         """
         super().__init__()
 
@@ -324,22 +328,29 @@ class MultiHeadAttention(torch.nn.Module):
 
 class Encoder(nn.Module):
     """
-    A single Transformer encoder block consisting of:
+    A single Transformer encoder block.
+
+    This module represents a standard Transformer encoder block, which includes:
     - Multi-head self-attention
-    - Layer normalization and residual connections
+    - Layer normalization with residual connections
     - Position-wise feedforward network
+
+    Attributes:
+        attention (MultiHeadAttention): Multi-head self-attention mechanism.
+        norm1 (NormLayer): Layer normalization after attention with residual connection.
+        ff (FeedForward): Position-wise feedforward network.
+        norm2 (NormLayer): Layer normalization after feedforward network with residual connection.
     """
 
     def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.0):
-        """
-        Initializes the Encoder block.
+        """Initializes the Encoder block.
 
         Args:
-            embed_dim (int): Dimensionality of input embeddings.
+            embed_dim (int): Dimensionality of the input embeddings.
             num_heads (int): Number of attention heads.
-            d_k (int): Dimensionality of key vectors.
-            d_v (int): Dimensionality of value vectors.
-            dropout (float): Dropout probability.
+            d_k (int): Dimensionality of key vectors per head.
+            d_v (int): Dimensionality of value vectors per head.
+            dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.0.
         """
         super().__init__()
         self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout)
@@ -349,14 +360,13 @@ class Encoder(nn.Module):
         self.norm2 = NormLayer(embed_dim)
 
     def forward(self, enc_input: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the encoder block.
+        """Applies the encoder block forward pass.
 
         Args:
             enc_input (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
 
         Returns:
-            torch.Tensor: Output tensor with the same shape as input.
+            torch.Tensor: Output tensor of shape (batch_size, seq_len, embed_dim).
         """
         # Multi-head self-attention + residual + norm
         attn_out = self.attention(enc_input)
@@ -371,23 +381,32 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     """
-    A single Transformer decoder block consisting of:
+    A single Transformer decoder block.
+
+    This module represents a Transformer decoder block consisting of:
     - Masked multi-head self-attention
     - Multi-head cross-attention with encoder output
-    - Layer normalization and residual connections
+    - Layer normalization with residual connections
     - Position-wise feedforward network
+
+    Attributes:
+        attention_masked (MultiHeadAttention): Masked multi-head self-attention mechanism.
+        norm1 (NormLayer): Layer normalization after masked self-attention with residual connection.
+        attention_cross (MultiHeadAttention): Cross-attention mechanism using encoder output.
+        norm2 (NormLayer): Layer normalization after cross-attention with residual connection.
+        ff (FeedForward): Position-wise feedforward network.
+        norm3 (NormLayer): Layer normalization after feedforward network with residual connection.
     """
 
     def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
-        """
-        Initializes the Decoder block.
+        """Initializes the Decoder block.
 
         Args:
-            embed_dim (int): Dimensionality of input embeddings.
+            embed_dim (int): Dimensionality of the input embeddings.
             num_heads (int): Number of attention heads.
-            d_k (int): Dimensionality of key vectors.
-            d_v (int): Dimensionality of value vectors.
-            dropout (float): Dropout probability.
+            d_k (int): Dimensionality of key vectors per head.
+            d_v (int): Dimensionality of value vectors per head.
+            dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
         """
         super().__init__()
         self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout, masked_attn=True)
@@ -400,15 +419,14 @@ class Decoder(nn.Module):
         self.norm3 = NormLayer(embed_dim)
 
     def forward(self, dec_input: torch.Tensor, enc_output: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the decoder block.
+        """Applies the decoder block forward pass.
 
         Args:
             dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, embed_dim).
             enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, embed_dim).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, trg_seq_len, embed_dim).
+            torch.Tensor: Decoder output tensor of shape (batch_size, trg_seq_len, embed_dim).
         """
         # Masked self-attention + residual + norm
         attn_masked = self.attention_masked(dec_input)
@@ -444,8 +462,7 @@ class SimpleTransformer(nn.Module):
                  num_heads: int = 8, num_layers: int = 6, d_k: int = 32, d_v: int = 64,
                  dropout: float = 0.1
     ):
-        """
-        Initializes the SimpleTransformer model.
+        """Initializes the SimpleTransformer model.
 
         Args:
             src_vocab_size (int): Size of the source vocabulary.
@@ -486,8 +503,7 @@ class SimpleTransformer(nn.Module):
         self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the Transformer model.
+        """Forward pass of the Transformer model.
 
         Args:
             src (torch.Tensor): Source input tensor of shape (batch_size, src_seq_len).

@@ -39,8 +39,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
     """
 
     def __init__(self, optimizer, model_size=256, warmup_steps=4000, last_epoch=-1):
-        """
-        Initializes the NoamLR scheduler.
+        """Initializes the NoamLR scheduler.
 
         Args:
             optimizer (Optimizer): Wrapped optimizer.
@@ -53,8 +52,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         super().__init__(optimizer, last_epoch)
 
     def get_lr(self) -> list:
-        """
-        Computes the learning rate for the current step based on the Noam schedule.
+        """Computes the learning rate for the current step based on the Noam schedule.
 
         Returns:
             list: A list containing the learning rate for each parameter group.
@@ -150,7 +148,8 @@ def plot_losses(loss_record: dict):
 
 
 def count_parameters(model: torch.nn.Module) -> int:
-    """Returns the number of trainable parameters in a PyTorch model.
+    """
+    Returns the number of trainable parameters in a PyTorch model.
 
     Args:
         model (torch.nn.Module): The model whose parameters are to be counted.

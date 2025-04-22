@@ -1,7 +1,5 @@
 import torch
 import evaluate as hf_evaluate
-from nltk.translate.bleu_score import corpus_bleu
-from tqdm.notebook import tqdm
 
 
 def evaluate_model(model: torch.nn.Module, data_loader: torch.utils.data.DataLoader,
