@@ -374,13 +374,15 @@ Mistake at one step can lead to poor outputs later — exposure bias.
 
 ### Training & Validation Loss
 
-<img src="" align="center" width="1000"/>
+`<img src="" align="center" width="1000"/>`
 
 ### Typical Run
 
-<img src="" align="center" width="1000"/>
+`<img src="" align="center" width="1000"/>`
 
 ### Bilingual Evaluation Understudy (BLEU)
+
+`<img src="" align="center" width="1000"/>`
 
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
