@@ -366,6 +366,8 @@ Where:
 * $`y_i`$​  is the true probability for class *i* (usually 1 for the correct class and 0 for others).
 * $`\hat{y}_i`$  is the predicted probability for class *i*.
 
+### Teacher forcing
+Teacher Forcing is a training strategy used in sequence-to-sequence (seq2seq) models, especially in tasks like machine translation, text generation, and speech recognition. During training, the model is fed the actual ground truth output from the previous time step instead of its own predicted output. This helps the model learn faster and improves convergence.
 
 ## Evaluation 
 
