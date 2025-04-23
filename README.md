@@ -1,6 +1,3 @@
-TODO:
-* BLEU score
-
 # Simple Transformer Guide
 
 This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to intermediate ML programmers who like to know how to build a Transformer with Pytorch (if you are a beginner I will suggest [Simple CNN Guide](https://github.com/Bengal1/Simple-CNN-Guide)). <br/>
