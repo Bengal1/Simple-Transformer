@@ -1,7 +1,5 @@
 TODO:
 * BLEU score
-* token IDs
-* number of parameters: ###
 
 # Simple Transformer Guide
 
@@ -385,6 +383,7 @@ Mistake at one step can lead to poor outputs later — exposure bias.
 
 <img src="" align="center" width="1000"/>
 
+### Bilingual Evaluation Understudy (BLEU)
 
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
