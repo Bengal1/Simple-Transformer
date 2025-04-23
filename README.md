@@ -367,7 +367,7 @@ Where:
 * $`\hat{y}_i`$  is the predicted probability for class *i*.
 
 
-## Loss & Typical Run 
+## Evaluation 
 
 ### Training & Validation Loss
 
