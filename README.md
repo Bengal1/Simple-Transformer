@@ -17,7 +17,7 @@ This Repository is built for learning purposes, it contain theoretical and pract
 * [spaCy](https://spacy.io/)
 
 ## Transformer
-<img align="right" height="550"  src="https://github.com/user-attachments/assets/63544640-b22d-4c1e-94f3-d5c101ae05fd">
+<img align="right" height="500"  src="https://github.com/user-attachments/assets/63544640-b22d-4c1e-94f3-d5c101ae05fd">
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The model is composed of an encoder and a decoder, each built from layers containing multi-head self-attention, feed-forward networks, residual connections, and layer normalization. The encoder processes the input sequence using self-attention and feed-forward layers to create context-aware representations. The decoder generates the output sequence using masked self-attention, attends to the encoder's output, and predicts the next token step by step. *Attention* is the core of the Transformer. It's what allows the model to weigh the importance of different words in a sequence—both in the input (via self-attention) and between input and output (via cross-attention). This mechanism replaces recurrence and convolution, making the model more efficient and better at capturing long-range dependencies. <br/>
 This repository follow the original transformer with 6 encoder and 6 decoder layers and 8 head for each attention layer and the rest can be noticed in the transformer architecture figure to th right, totaling `***` learnable parameters.
