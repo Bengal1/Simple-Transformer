@@ -367,7 +367,7 @@ Where:
 
 ### Teacher forcing
 Teacher Forcing is a training strategy used in sequence-to-sequence (seq2seq) models, especially in tasks like machine translation, text generation, and speech recognition. During training, the model is fed the actual ground truth output from the previous time step instead of its own predicted output. This helps the model learn faster and improves convergence. During inference, it must generate each token from its own previous outputs, which can lead to cascading errors if one prediction is wrong — that's exposure bias. <br/>
-Given an input: `This is Simple Transformer Guide!` and a target: `Ceci est un guide simple du Transformer !`
+Given an input: `This is Simple Transformer Guide!` and a target: `Ceci est un guide simple du Transformer!`
 
 Mistake at one step can lead to poor outputs later — exposure bias.
 
