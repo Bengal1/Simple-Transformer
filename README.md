@@ -6,10 +6,11 @@ SimpleTransformer architecture is built according to article "Attention Is All Y
 This Repository is built for learning purposes, it contain theoretical and practical in knowledge and its goal is to help people who would like to start coding transformer executing [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
 
 ## Requirements
-* Python 3
-* [Pytorch](https://pytorch.org/get-started/locally/)
-* [Hugging Face](https://huggingface.co/)
-* [spaCy](https://spacy.io/)
+- [![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)](https://www.python.org/) <br/>
+- [![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/) <br/>
+- [![Hugging Face](https://img.shields.io/badge/HuggingFace-Transformers-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/) <br/>
+- [![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) <br/>
+
 
 ## Transformer
 <img align="right" height="500"  src="https://github.com/user-attachments/assets/63544640-b22d-4c1e-94f3-d5c101ae05fd">
