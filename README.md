@@ -8,7 +8,7 @@ This Repository is built for learning purposes, it contain theoretical and pract
 ## Requirements
 - [![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)](https://www.python.org/) <br/>
 - [![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/) <br/>
-- [![Hugging Face](https://img.shields.io/badge/HuggingFace-Transformers-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/) <br/>
+- [![Datasets](https://img.shields.io/badge/HuggingFace-Datasets-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/datasets) <br/>
 - [![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) <br/>
 
 ## Transformer
