@@ -115,13 +115,12 @@ def train_model() -> dict:
             - 'train' (list of float): Average training loss per epoch.
             - 'validation' (list of float): Validation loss per epoch.
     """
-    loss_record = {'train': [], 'validation': []}
+    loss_record = {'train': [], 'validation': []}  # , 'bleu': []}
 
     st_model.train()
     best_loss = float('inf')
 
     for epoch in range(1, epochs + 1):
-        # print(f"\nEpoch {epoch}/{epochs}")
         train_loss = train()
         loss_record['train'].append(train_loss)
 

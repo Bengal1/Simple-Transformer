@@ -2,7 +2,7 @@
 This module provides utility functions and classes for machine learning tasks,
 including model checkpoint saving/loading, learning rate scheduling, loss plotting,
 and dataset preprocessing for machine translation.
-
+    
 Modules in this file include:
 - NoamLR: A custom learning rate scheduler based on the Noam scheme as described in the 'Attention is All You Need' paper.
 - save_model: Function for saving model checkpoints.
@@ -11,7 +11,7 @@ Modules in this file include:
 - plot_losses: A function to plot training and validation loss over epochs.
 - count_parameters: A function to count the number of trainable parameters in a PyTorch model.
 - make_iwslt14_local_file: A function to download and save the IWSLT14 dataset in local files.
-
+    
 This module makes it easier to manage model training, handle checkpoints, visualize losses,
 and preprocess datasets for machine translation tasks.
 """
@@ -87,32 +87,32 @@ def save_model(epoch, model, opt, scheduler, loss, filepath="model_checkpoint.pt
 
 
 def load_checkpoint(model, optimizer, scheduler,
-                    checkpoint_path="model_checkpoint.pth", device="cpu") -> int:
-    """
-    Load model checkpoint.
+                        checkpoint_path="model_checkpoint.pth", device="cpu") -> int:
+        """
+        Load model checkpoint.
 
-    Args:
-        model (nn.Module): Model to load weights into
-        optimizer (torch.optim.Optimizer): Optimizer to load state into
-        scheduler (torch.optim.lr_scheduler): Scheduler to load state into
-        checkpoint_path (str): Path to the checkpoint file
-        device (str): Device to load model onto (default: "cpu")
+        Args:
+            model (nn.Module): Model to load weights into
+            optimizer (torch.optim.Optimizer): Optimizer to load state into
+            scheduler (torch.optim.lr_scheduler): Scheduler to load state into
+            checkpoint_path (str): Path to the checkpoint file
+            device (str): Device to load model onto (default: "cpu")
 
-    Returns:
-        int: Start epoch number
-    """
-    if os.path.exists(checkpoint_path):
-        checkpoint = torch.load(checkpoint_path, map_location=device)
-        model.load_state_dict(checkpoint["model_state_dict"])
-        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
-        start_epoch = checkpoint["epoch"] + 1
-        last_loss = checkpoint["loss"]
+        Returns:
+            int: Start epoch number
+        """
+        if os.path.exists(checkpoint_path):
+            checkpoint = torch.load(checkpoint_path, map_location=device)
+            model.load_state_dict(checkpoint["model_state_dict"])
+            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+            start_epoch = checkpoint["epoch"] + 1
+            last_loss = checkpoint["loss"]
 
-        # print(f"Resuming model from epoch {start_epoch}")
-        # print(f"The last epoch loss: {last_loss}")
-        return start_epoch
-    return 1  # Start from epoch 1 if no checkpoint exists
+            # print(f"Resuming model from epoch {start_epoch}")
+            # print(f"The last epoch loss: {last_loss}")
+            return start_epoch
+        return 1  # Start from epoch 1 if no checkpoint exists
 
 
 def plot_losses(loss_record: dict):

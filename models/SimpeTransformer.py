@@ -50,7 +50,6 @@ Usage:
 """
 
 
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -136,13 +135,12 @@ class FeedForward(torch.nn.Module):
 
         Args:
             d_model (int): The input and output feature dimension.
-            hidden_dim (int, optional): The hidden layer dimension. Default is 512.
+            hidden_dim (int, optional): The hidden layer dimension. Default is 2048.
             dropout (float, optional): The dropout probability. Default is 0.1.
         """
         super().__init__()
         self.fc1 = nn.Linear(d_model, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, d_model)
-        self.relu = nn.ReLU()
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -158,7 +156,7 @@ class FeedForward(torch.nn.Module):
             torch.Tensor: Output tensor of shape (batch_size, seq_len, d_model).
         """
         x = self.fc1(x)
-        x = self.relu(x)
+        x = F.relu(x)
         x = self.dropout(x)
         x = self.fc2(x)
         return x
@@ -485,7 +483,7 @@ class SimpleTransformer(nn.Module):
         self.positional_encoding_encoder = PositionalEncoding(embed_dim)
         self.positional_encoding_decoder = PositionalEncoding(embed_dim)
 
-        # Dropout after embedding + positional encoding
+        # Dropout after embedding & positional encoding
         self.dropout = nn.Dropout(dropout)
 
         # Stacked encoder layers
@@ -515,12 +513,12 @@ class SimpleTransformer(nn.Module):
         # Source embeddings + positional encoding
         src_embed = self.embedding_encoder(src)
         src_pe = self.positional_encoding_encoder(src_embed)
-        # src_pe = self.dropout(src_pe)
+        src_pe = self.dropout(src_pe)
 
         # Target embeddings + positional encoding
         trg_embed = self.embedding_decoder(trg)
         trg_pe = self.positional_encoding_decoder(trg_embed)
-        # trg_pe = self.dropout(trg_pe)
+        trg_pe = self.dropout(trg_pe)
 
         # Pass through stacked Encoders
         enc_output = src_pe
@@ -573,8 +571,9 @@ class SimpleTransformer(nn.Module):
 
                 # Predict next token
                 out_logits = self.w_o(dec_output[:, -1, :])
-                probs = self.softmax(out_logits)
-                next_token = probs.argmax(dim=-1, keepdim=True)
+                next_token = out_logits.argmax(dim=-1, keepdim=True)
+                # probs = self.softmax(out_logits)
+                # next_token = probs.argmax(dim=-1, keepdim=True)
 
                 # Append predicted token to sequence
                 trg_seq = torch.cat([trg_seq, next_token], dim=1)
