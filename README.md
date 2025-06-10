@@ -132,7 +132,7 @@ In our model the *Feed-Forward* network compose of 2 fully-connected layers and 
 For a single Network 'layer', the output is calculated as:
 
 ```math
-y = W_{2}·f(W_{1}·x+b_{1}) + b_{2}
+y = f(W_{1}·x+b_{1})·W_{2} + b_{2}
 ```
 Where:
 * ***$`x`$*** is the input vector.
