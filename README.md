@@ -1,4 +1,4 @@
-# Simple Transformer Guide
+# Simple Transformer
 
 This is a practical guide for building [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)), and it applies to intermediate ML programmers who like to know how to build a Transformer with Pytorch (if you are a beginner I will suggest [Simple CNN Guide](https://github.com/Bengal1/Simple-CNN-Guide)). <br/>
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need" <sup>[<a href="#ref1">1</a>]</sup>.
