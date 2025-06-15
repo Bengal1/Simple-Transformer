@@ -370,6 +370,9 @@ Given an input: `This is Simple Transformer Guide!` and a target: `Ceci est un g
 
 Mistake at one step can lead to poor outputs later — exposure bias.
 
+### Beam Search
+
+
 ## Evaluation 
 
 ### Training & Validation Loss
