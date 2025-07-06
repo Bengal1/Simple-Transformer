@@ -681,7 +681,7 @@ class SimpleTransformer(nn.Module):
             bos_token_id, eos_token_id, pad_token_id = 2, 3, 1
             batch_size = src.size(0)
             vocab_size = self.w_o.out_features
-            print("vocab_size: ", vocab_size)  # Debug!
+            # print("vocab_size: ", vocab_size)  # Debug!
             # === Encode input ===
             src_embed = self.dropout(self.positional_encoding_encoder(self.embedding_encoder(src)))
             enc_output = src_embed
@@ -726,7 +726,7 @@ class SimpleTransformer(nn.Module):
                 beam_indices = top_indices // vocab_size
                 token_indices = top_indices % vocab_size
 
-                print("Predicted tokens at each step:", token_indices.tolist())  # Debug print!
+                # print("Predicted tokens at each step:", token_indices.tolist())  # Debug print!
 
                 new_sequences = []
                 for i in range(batch_size):

@@ -1,11 +1,16 @@
 """
 main.py
 
-Entry point for evaluating a trained SimpleTransformer model on the IWSLT14 dataset.
-- Loads debug splits of the dataset
-- Loads a saved model checkpoint
-- Evaluates test loss and BLEU score
-- Plots training/validation loss curves
+Entry point for training and evaluating the SimpleTransformer model on the IWSLT14 dataset.
+
+This script performs the following steps:
+- Loads the debug split of the IWSLT14 dataset
+- Initializes the Transformer model and its components
+- Trains the model and tracks training/validation losses
+- Saves the best checkpoint during training
+- Loads the best model checkpoint
+- Evaluates the final model on the test split (loss and BLEU score)
+- Plots training and validation loss curves
 """
 
 import torch
@@ -16,7 +21,8 @@ import evaluation
 import utils
 from train import train_model
 
-# --- Hyperparameters & Config ---
+
+# ------------------ Hyperparameters & Config ------------------ #
 embed_dim = 512         # Embedding dimension
 num_heads = 8           # Number of attention heads
 num_layer = 6           # Number of Encoder/Decoder layers
@@ -32,7 +38,6 @@ epsilon = 1e-9          # Optimizer epsilon
 warmup = 3              # Scheduler warmup period
 dropout = 0.1           # Dropout probability
 
-# Set computation device (GPU or CPU)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using', device, '\n')
 
@@ -78,20 +83,24 @@ scheduler = utils.NoamLR(optimizer, model_size=embed_dim, warmup_steps=warmup)
 
 # ----------------------- Main Entry ----------------------- #
 if __name__ == "__main__":
-
+    # Train the model and collect loss history
     loss_records = train_model(model, train_loader, val_loader, optimizer, scheduler,
                 criterion, device, epochs, max_grad_clip, trg_vocab_size)
 
+    # Load the best checkpoint from training
     utils.load_checkpoint(st_model, optimizer, scheduler)
 
+    # Evaluate model on the test dataset
     test_loss = evaluation.evaluate_model(st_model, test_loader, criterion, device)
     print(f"\nTest loss: {test_loss:.2f}\n")
 
+    # Compute BLEU score
     bleu_score = evaluation.evaluate_bleu(
         st_model, test_loader, test_dataset.fr_vocab,
         device, train_dataset.get_special_tokens(), verbose=True
     )
+    # Plot training and validation losses
+    utils.plot_losses()
 
-    utils.plot_losses()  # Plots from saved training history
-
-    # print(f"Number of trainable parameters: {utils.count_parameters(st_model):,}")
+    # Optional: count model parameters
+    # print(f"Number of trainable parameters: {utils.count_parameters(model):,}")
