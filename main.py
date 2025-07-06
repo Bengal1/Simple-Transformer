@@ -80,7 +80,6 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
 
 scheduler = utils.NoamLR(optimizer, model_size=embed_dim, warmup_steps=warmup)
 
-
 # ----------------------- Main Entry ----------------------- #
 if __name__ == "__main__":
     # Train the model and collect loss history
