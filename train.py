@@ -156,5 +156,4 @@ if __name__ == "__main__":
     # Plot Train & Validation Loss
     utils.plot_losses(loss_records)
 
-
     # print(f"Number of trainable parameters: {utils.count_parameters(st_model):,}")

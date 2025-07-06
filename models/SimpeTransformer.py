@@ -591,3 +591,4 @@ class SimpleTransformer(nn.Module):
                                        device=src.device).expand(batch_size, 2)
 
             return trg_seq
+
