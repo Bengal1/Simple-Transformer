@@ -16,7 +16,8 @@ import evaluation
 import utils
 from train import train_model
 
-# --- Hyperparameters & Config ---
+
+# ------------------ Hyperparameters & Config ------------------ #
 embed_dim = 512         # Embedding dimension
 num_heads = 8           # Number of attention heads
 num_layer = 6           # Number of Encoder/Decoder layers
