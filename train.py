@@ -27,17 +27,23 @@ def train_epoch(model, train_loader, optimizer, scheduler, criterion,
     for src, trg in train_loader:
         src, trg = src.to(device), trg.to(device)
 
+        # Forward pass
         optimizer.zero_grad()
         output = model(src, trg[:, :-1])  # Teacher forcing
 
+        # Flatten the output and target tensors for loss computation
         logits = output.view(-1, trg_vocab_size)
         targets = trg[:, 1:].contiguous().view(-1)
 
+        # Compute loss
         loss = criterion(logits, targets)
         total_train_loss += loss.item()
 
+        # Backpropagation
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+
+        # Scheduler & Optimizer steps
         optimizer.step()
         scheduler.step()
 
@@ -67,7 +73,9 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler,
                 - 'train': List of training loss values.
                 - 'validation': List of validation loss values.
     """
-    loss_record = {'train': [], 'validation': []}
+    loss_record = {'train': [], 'validation': []}  # , 'bleu': []}
+
+    model.train()
     best_loss = float('inf')
 
     for epoch in range(1, epochs + 1):
@@ -85,77 +93,3 @@ def train_model(model, train_loader, val_loader, optimizer, scheduler,
             utils.save_model(epoch, model, optimizer, scheduler, val_loss)
 
     return loss_record
-
-
-
-# # Training loop
-# def train_epoch(model, train_loader, optimizer, scheduler, criterion, device) -> float:
-#     """
-#     Performs one epoch of training on the model.
-#
-#     Returns:
-#         float: The average loss for the epoch.
-#     """
-#     model.train()
-#     total_train_loss = 0
-#
-#     for batch_idx, (src, trg) in enumerate(train_loader):
-#         # Move data to device (GPU/CPU)
-#         src, trg = src.to(device), trg.to(device)
-#
-#         # Forward pass
-#         optimizer.zero_grad()
-#         output = model(src, trg[:, :-1])  # Teacher forcing
-#
-#         # Flatten the output and target tensors for loss computation
-#         logits = output.view(-1, trg_vocab_size)
-#         targets = trg[:, 1:].contiguous().view(-1)
-#
-#         # Compute loss
-#         loss = criterion(logits, targets)
-#         total_train_loss += loss.item()
-#
-#         # Backpropagation and optimization
-#         loss.backward()
-#         torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_clip)
-#         optimizer.step()
-#
-#         # Scheduler step - Update learning rate
-#         scheduler.step()
-#
-#     avg_loss = total_train_loss / len(train_loader)
-#
-#     return avg_loss
-#
-#
-# # Train #
-# def train_model(model, train_loader, val_loader, optimizer, scheduler, criterion, device, epochs) -> dict:
-#     """
-#     Trains the model and evaluates it on the validation set after each epoch.
-#
-#     Returns:
-#         dict: A dictionary containing the recorded losses for training and validation, with the keys:
-#             - 'train' (list of float): Average training loss per epoch.
-#             - 'validation' (list of float): Validation loss per epoch.
-#     """
-#     loss_record = {'train': [], 'validation': []}  # , 'bleu': []}
-#
-#     model.train()
-#     best_loss = float('inf')
-#
-#     for epoch in range(1, epochs + 1):
-#         train_loss = train_epoch(model, train_loader, optimizer, scheduler, criterion, device)
-#         loss_record['train'].append(train_loss)
-#
-#         # Evaluate BLEU on the validation set
-#         val_loss = evaluation.evaluate_model(model, val_loader, criterion, device)
-#         loss_record['validation'].append(val_loss)
-#         print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
-#               f"Validation Loss: {val_loss:.4f}")
-#
-#         # Save the model if the loss is the best so far
-#         if val_loss < best_loss:
-#             best_loss = val_loss
-#             utils.save_model(epoch, model, optimizer, scheduler, val_loss)
-#
-#     return loss_record
