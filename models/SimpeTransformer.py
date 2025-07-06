@@ -53,6 +53,9 @@ Usage:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.nn.init as init
+import math
+from typing import Optional, Tuple
 
 
 class PositionalEncoding(torch.nn.Module):
@@ -126,8 +129,8 @@ class FeedForward(torch.nn.Module):
     Attributes:
         fc1 (nn.Linear): First fully connected layer that expands the input dimension.
         fc2 (nn.Linear): Second fully connected layer that projects back to the original dimension.
-        relu (nn.ReLU): ReLU activation function.
-        dropout (nn.Dropout): Dropout layer for regularization.
+        mid_dropout (nn.Dropout): Dropout layer for regularization.
+        out_dropout (nn.Dropout):
     """
 
     def __init__(self, d_model: int, hidden_dim: int = 2048, dropout: float = 0.1):
@@ -141,7 +144,11 @@ class FeedForward(torch.nn.Module):
         super().__init__()
         self.fc1 = nn.Linear(d_model, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, d_model)
-        self.dropout = nn.Dropout(dropout)
+        self.mid_dropout = nn.Dropout(dropout)
+        self.out_dropout = nn.Dropout(dropout)
+
+        # Xavier initialization
+        # init.xavier_uniform_(self.fc1.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Performs a forward pass through the FeedForward network.
@@ -157,8 +164,9 @@ class FeedForward(torch.nn.Module):
         """
         x = self.fc1(x)
         x = F.relu(x)
-        x = self.dropout(x)
+        x = self.mid_dropout(x)
         x = self.fc2(x)
+        x = self.out_dropout(x)
         return x
 
 
@@ -201,127 +209,237 @@ class NormLayer(torch.nn.Module):
         """
         mean = x.mean(dim=-1, keepdim=True)
         var = x.var(dim=-1, unbiased=False, keepdim=True)
-        normalized = (x - mean) / torch.sqrt(var + self.epsilon)
+        std = torch.sqrt(var + self.epsilon)  # cache sqrt for efficiency
+        normalized = (x - mean) / std
         return self.gamma * normalized + self.beta
 
 
-class MultiHeadAttention(torch.nn.Module):
+class MultiHeadAttention(nn.Module):
     """
     Multi-Head Attention module for Transformer models.
 
-    This module implements the multi-head attention mechanism used in Transformer
-    architectures. It supports both self-attention and cross-attention, and can
-    optionally apply a causal mask for autoregressive decoding.
-
-    Attributes:
-        num_heads (int): Number of attention heads.
-        d_k (int): Dimension of key vectors per head.
-        d_v (int): Dimension of value vectors per head.
-        cross_attn (bool): Whether the module operates in cross-attention mode.
-        masked_attn (bool): Whether to apply a causal mask for decoding.
-        w_q (nn.ModuleList): List of linear layers for projecting query vectors.
-        w_k (nn.ModuleList): List of linear layers for projecting key vectors.
-        w_v (nn.ModuleList): List of linear layers for projecting value vectors.
-        w_out (nn.Linear): Output linear layer that projects concatenated attention outputs.
-        attn_dropout (nn.Dropout): Dropout applied to attention weights.
-        out_dropout (nn.Dropout): Dropout applied to the final output projection.
+    Supports self-attention, cross-attention, and optional causal masking.
     """
 
-    def __init__(self, embed_dim: int, num_heads: int = 1, d_k: int = 64,
-                 d_v: int = 128, dropout: float = 0.0, cross_attn: bool = False, masked_attn: bool = False):
-        """Initializes the MultiHeadAttention module.
-
-        Args:
-            embed_dim (int): Dimension of the input embeddings.
-            num_heads (int, optional): Number of attention heads. Defaults to 1.
-            d_k (int, optional): Dimension of the key vectors per head. Defaults to 64.
-            d_v (int, optional): Dimension of the value vectors per head. Defaults to 128.
-            dropout (float, optional): Dropout rate applied to attention weights and output. Defaults to 0.0.
-            cross_attn (bool, optional): If True, enables cross-attention mode for use in the decoder. Defaults to False.
-            masked_attn (bool, optional): If True, applies causal (masked) attention for autoregressive decoding. Defaults to False.
-        """
+    def __init__(self, embed_dim: int, num_heads: int = 8, d_k: int = 64, d_v: int = 64,
+                 dropout: float = 0.1, cross_attn: bool = False, masked_attn: bool = False):
         super().__init__()
 
+        self.embed_dim = embed_dim
         self.num_heads = num_heads
-        self.d_k = d_k  # Size of key vectors per head
-        self.d_v = d_v  # Size of value vectors per head
+        self.d_k = d_k
+        self.d_v = d_v
         self.cross_attn = cross_attn
         self.masked_attn = masked_attn
 
-        # Linear projections for Q, K, V for each head
-        self.w_q = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
-        self.w_k = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
-        self.w_v = nn.ModuleList([nn.Linear(embed_dim, d_v) for _ in range(num_heads)])
+        # Shared linear layers
+        self.w_q = nn.Linear(embed_dim, num_heads * d_k)
+        self.w_k = nn.Linear(embed_dim, num_heads * d_k)
+        self.w_v = nn.Linear(embed_dim, num_heads * d_v)
 
-        self.w_out = nn.Linear(d_v * num_heads, embed_dim)
+        # Output projection
+        self.w_out = nn.Linear(num_heads * d_v, embed_dim)
         # Dropout
         self.attn_dropout = nn.Dropout(dropout)
         self.out_dropout = nn.Dropout(dropout)
 
-    def _scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
-                                      mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
-        """Computes scaled dot-product attention.
+        self.scale = 1.0 / math.sqrt(d_k)
 
-        Args:
-            Q (torch.Tensor): Query tensor of shape (batch_size, num_heads, src_len, d_k).
-            K (torch.Tensor): Key tensor of shape (batch_size, num_heads, tgt_len, d_k).
-            V (torch.Tensor): Value tensor of shape (batch_size, num_heads, tgt_len, d_v).
-            mask (torch.Tensor, optional): Attention mask of shape (1, 1, src_len, tgt_len), with -inf for masked positions.
+        # Xavier initialization
+        # init.xavier_uniform_(self.w_q.weight)
+        # init.xavier_uniform_(self.w_k.weight)
+        # init.xavier_uniform_(self.w_v.weight)
+        # init.xavier_uniform_(self.w_out.weight)
 
-        Returns:
-            tuple[torch.Tensor, torch.Tensor]:
-                - Attention output of shape (batch_size, num_heads, src_len, d_v).
-                - Attention probabilities of shape (batch_size, num_heads, src_len, tgt_len).
+    def _split_heads(self, x: torch.Tensor, head_dim: int) -> torch.Tensor:
         """
-        attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=Q.dtype, device=Q.device))
+        Splits the last dimension into (num_heads, head_dim) and transposes to (B, H, L, D).
+        """
+        B, L, _ = x.size()
+        return x.view(B, L, self.num_heads, head_dim).transpose(1, 2)
+
+    @staticmethod
+    def _combine_heads(x: torch.Tensor) -> torch.Tensor:
+        """
+        Combines the multi-head output into a single vector per position.
+        """
+        B, H, L, D = x.size()
+        return x.transpose(1, 2).contiguous().view(B, L, H * D)
+
+    def _scaled_dot_product_attention(
+        self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
+        mask: Optional[torch.Tensor] = None
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Computes scaled dot-product attention.
+        """
+        attn_scores = torch.matmul(Q, K.transpose(-2, -1)) * self.scale
 
         if mask is not None:
-            attn_scores = attn_scores + mask
+            attn_scores = attn_scores + mask  # Add -inf to masked positions
 
         attn_probs = F.softmax(attn_scores, dim=-1)
-        attn_probs = self.attn_dropout(attn_probs) # Dropout
-        return torch.matmul(attn_probs, V), attn_probs
+        attn_probs = self.attn_dropout(attn_probs)
 
-    def forward(self, x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
-        """Performs forward pass of multi-head attention.
+        output = torch.matmul(attn_probs, V)
+        return output, attn_probs
+
+    def forward(
+        self, x: torch.Tensor, y: Optional[torch.Tensor] = None,
+        return_attn_weights: bool = False
+    ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass for multi-head attention.
 
         Args:
-            x (torch.Tensor): Source tensor of shape (batch_size, src_len, embed_dim).
-            y (torch.Tensor, optional): Target tensor for cross-attention, shape (batch_size, tgt_len, embed_dim).
-                                        If None, self-attention is performed.
+            x: Tensor of shape (B, L_x, embed_dim)
+            y: Optional tensor for cross-attention (B, L_y, embed_dim). If None, self-attention is used.
+            return_attn_weights: If True, also returns attention weights.
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, src_len, embed_dim).
+            Output tensor of shape (B, L_x, embed_dim), and optionally attention weights.
         """
-        batch_size, src_len, _ = x.shape
-        _, trg_len, _ = y.shape if self.cross_attn else x.shape
+        L_x = x.shape[1]
+        L_y = y.shape[1] if (self.cross_attn and y is not None) else L_x
 
-        # Initialize Q, K, V for each head
-        Q, K, V = [], [], []
+        # Linear projections and reshape
+        Q = self._split_heads(self.w_q(x), self.d_k)
+        K = self._split_heads(self.w_k(x if not self.cross_attn else y), self.d_k)
+        V = self._split_heads(self.w_v(x if not self.cross_attn else y), self.d_v)
 
-        for i in range(self.num_heads):
-            Q.append(self.w_q[i](x))
-            K.append(self.w_k[i](x if not self.cross_attn else y))
-            V.append(self.w_v[i](x if not self.cross_attn else y))
-
-        # Stack the Q, K, V tensors into one tensor of shape (batch_size, num_heads, max_length, d_k/d_v)
-        Q = torch.stack(Q, dim=1)
-        K = torch.stack(K, dim=1)
-        V = torch.stack(V, dim=1)
-
-        # Create dynamic mask of shape (1, 1, src_len, trg_len)
         mask = None
         if self.masked_attn:
-            mask = torch.triu(torch.full((src_len, trg_len), float('-inf'), device=x.device), diagonal=1)
-            mask = mask.unsqueeze(0).unsqueeze(1)  # (1, 1, src_len, trg_len)
+            mask = torch.triu(
+                torch.full((L_x, L_y), float('-inf'), device=x.device),
+                diagonal=1).unsqueeze(0).unsqueeze(0)
 
-        # Apply scaled dot-product attention
-        attention_output, _ = self._scaled_dot_product_attention(Q, K, V, mask)
+        # Scaled dot-product attention
+        attn_output, attn_weights = self._scaled_dot_product_attention(Q, K, V, mask)
 
-        # Concatenate heads and project to output dimension + Dropout
-        attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, src_len, -1)
-        output = self.w_out(attention_output)
-        return self.out_dropout(output) # Dropout
+        # Merge heads and project output
+        merged = self._combine_heads(attn_output)
+        output = self.out_dropout(self.w_out(merged))
+
+        return (output, attn_weights) if return_attn_weights else output
+    
+
+# class MultiHeadAttention(torch.nn.Module):
+#     """
+#     Multi-Head Attention module for Transformer models.
+# 
+#     This module implements the multi-head attention mechanism used in Transformer
+#     architectures. It supports both self-attention and cross-attention, and can
+#     optionally apply a causal mask for autoregressive decoding.
+# 
+#     Attributes:
+#         num_heads (int): Number of attention heads.
+#         d_k (int): Dimension of key vectors per head.
+#         d_v (int): Dimension of value vectors per head.
+#         cross_attn (bool): Whether the module operates in cross-attention mode.
+#         masked_attn (bool): Whether to apply a causal mask for decoding.
+#         w_q (nn.ModuleList): List of linear layers for projecting query vectors.
+#         w_k (nn.ModuleList): List of linear layers for projecting key vectors.
+#         w_v (nn.ModuleList): List of linear layers for projecting value vectors.
+#         w_out (nn.Linear): Output linear layer that projects concatenated attention outputs.
+#         attn_dropout (nn.Dropout): Dropout applied to attention weights.
+#         out_dropout (nn.Dropout): Dropout applied to the final output projection.
+#     """
+# 
+#     def __init__(self, embed_dim: int, num_heads: int = 1, d_k: int = 64,
+#                  d_v: int = 128, dropout: float = 0.0, cross_attn: bool = False, masked_attn: bool = False):
+#         """Initializes the MultiHeadAttention module.
+# 
+#         Args:
+#             embed_dim (int): Dimension of the input embeddings.
+#             num_heads (int, optional): Number of attention heads. Defaults to 1.
+#             d_k (int, optional): Dimension of the key vectors per head. Defaults to 64.
+#             d_v (int, optional): Dimension of the value vectors per head. Defaults to 128.
+#             dropout (float, optional): Dropout rate applied to attention weights and output. Defaults to 0.0.
+#             cross_attn (bool, optional): If True, enables cross-attention mode for use in the decoder. Defaults to False.
+#             masked_attn (bool, optional): If True, applies causal (masked) attention for autoregressive decoding. Defaults to False.
+#         """
+#         super().__init__()
+# 
+#         self.num_heads = num_heads
+#         self.d_k = d_k  # Size of key vectors per head
+#         self.d_v = d_v  # Size of value vectors per head
+#         self.cross_attn = cross_attn
+#         self.masked_attn = masked_attn
+# 
+#         # Linear projections for Q, K, V for each head
+#         self.w_q = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
+#         self.w_k = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
+#         self.w_v = nn.ModuleList([nn.Linear(embed_dim, d_v) for _ in range(num_heads)])
+# 
+#         self.w_out = nn.Linear(d_v * num_heads, embed_dim)
+#         # Dropout
+#         self.attn_dropout = nn.Dropout(dropout)
+#         self.out_dropout = nn.Dropout(dropout)
+# 
+#     def _scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
+#                                       mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
+#         """Computes scaled dot-product attention.
+# 
+#         Args:
+#             Q (torch.Tensor): Query tensor of shape (batch_size, num_heads, src_len, d_k).
+#             K (torch.Tensor): Key tensor of shape (batch_size, num_heads, tgt_len, d_k).
+#             V (torch.Tensor): Value tensor of shape (batch_size, num_heads, tgt_len, d_v).
+#             mask (torch.Tensor, optional): Attention mask of shape (1, 1, src_len, tgt_len), with -inf for masked positions.
+# 
+#         Returns:
+#             tuple[torch.Tensor, torch.Tensor]:
+#                 - Attention output of shape (batch_size, num_heads, src_len, d_v).
+#                 - Attention probabilities of shape (batch_size, num_heads, src_len, tgt_len).
+#         """
+#         attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=Q.dtype, device=Q.device))
+# 
+#         if mask is not None:
+#             attn_scores = attn_scores + mask
+# 
+#         attn_probs = F.softmax(attn_scores, dim=-1)
+#         attn_probs = self.attn_dropout(attn_probs) # Dropout
+#         return torch.matmul(attn_probs, V), attn_probs
+# 
+#     def forward(self, x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
+#         """Performs forward pass of multi-head attention.
+# 
+#         Args:
+#             x (torch.Tensor): Source tensor of shape (batch_size, src_len, embed_dim).
+#             y (torch.Tensor, optional): Target tensor for cross-attention, shape (batch_size, tgt_len, embed_dim).
+#                                         If None, self-attention is performed.
+# 
+#         Returns:
+#             torch.Tensor: Output tensor of shape (batch_size, src_len, embed_dim).
+#         """
+#         batch_size, src_len, _ = x.shape
+#         _, trg_len, _ = y.shape if self.cross_attn else x.shape
+# 
+#         # Initialize Q, K, V for each head
+#         Q, K, V = [], [], []
+# 
+#         for i in range(self.num_heads):
+#             Q.append(self.w_q[i](x))
+#             K.append(self.w_k[i](x if not self.cross_attn else y))
+#             V.append(self.w_v[i](x if not self.cross_attn else y))
+# 
+#         # Stack the Q, K, V tensors into one tensor of shape (batch_size, num_heads, max_length, d_k/d_v)
+#         Q = torch.stack(Q, dim=1)
+#         K = torch.stack(K, dim=1)
+#         V = torch.stack(V, dim=1)
+# 
+#         # Create dynamic mask of shape (1, 1, src_len, trg_len)
+#         mask = None
+#         if self.masked_attn:
+#             mask = torch.triu(torch.full((src_len, trg_len), float('-inf'), device=x.device), diagonal=1)
+#             mask = mask.unsqueeze(0).unsqueeze(1)  # (1, 1, src_len, trg_len)
+# 
+#         # Apply scaled dot-product attention
+#         attention_output, _ = self._scaled_dot_product_attention(Q, K, V, mask)
+# 
+#         # Concatenate heads and project to output dimension + Dropout
+#         attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, src_len, -1)
+#         output = self.w_out(attention_output)
+#         return self.out_dropout(output) # Dropout
 
 
 class Encoder(nn.Module):
@@ -457,7 +575,7 @@ class SimpleTransformer(nn.Module):
     """
 
     def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int,
-                 num_heads: int = 8, num_layers: int = 6, d_k: int = 32, d_v: int = 64,
+                 num_heads: int = 8, num_layers: int = 6, d_k: int = 64, d_v: int = 64,
                  dropout: float = 0.1
     ):
         """Initializes the SimpleTransformer model.
@@ -500,6 +618,16 @@ class SimpleTransformer(nn.Module):
         self.w_o = nn.Linear(embed_dim, trg_vocab_size)
         self.softmax = nn.Softmax(dim=-1)
 
+        # Xavier initialization - W_o
+        # init.xavier_uniform_(self.w_o.weight)
+
+        # Normal initialization - Embedding
+        # init.normal_(self.embedding_encoder.weight, mean=0.0, std=1.0)
+        # self.embedding_encoder.weight.data *= math.sqrt(embed_dim)
+        # 
+        # init.normal_(self.embedding_decoder.weight, mean=0.0, std=1.0)
+        # self.embedding_decoder.weight.data *= math.sqrt(embed_dim)
+
     def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
         """Forward pass of the Transformer model.
 
@@ -534,61 +662,163 @@ class SimpleTransformer(nn.Module):
         output = self.w_o(dec_output)
         return output
 
-    def translate(self, src: torch.Tensor) -> torch.Tensor:
-        """Translates a given source sequence into the target language using greedy decoding.
+    def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:
+        """
+        Translates source sequences using beam search decoding with length normalization.
 
         Args:
-            src (torch.Tensor): Source sequence tensor of shape (batch_size, src_seq_len).
+            src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).
+            beam_size (int): Beam width.
+            max_len (int): Maximum length of decoded sequences.
 
         Returns:
-            torch.Tensor: Predicted target sequence of shape (batch_size, trg_seq_len).
+            torch.Tensor: Tensor of shape (batch_size, decoded_seq_len) with predicted token IDs.
         """
-        with torch.no_grad():
-            unk_token_id, bos_token_id, eos_token_id = 0, 2, 3  # <bos> and <eos> token IDs
-            batch_size, max_target_length = src.shape  # Extract input dimensions
+        if max_len <= 0:
+            max_len = int(src.size(1) * 1.6) + 10
 
-            # Encoder step
-            src_embed = self.embedding_encoder(src)
-            src_pe = self.positional_encoding_encoder(src_embed)
-            enc_output = src_pe
+        with torch.no_grad():
+            bos_token_id, eos_token_id, pad_token_id = 2, 3, 1
+            batch_size = src.size(0)
+            vocab_size = self.w_o.out_features
+            print("vocab_size: ", vocab_size)  # Debug!
+            # === Encode input ===
+            src_embed = self.dropout(self.positional_encoding_encoder(self.embedding_encoder(src)))
+            enc_output = src_embed
             for layer in self.encoder_layers:
                 enc_output = layer(enc_output)
 
-            # Decoder initialization
-            trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+            # Repeat encoder output for beam search
+            enc_output = enc_output.unsqueeze(1).repeat(1, beam_size, 1, 1)  # (batch, beam, src_len, dim)
+            enc_output = enc_output.view(batch_size * beam_size, *enc_output.shape[2:])  # (batch*beam, src_len, dim)
 
-            # Track whether <eos> is generated in any sequence
-            generated_eos = torch.zeros(batch_size, dtype=torch.bool, device=src.device)
+            # === Beam initialization ===
+            sequences = torch.full((batch_size * beam_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+            sequence_scores = torch.zeros(batch_size, beam_size, device=src.device)
+            sequence_scores[:, 1:] = float('-inf')  # Only keep first beam alive initially
+            sequence_scores = sequence_scores.view(-1)  # (batch*beam,)
+            finished = torch.zeros_like(sequence_scores, dtype=torch.bool)
 
-            for _ in range(max_target_length):
-                # Decoder step
-                trg_embed = self.embedding_decoder(trg_seq)
-                trg_pe = self.positional_encoding_decoder(trg_embed)
+            alpha = 0.6  # length normalization coefficient
 
-                dec_output = trg_pe
+            for _ in range(max_len):
+                trg_embed = self.dropout(self.positional_encoding_decoder(self.embedding_decoder(sequences)))
+                dec_output = trg_embed
                 for layer in self.decoder_layers:
                     dec_output = layer(dec_output, enc_output)
 
-                # Predict next token
-                out_logits = self.w_o(dec_output[:, -1, :])
-                next_token = out_logits.argmax(dim=-1, keepdim=True)
-                # probs = self.softmax(out_logits)
-                # next_token = probs.argmax(dim=-1, keepdim=True)
+                logits = self.w_o(dec_output[:, -1, :])  # (batch*beam, vocab_size)
+                log_probs = F.log_softmax(logits, dim=-1)
 
-                # Append predicted token to sequence
-                trg_seq = torch.cat([trg_seq, next_token], dim=1)
+                # Debug!
+                # topk = torch.topk(log_probs, 5, dim=-1)
+                # print("Top 5 tokens:", topk.indices[0].tolist())
+                # print("Top 5 log-probs:", topk.values[0].tolist())
 
-                # Check if <eos> token is predicted for any sequence in the batch
-                generated_eos |= (next_token.squeeze(-1) == eos_token_id)
+                scores = sequence_scores.unsqueeze(1) + log_probs  # (batch*beam, vocab)
+                scores[finished] = float('-inf')
+                scores[finished, eos_token_id] = sequence_scores[finished]
 
-                # Stop early if all sequences have generated <eos> token
-                if generated_eos.all():
+                # Select top-k scores
+                scores = scores.view(batch_size, beam_size * vocab_size)
+                top_scores, top_indices = scores.topk(beam_size, dim=-1)
+
+                beam_indices = top_indices // vocab_size
+                token_indices = top_indices % vocab_size
+
+                print("Predicted tokens at each step:", token_indices.tolist())  # Debug print!
+
+                new_sequences = []
+                for i in range(batch_size):
+                    for b in range(beam_size):
+                        beam = beam_indices[i, b] + i * beam_size
+                        token = token_indices[i, b].unsqueeze(0)
+                        new_seq = torch.cat([sequences[beam], token], dim=0)
+                        new_sequences.append(new_seq)
+
+                sequences = torch.stack(new_sequences, dim=0)
+
+                # === Apply Length Normalization ===
+                lengths = torch.full((batch_size * beam_size,), sequences.size(1), dtype=torch.float, device=src.device)
+                eos_mask = (sequences == eos_token_id)
+                eos_pos = eos_mask.float().argmax(dim=1)  # First <eos> position
+                has_eos = eos_mask.any(dim=1)
+                lengths[has_eos] = eos_pos[has_eos].float() + 1  # Add 1 to include the <eos> token
+
+                length_penalty = ((5.0 + lengths) ** alpha) / ((5.0 + 1.0) ** alpha)
+                sequence_scores = top_scores.view(-1) / length_penalty
+
+                # Track finished beams
+                finished |= (sequences[:, -1] == eos_token_id)
+                if finished.view(batch_size, beam_size).all(dim=1).all():
                     break
 
-            # Ensure that the output is not empty
-            if trg_seq.shape[1] == 1:
-                trg_seq = torch.tensor([[unk_token_id]], dtype=torch.long,
-                                       device=src.device).expand(batch_size, 2)
+            # Select best sequence for each batch
+            sequence_scores = sequence_scores.view(batch_size, beam_size)
+            best_beam = sequence_scores.argmax(dim=-1)
+            best_sequences = []
+            for i in range(batch_size):
+                best_idx = i * beam_size + best_beam[i]
+                best_sequences.append(sequences[best_idx])
 
-            return trg_seq
+            return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True, padding_value=pad_token_id)
+
+
+    # def translate(self, src: torch.Tensor) -> torch.Tensor:
+    #     """Translates a given source sequence into the target language using greedy decoding.
+    #
+    #     Args:
+    #         src (torch.Tensor): Source sequence tensor of shape (batch_size, src_seq_len).
+    #
+    #     Returns:
+    #         torch.Tensor: Predicted target sequence of shape (batch_size, trg_seq_len).
+    #     """
+    #     with torch.no_grad():
+    #         unk_token_id, bos_token_id, eos_token_id = 0, 2, 3  # <bos> and <eos> token IDs
+    #         batch_size, max_target_length = src.shape  # Extract input dimensions
+    #
+    #         # Encoder step
+    #         src_embed = self.embedding_encoder(src)
+    #         src_pe = self.positional_encoding_encoder(src_embed)
+    #         enc_output = src_pe
+    #         for layer in self.encoder_layers:
+    #             enc_output = layer(enc_output)
+    #
+    #         # Decoder initialization
+    #         trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+    #
+    #         # Track whether <eos> is generated in any sequence
+    #         generated_eos = torch.zeros(batch_size, dtype=torch.bool, device=src.device)
+    #
+    #         for _ in range(max_target_length):
+    #             # Decoder step
+    #             trg_embed = self.embedding_decoder(trg_seq)
+    #             trg_pe = self.positional_encoding_decoder(trg_embed)
+    #
+    #             dec_output = trg_pe
+    #             for layer in self.decoder_layers:
+    #                 dec_output = layer(dec_output, enc_output)
+    #
+    #             # Predict next token
+    #             out_logits = self.w_o(dec_output[:, -1, :])
+    #             next_token = out_logits.argmax(dim=-1, keepdim=True)
+    #             # probs = self.softmax(out_logits)
+    #             # next_token = probs.argmax(dim=-1, keepdim=True)
+    #
+    #             # Append predicted token to sequence
+    #             trg_seq = torch.cat([trg_seq, next_token], dim=1)
+    #
+    #             # Check if <eos> token is predicted for any sequence in the batch
+    #             generated_eos |= (next_token.squeeze(-1) == eos_token_id)
+    #
+    #             # Stop early if all sequences have generated <eos> token
+    #             if generated_eos.all():
+    #                 break
+    #
+    #         # Ensure that the output is not empty
+    #         if trg_seq.shape[1] == 1:
+    #             trg_seq = torch.tensor([[unk_token_id]], dtype=torch.long,
+    #                                    device=src.device).expand(batch_size, 2)
+    #
+    #         return trg_seq
 

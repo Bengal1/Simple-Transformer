@@ -168,6 +168,12 @@ class IWSLT14Dataset(torch.utils.data.Dataset):
         """Returns the total vocabulary size for both English and French."""
         return len(cls.en_vocab), len(cls.fr_vocab)
 
+    @classmethod
+    def get_special_tokens(cls):
+        """Returns special tokens"""
+        return cls.special_tokens
+
+
     def get_padding_index(self) -> int:
         """Returns the padding index for embedding layers."""
         return self.pad_idx

@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="233ecea4-48a8-41dd-9b02-d207854bb458" name="Changes" comment="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;train.py">
+      <change afterPath="$PROJECT_DIR$/.idea/SimpleTransformer.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/iwslt14.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/iwslt14.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/SimpeTransformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/SimpeTransformer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -31,12 +35,12 @@
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="4db85a4d-71f1-4d4b-8d61-b408d6ba797a" />
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Bengal1/Simple-Transformer.git",
-    "accountId": "4db85a4d-71f1-4d4b-8d61-b408d6ba797a"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Bengal1/Simple-Transformer.git&quot;,
+    &quot;accountId&quot;: &quot;4db85a4d-71f1-4d4b-8d61-b408d6ba797a&quot;
   }
-}]]></component>
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -58,12 +62,14 @@
     "Python.evaluate.executor": "Run",
     "Python.evaluation.executor": "Run",
     "Python.iwslt14.executor": "Run",
+    "Python.main.executor": "Run",
     "Python.prac.executor": "Run",
     "Python.practice.executor": "Run",
     "Python.train.executor": "Run",
     "Python.utils.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Dev/PyCharmProjects/Simple-CNN-Guide",

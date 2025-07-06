@@ -1,7 +1,3 @@
-"""
-evaluation
-"""
-
 import torch
 import evaluate as hf_evaluate
 
@@ -30,11 +26,11 @@ def evaluate_model(model: torch.nn.Module, data_loader: torch.utils.data.DataLoa
             output = model(src, trg[:, :-1])  # Forward pass
 
             # Flatten the tensors for loss computation
-            output_flat = output.view(-1, output.size(-1))
-            trg_flat = trg[:, 1:].contiguous().view(-1)
+            logits = output.view(-1, output.size(-1))
+            targets = trg[:, 1:].contiguous().view(-1)
 
             # Compute loss
-            loss = loss_fn(output_flat, trg_flat)
+            loss = loss_fn(logits, targets)
             total_loss += loss.item()
 
             num_batches += 1
@@ -58,46 +54,119 @@ def _format_for_bleu(decoded_pred: list[str], decoded_ref: list[str],
     cleaned_ref = _remove_special_tokens(decoded_ref, special_tokens)
     return " ".join(cleaned_pred), [" ".join(cleaned_ref)]
 
-def _translate_batch(model: torch.nn.Module, src: torch.Tensor) -> list[list[int]]:
-    """Translates a batch using the model and returns a list of token indices."""
-    return model.translate(src).cpu().tolist()
+# def _translate_batch(model: torch.nn.Module, src: torch.Tensor) -> list[list[int]]:
+#     """Translates a batch using the model and returns a list of token indices."""
+#     return model.translate(src).cpu().tolist()
+#
+#
+# def evaluate_bleu(model: torch.nn.Module, data_loader: torch.utils.data.DataLoader,
+#                   trg_vocab: dict[str, int], device: torch.device,
+#                   verbose: bool = False,) -> float:
+#     """Computes the BLEU score on a validation set using the model's translate method.
+#
+#     Args:
+#         model (torch.nn.Module): The trained translation model.
+#         data_loader (torch.utils.data.DataLoader): DataLoader containing the validation dataset.
+#         trg_vocab (dict[str, int]): A dictionary mapping target language tokens to indices.
+#         device (torch.device): The device to run the evaluation on (CPU or GPU).
+#         verbose (bool, optional): If True, additional BLEU score details will be printed. Default is False.
+#
+#     Returns:
+#         float: The computed BLEU score for the validation set.
+#     """
+#     bleu = hf_evaluate.load("bleu")
+#     model.eval()
+#     predictions, references = [], []
+#
+#     # Initialize token mapping and special tokens
+#     idx_to_token = {idx: tok for tok, idx in trg_vocab.items()}
+#     special_tokens = data_loader.dataset.special_tokens
+#
+#     with torch.no_grad():
+#         for src, trg in data_loader:
+#             src, trg = src.to(device), trg.to(device)
+#             output = _translate_batch(model, src)
+#
+#             for pred_seq, ref_seq in zip(output, trg.cpu().tolist()):
+#                 pred_tokens = _decode_sequence(pred_seq, idx_to_token)
+#                 ref_tokens = _decode_sequence(ref_seq, idx_to_token)
+#
+#                 pred_str, ref_str_list = _format_for_bleu(pred_tokens, ref_tokens, special_tokens)
+#
+#                 if pred_str and ref_str_list[0]:  # Avoid empty strings
+#                     predictions.append(pred_str)
+#                     references.append(ref_str_list)
+#
+#     if not predictions or not references:
+#         print("Warning: No valid predictions or references found. BLEU is 0.0.")
+#         return 0.0
+#
+#     result = bleu.compute(predictions=predictions, references=references)
+#
+#     if verbose:
+#         print(f"BLEU score: {result['bleu']:.4f}")
+#         print(f"Precisions: {result.get('precisions')}")
+#         print(f"Brevity Penalty: {result.get('brevity_penalty'):.4f}")
+#
+#     return result["bleu"]
 
+def _translate_batch(model: torch.nn.Module, src: torch.Tensor,
+                     beam_size: int = 2, max_len: int = 0) -> list[list[int]]:
+    """Translates a batch with beam search and returns list of token indices."""
+    return model.translate(src, beam_size=beam_size, max_len=max_len).cpu().tolist()
 
-def evaluate_bleu(model: torch.nn.Module, data_loader: torch.utils.data.DataLoader,
-                  trg_vocab: dict[str, int], device: torch.device,
-                  verbose: bool = False,) -> float:
-    """Computes the BLEU score on a validation set using the model's translate method.
+def evaluate_bleu(model: torch.nn.Module,
+                  data_loader: torch.utils.data.DataLoader,
+                  trg_vocab: dict[str, int],
+                  device: torch.device,
+                  special_tokens: list[str],
+                  beam_size: int = 2,
+                  max_len: int = 0,
+                  verbose: bool = False) -> float:
+    """
+    Evaluates the model using BLEU score.
 
     Args:
-        model (torch.nn.Module): The trained translation model.
-        data_loader (torch.utils.data.DataLoader): DataLoader containing the validation dataset.
-        trg_vocab (dict[str, int]): A dictionary mapping target language tokens to indices.
-        device (torch.device): The device to run the evaluation on (CPU or GPU).
-        verbose (bool, optional): If True, additional BLEU score details will be printed. Default is False.
+        model (nn.Module): Translation model with a `translate` method.
+        data_loader (DataLoader): Loader for validation/test data.
+        trg_vocab (dict): Target vocabulary mapping tokens to indices.
+        device (torch.device): Device (CPU or GPU).
+        special_tokens (list[str]): Tokens like <pad>, <bos>, <eos> to ignore.
+        beam_size (int): Beam size for beam search decoding.
+        max_len (int): Max decoding length. 0 means auto-calculate.
+        verbose (bool): Print BLEU components if True.
 
     Returns:
-        float: The computed BLEU score for the validation set.
+        float: BLEU score between 0 and 1.
     """
     bleu = hf_evaluate.load("bleu")
     model.eval()
-    predictions, references = [], []
 
-    # Initialize token mapping and special tokens
+    predictions, references = [], []
     idx_to_token = {idx: tok for tok, idx in trg_vocab.items()}
-    special_tokens = data_loader.dataset.special_tokens
+    special_token_set = set(special_tokens)
 
     with torch.no_grad():
         for src, trg in data_loader:
             src, trg = src.to(device), trg.to(device)
-            output = _translate_batch(model, src)
+
+            output = _translate_batch(model, src, beam_size=beam_size, max_len=max_len)
 
             for pred_seq, ref_seq in zip(output, trg.cpu().tolist()):
                 pred_tokens = _decode_sequence(pred_seq, idx_to_token)
                 ref_tokens = _decode_sequence(ref_seq, idx_to_token)
 
-                pred_str, ref_str_list = _format_for_bleu(pred_tokens, ref_tokens, special_tokens)
+                # Debug print!
+                # print("Raw pred tokens:", pred_tokens)
+                # print("Raw ref tokens:", ref_tokens)
 
-                if pred_str and ref_str_list[0]:  # Avoid empty strings
+                pred_str, ref_str_list = _format_for_bleu(pred_tokens, ref_tokens, special_token_set)
+
+                # Debug print!
+                # print("Cleaned pred:", pred_str)
+                # print("Cleaned ref:", ref_str_list[0])
+
+                if pred_str and ref_str_list[0]:
                     predictions.append(pred_str)
                     references.append(ref_str_list)
 
