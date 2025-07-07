@@ -3,8 +3,14 @@ import evaluation
 import utils
 
 
-def train_epoch(model, train_loader, optimizer, scheduler, criterion,
-                device, grad_clip, trg_vocab_size) -> float:
+def train_epoch(model: torch.nn.Module,
+                train_loader: torch.utils.data.DataLoader,
+                optimizer: torch.optim.Optimizer,
+                scheduler: torch.optim.lr_scheduler._LRScheduler,
+                criterion: torch.nn.modules.loss,
+                device: torch.device,
+                grad_clip: float,
+                trg_vocab_size: int) -> float:
     """
     Performs one epoch of training on the given model.
 
@@ -50,8 +56,16 @@ def train_epoch(model, train_loader, optimizer, scheduler, criterion,
     return total_train_loss / len(train_loader)
 
 
-def train_model(model, train_loader, val_loader, optimizer, scheduler,
-                criterion, device, epochs, max_grad_clip, trg_vocab_size) -> dict[str, list[float]]:
+def train_model(model: torch.nn.Module,
+                train_loader: torch.utils.data.DataLoader,
+                val_loader: torch.utils.data.DataLoader,
+                optimizer: torch.optim.Optimizer,
+                scheduler: torch.optim.lr_scheduler._LRScheduler,
+                criterion: torch.nn.modules.loss,
+                device: torch.device,
+                epochs: int,
+                max_grad_clip: float,
+                trg_vocab_size: int) -> dict[str, list[float]]:
     """
     Trains the model for multiple epochs and evaluates it on the validation set.
 

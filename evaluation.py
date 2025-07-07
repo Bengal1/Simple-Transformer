@@ -2,8 +2,10 @@ import torch
 import evaluate as hf_evaluate
 
 
-def evaluate_model(model: torch.nn.Module, data_loader: torch.utils.data.DataLoader,
-                   loss_fn: torch.nn.modules.loss, device: torch.device) -> float:
+def evaluate_model(model: torch.nn.Module,
+                   data_loader: torch.utils.data.DataLoader,
+                   loss_fn: torch.nn.modules.loss,
+                   device: torch.device) -> float:
     """Evaluates the model on a given dataset using a loss function.
 
     Args:
@@ -156,15 +158,7 @@ def evaluate_bleu(model: torch.nn.Module,
                 pred_tokens = _decode_sequence(pred_seq, idx_to_token)
                 ref_tokens = _decode_sequence(ref_seq, idx_to_token)
 
-                # Debug print!
-                # print("Raw pred tokens:", pred_tokens)
-                # print("Raw ref tokens:", ref_tokens)
-
                 pred_str, ref_str_list = _format_for_bleu(pred_tokens, ref_tokens, special_token_set)
-
-                # Debug print!
-                # print("Cleaned pred:", pred_str)
-                # print("Cleaned ref:", ref_str_list[0])
 
                 if pred_str and ref_str_list[0]:
                     predictions.append(pred_str)

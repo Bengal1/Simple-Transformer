@@ -49,7 +49,6 @@ Usage:
     function, and learning rate scheduler should be used for training.
 """
 
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -121,17 +120,18 @@ class PositionalEncoding(torch.nn.Module):
 
 class FeedForward(torch.nn.Module):
     """
-    A FeedForward neural network used in the Transformer model.
+    Position-wise FeedForward neural network used in Transformer models.
 
-    This network consists of two fully connected layers with a ReLU activation
-    and dropout in between.
+    This module applies two linear transformations with a ReLU activation and dropout
+    in between, as used in the original "Attention Is All You Need" paper.
 
     Attributes:
-        fc1 (nn.Linear): First fully connected layer that expands the input dimension.
-        fc2 (nn.Linear): Second fully connected layer that projects back to the original dimension.
-        mid_dropout (nn.Dropout): Dropout layer for regularization.
-        out_dropout (nn.Dropout):
+        fc1 (nn.Linear): The first linear layer that expands the input dimension to the hidden dimension.
+        fc2 (nn.Linear): The second linear layer that projects the hidden representation back to the original dimension.
+        mid_dropout (nn.Dropout): Dropout applied after the ReLU activation.
+        out_dropout (nn.Dropout): Dropout applied after the second linear layer.
     """
+
 
     def __init__(self, d_model: int, hidden_dim: int = 2048, dropout: float = 0.1):
         """Initializes the FeedForward network.
@@ -148,7 +148,8 @@ class FeedForward(torch.nn.Module):
         self.out_dropout = nn.Dropout(dropout)
 
         # Xavier initialization
-        # init.xavier_uniform_(self.fc1.weight)
+        # nn.init.xavier_uniform_(self.fc1.weight)
+        # nn.init.xavier_uniform_(self.fc2.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Performs a forward pass through the FeedForward network.
@@ -303,15 +304,20 @@ class MultiHeadAttention(nn.Module):
         L_y = y.shape[1] if (self.cross_attn and y is not None) else L_x
 
         # Linear projections and reshape
+        kv_source = x if not self.cross_attn or y is None else y
         Q = self._split_heads(self.w_q(x), self.d_k)
-        K = self._split_heads(self.w_k(x if not self.cross_attn else y), self.d_k)
-        V = self._split_heads(self.w_v(x if not self.cross_attn else y), self.d_v)
+        K = self._split_heads(self.w_k(kv_source), self.d_k)
+        V = self._split_heads(self.w_v(kv_source), self.d_v)
 
         mask = None
         if self.masked_attn:
             mask = torch.triu(
                 torch.full((L_x, L_y), float('-inf'), device=x.device),
-                diagonal=1).unsqueeze(0).unsqueeze(0)
+                diagonal=1
+            )[None, None, :, :]  # (1, 1, L_x, L_y)
+            # mask = torch.triu(
+            #     torch.full((L_x, L_y), float('-inf'), device=x.device),
+            #     diagonal=1).unsqueeze(0).unsqueeze(0)
 
         # Scaled dot-product attention
         attn_output, attn_weights = self._scaled_dot_product_attention(Q, K, V, mask)
@@ -458,7 +464,7 @@ class Encoder(nn.Module):
         norm2 (NormLayer): Layer normalization after feedforward network with residual connection.
     """
 
-    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.0):
+    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
         """Initializes the Encoder block.
 
         Args:
@@ -469,7 +475,7 @@ class Encoder(nn.Module):
             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.0.
         """
         super().__init__()
-        self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout)
+        self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout)
         self.norm1 = NormLayer(embed_dim)
 
         self.ff = FeedForward(embed_dim, dropout=dropout)
@@ -525,10 +531,10 @@ class Decoder(nn.Module):
             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
         """
         super().__init__()
-        self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout, masked_attn=True)
+        self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, masked_attn=True)
         self.norm1 = NormLayer(embed_dim)
 
-        self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout, cross_attn=True)
+        self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, cross_attn=True)
         self.norm2 = NormLayer(embed_dim)
 
         self.ff = FeedForward(embed_dim, dropout=dropout)
@@ -606,12 +612,12 @@ class SimpleTransformer(nn.Module):
 
         # Stacked encoder layers
         self.encoder_layers = nn.ModuleList([
-            Encoder(embed_dim, num_heads, d_k, d_v) for _ in range(num_layers)
+            Encoder(embed_dim, num_heads, d_k, d_v, dropout=dropout) for _ in range(num_layers)
         ])
 
         # Stacked decoder layers
         self.decoder_layers = nn.ModuleList([
-            Decoder(embed_dim, num_heads, d_k, d_v) for _ in range(num_layers)
+            Decoder(embed_dim, num_heads, d_k, d_v, dropout=dropout) for _ in range(num_layers)
         ])
 
         # Output block
@@ -681,7 +687,6 @@ class SimpleTransformer(nn.Module):
             bos_token_id, eos_token_id, pad_token_id = 2, 3, 1
             batch_size = src.size(0)
             vocab_size = self.w_o.out_features
-            # print("vocab_size: ", vocab_size)  # Debug!
             # === Encode input ===
             src_embed = self.dropout(self.positional_encoding_encoder(self.embedding_encoder(src)))
             enc_output = src_embed
@@ -710,11 +715,6 @@ class SimpleTransformer(nn.Module):
                 logits = self.w_o(dec_output[:, -1, :])  # (batch*beam, vocab_size)
                 log_probs = F.log_softmax(logits, dim=-1)
 
-                # Debug!
-                # topk = torch.topk(log_probs, 5, dim=-1)
-                # print("Top 5 tokens:", topk.indices[0].tolist())
-                # print("Top 5 log-probs:", topk.values[0].tolist())
-
                 scores = sequence_scores.unsqueeze(1) + log_probs  # (batch*beam, vocab)
                 scores[finished] = float('-inf')
                 scores[finished, eos_token_id] = sequence_scores[finished]
@@ -725,8 +725,6 @@ class SimpleTransformer(nn.Module):
 
                 beam_indices = top_indices // vocab_size
                 token_indices = top_indices % vocab_size
-
-                # print("Predicted tokens at each step:", token_indices.tolist())  # Debug print!
 
                 new_sequences = []
                 for i in range(batch_size):

@@ -32,11 +32,12 @@ batch_size = 32         # Batch size
 epochs = 10             # Number of epochs
 max_grad_clip = 1.0     # Max norm gradient
 learning_rate = 1e-3    # Learning rate
-weight_decay = 1e-4     # Weight decay (Lambda)
+# weight_decay = 1e-4     # Weight decay (Lambda)
 betas = (0.9, 0.98)     # Adam Optimizer betas
 epsilon = 1e-9          # Optimizer epsilon
 warmup = 3              # Scheduler warmup period
 dropout = 0.1           # Dropout probability
+label_smoothing = 0.1   # Label smoothing parameter
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using', device, '\n')
@@ -72,11 +73,12 @@ model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
                              d_k=d_k, d_v=d_v, dropout=dropout).to(device)
 
 criterion = torch.nn.CrossEntropyLoss(
-    ignore_index=train_dataset.get_padding_index(), label_smoothing=0.1
-).to(device)
+    ignore_index=train_dataset.get_padding_index(),
+    label_smoothing=label_smoothing).to(device)
 
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
-                             betas=betas, eps=epsilon, weight_decay=weight_decay)
+optimizer = torch.optim.Adam(model.parameters(),
+                             lr=learning_rate,betas=betas,
+                             eps=epsilon)
 
 scheduler = utils.NoamLR(optimizer, model_size=embed_dim, warmup_steps=warmup)
 
@@ -87,19 +89,19 @@ if __name__ == "__main__":
                 criterion, device, epochs, max_grad_clip, trg_vocab_size)
 
     # Load the best checkpoint from training
-    utils.load_checkpoint(st_model, optimizer, scheduler)
+    utils.load_checkpoint(model, optimizer, scheduler)
 
     # Evaluate model on the test dataset
-    test_loss = evaluation.evaluate_model(st_model, test_loader, criterion, device)
+    test_loss = evaluation.evaluate_model(model, test_loader, criterion, device)
     print(f"\nTest loss: {test_loss:.2f}\n")
 
     # Compute BLEU score
     bleu_score = evaluation.evaluate_bleu(
-        st_model, test_loader, test_dataset.fr_vocab,
+        model, test_loader, test_dataset.fr_vocab,
         device, train_dataset.get_special_tokens(), verbose=True
     )
     # Plot training and validation losses
-    utils.plot_losses()
+    utils.plot_losses(loss_records)
 
     # Optional: count model parameters
     # print(f"Number of trainable parameters: {utils.count_parameters(model):,}")
