@@ -43,6 +43,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using', device, '\n')
 
 # ----------------------- Data Loading ----------------------- #
+"""
+Initialize the  train, validation and test dataset to data loader
+"""
 # train_dataset = IWSLT14Dataset(split="train")
 # val_dataset = IWSLT14Dataset(split="validation")
 # test_dataset = IWSLT14Dataset(split="test")
@@ -65,7 +68,8 @@ test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 # ----------------------- Model Setup ----------------------- #
 """
-Initialize the Transformer model, loss function, optimizer, and custom learning rate scheduler.
+Initialize the Transformer model, loss function, optimizer 
+and custom learning rate scheduler.
 """
 src_vocab_size, trg_vocab_size = train_dataset.get_vocab_sizes()
 model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
