@@ -170,9 +170,13 @@ class IWSLT14Dataset(torch.utils.data.Dataset):
 
     @classmethod
     def get_special_tokens(cls):
-        """Returns special tokens"""
+        """Returns list of special tokens."""
         return cls.special_tokens
 
+    @classmethod
+    def get_special_tokens_dict(cls) -> dict[str, int]:
+        """Return a dict of special tokens and their indices."""
+        return {token: cls.en_vocab[token] for token in cls.special_tokens if token in cls.en_vocab}
 
     def get_padding_index(self) -> int:
         """Returns the padding index for embedding layers."""

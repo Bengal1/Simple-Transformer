@@ -16,10 +16,10 @@ def train_epoch(model: torch.nn.Module,
 
     Args:
         model (torch.nn.Module): The model to train.
-        train_loader (DataLoader): DataLoader for training data.
+        train_loader (torch.utils.data.DataLoader): DataLoader for training data.
         optimizer (torch.optim.Optimizer): Optimizer used for training.
         scheduler (torch.optim.lr_scheduler._LRScheduler): Learning rate scheduler.
-        criterion (torch.nn.Module): Loss function.
+        criterion (torch.nn.modules.loss): Loss function.
         device (torch.device): Device to run training on.
         grad_clip (float): Maximum gradient norm for clipping.
         trg_vocab_size (int): Size of the target vocabulary.
@@ -62,32 +62,36 @@ def train_model(model: torch.nn.Module,
                 optimizer: torch.optim.Optimizer,
                 scheduler: torch.optim.lr_scheduler._LRScheduler,
                 criterion: torch.nn.modules.loss,
+                val_dataset: torch.utils.data.Dataset,
+                trg_vocab_size: int,
                 device: torch.device,
-                epochs: int,
-                max_grad_clip: float,
-                trg_vocab_size: int) -> dict[str, list[float]]:
+                epochs: int = 10,
+                max_grad_clip: float = 1.0) -> dict[str, list[float]]:
     """
     Trains the model for multiple epochs and evaluates it on the validation set.
 
     Args:
         model (torch.nn.Module): The model to train.
-        train_loader (DataLoader): DataLoader for training data.
-        val_loader (DataLoader): DataLoader for validation data.
+        train_loader (torch.utils.data.DataLoader): DataLoader for training data.
+        val_loader (torch.utils.data.DataLoader): DataLoader for validation data.
         optimizer (torch.optim.Optimizer): Optimizer used for training.
         scheduler (torch.optim.lr_scheduler._LRScheduler): Learning rate scheduler.
-        criterion (torch.nn.Module): Loss function.
+        criterion (torch.nn.modules.loss): Loss function.
+        val_dataset (torch.utils.data.Dataset): Custom validation dataset.
+        trg_vocab_size (int): Size of the target vocabulary.
         device (torch.device): Device to run training on.
         epochs (int): Number of training epochs.
         max_grad_clip (float): Maximum gradient norm for clipping.
-        trg_vocab_size (int): Size of the target vocabulary.
+
 
     Returns:
         dict[str, list[float]]: Dictionary with epoch-level training and validation losses.
             Keys:
                 - 'train': List of training loss values.
                 - 'validation': List of validation loss values.
+                - 'bleu': List of bleu score values.
     """
-    loss_record = {'train': [], 'validation': []}  # , 'bleu': []}
+    stats_record = {'train': [], 'validation': [], 'bleu': []}
 
     model.train()
     best_loss = float('inf')
@@ -95,15 +99,20 @@ def train_model(model: torch.nn.Module,
     for epoch in range(1, epochs + 1):
         train_loss = train_epoch(model, train_loader, optimizer, scheduler,
                                  criterion, device, max_grad_clip, trg_vocab_size)
-        loss_record['train'].append(train_loss)
-
+        stats_record['train'].append(train_loss)
+        # Validation
         val_loss = evaluation.evaluate_model(model, val_loader, criterion, device)
-        loss_record['validation'].append(val_loss)
+        stats_record['validation'].append(val_loss)
+        # Evaluate BLEU
+        # bleu_score = evaluation.evaluate_bleu(model, val_loader, val_dataset.fr_vocab,
+        #                                       device, val_dataset.get_special_tokens())
+        # stats_record['bleu'].append(bleu_score)
 
-        print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | Validation Loss: {val_loss:.4f}")
+        print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
+              f"Validation Loss: {val_loss:.4f}") #| BLEU Score: {bleu_score:.4f}")
 
         if val_loss < best_loss:
             best_loss = val_loss
             utils.save_model(epoch, model, optimizer, scheduler, val_loss)
 
-    return loss_record
+    return stats_record

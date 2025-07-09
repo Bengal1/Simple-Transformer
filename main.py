@@ -32,7 +32,7 @@ batch_size = 32         # Batch size
 epochs = 10             # Number of epochs
 max_grad_clip = 1.0     # Max norm gradient
 learning_rate = 1e-3    # Learning rate
-# weight_decay = 1e-4     # Weight decay (Lambda)
+# weight_decay = 1e-4   # Weight decay (Lambda)
 betas = (0.9, 0.98)     # Adam Optimizer betas
 epsilon = 1e-9          # Optimizer epsilon
 warmup = 3              # Scheduler warmup period
@@ -56,7 +56,7 @@ Initialize the  train, validation and test dataset to data loader
 # test_dataset = IWSLT14Dataset(split="test",local_file="data/local_datasets/iwslt14_test.json")
 
 # Debug #
-train_dataset = IWSLT14Dataset(split="train",local_file="data/local_datasets/iwslt14_train_debug.json")
+train_dataset = IWSLT14Dataset(split="train", local_file="data/local_datasets/iwslt14_train_debug.json")
 val_dataset = IWSLT14Dataset(split="validation",local_file="data/local_datasets/iwslt14_validation_debug.json")
 test_dataset = IWSLT14Dataset(split="test",local_file="data/local_datasets/iwslt14_test_debug.json")
 print()
@@ -73,24 +73,24 @@ and custom learning rate scheduler.
 """
 src_vocab_size, trg_vocab_size = train_dataset.get_vocab_sizes()
 model = SimpleTransformer(src_vocab_size, trg_vocab_size, embed_dim,
-                             num_heads=num_heads, num_layers=num_layer,
-                             d_k=d_k, d_v=d_v, dropout=dropout).to(device)
+                          num_heads=num_heads, num_layers=num_layer,
+                          d_k=d_k, d_v=d_v, dropout=dropout).to(device)
 
 criterion = torch.nn.CrossEntropyLoss(
     ignore_index=train_dataset.get_padding_index(),
     label_smoothing=label_smoothing).to(device)
 
-optimizer = torch.optim.Adam(model.parameters(),
-                             lr=learning_rate,betas=betas,
-                             eps=epsilon)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
+                             betas=betas, eps=epsilon)
 
 scheduler = utils.NoamLR(optimizer, model_size=embed_dim, warmup_steps=warmup)
 
 # ----------------------- Main Entry ----------------------- #
 if __name__ == "__main__":
     # Train the model and collect loss history
-    loss_records = train_model(model, train_loader, val_loader, optimizer, scheduler,
-                criterion, device, epochs, max_grad_clip, trg_vocab_size)
+    eval_records = train_model(model, train_loader, val_loader, optimizer,
+                               scheduler, criterion, val_dataset, trg_vocab_size,
+                               device, epochs, max_grad_clip)
 
     # Load the best checkpoint from training
     utils.load_checkpoint(model, optimizer, scheduler)
@@ -102,10 +102,10 @@ if __name__ == "__main__":
     # Compute BLEU score
     bleu_score = evaluation.evaluate_bleu(
         model, test_loader, test_dataset.fr_vocab,
-        device, train_dataset.get_special_tokens(), verbose=True
-    )
+        device, train_dataset.get_special_tokens(), verbose=True)
+
     # Plot training and validation losses
-    utils.plot_losses(loss_records)
+    utils.plot_metrics(eval_records)
 
     # Optional: count model parameters
     # print(f"Number of trainable parameters: {utils.count_parameters(model):,}")

@@ -19,6 +19,7 @@ and preprocess datasets for machine translation tasks.
 import os
 import json
 import torch
+import pandas as pd
 from datasets import load_dataset
 import matplotlib.pyplot as plt
 
@@ -115,7 +116,35 @@ def load_checkpoint(model, optimizer, scheduler,
         return 1  # Start from epoch 1 if no checkpoint exists
 
 
-def plot_losses(loss_record: dict):
+def save_loss_to_csv(eval_record, epoch, file_path):
+
+    required_keys = ['train', 'validation', 'bleu']
+    for key in required_keys:
+        if key not in eval_record:
+            raise ValueError(f"eval_record must contain '{key}' key")
+        if not eval_record[key]:
+            raise ValueError(f"'{key}' list must not be empty")
+
+    new_data = pd.DataFrame({
+        'epoch': [epoch],
+        'train': [eval_record['train'][-1]],
+        'validation': [eval_record['validation'][-1]],
+        'bleu': [eval_record['bleu'][-1]],
+    })
+
+    write_header = not os.path.exists(file_path) or epoch == 1
+    mode = 'w' if write_header else 'a'
+
+    # If not writing from scratch, remove existing entry for current epoch
+    if not write_header:
+        df = pd.read_csv(file_path)
+        df = df[df['epoch'] < epoch]
+        df.to_csv(file_path, index=False)
+
+    new_data.to_csv(file_path, mode=mode, header=write_header, index=False)
+
+
+def _plot_losses(statistics: dict[str, list[float]]):
     """
     Plots the training and validation loss on the same graph for direct comparison.
 
@@ -129,8 +158,8 @@ def plot_losses(loss_record: dict):
     - The y-axis represents the loss values.
     - Both train and validation losses are plotted with different colors and markers.
     """
-    train_loss = loss_record['train']
-    validation_loss = loss_record['validation']
+    train_loss = statistics['train']
+    validation_loss = statistics['validation']
     epochs = range(1, len(train_loss) + 1)  # Assuming loss is recorded per epoch
 
     plt.figure(figsize=(10, 5))
@@ -145,6 +174,53 @@ def plot_losses(loss_record: dict):
     plt.grid(True, linestyle='--', alpha=0.6)
 
     plt.show()
+
+
+def _plot_bleu(bleu_scores: list[float]):
+    """
+    Plots BLEU scores over training epochs to visualize translation performance.
+
+    Args:
+        bleu_scores (list): A list of BLEU scores, one per epoch.
+
+    The function creates a single plot:
+    - The x-axis represents epochs.
+    - The y-axis represents BLEU scores.
+    - BLEU scores are plotted with a green line to show trends in translation quality.
+    """
+    epochs = list(range(1, len(bleu_scores) + 1))
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(epochs, bleu_scores, label='BLEU Score', color='green', linewidth=2)
+
+    plt.title("BLEU Score Over Epochs", fontsize=14, fontweight='bold')
+    plt.xlabel("Epoch", fontsize=12)
+    plt.ylabel("BLEU Score", fontsize=12)
+    plt.xticks(epochs)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.legend(fontsize=10)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_metrics(records: dict[str, list[float]]):
+    """
+    Plots training/validation losses and BLEU scores based on the provided metrics.
+
+    Args:
+        records (dict): A dictionary containing recorded metrics. Expected keys:
+            - 'train' (list): Training loss values per epoch.
+            - 'validation' (list): Validation loss values per epoch.
+            - 'bleu' (list): BLEU scores per epoch.
+
+    The function conditionally generates plots:
+    - If both 'train' and 'validation' are present and non-empty, it plots losses.
+    - If 'bleu' is present and non-empty, it plots BLEU scores.
+    """
+    if records.get('train') and records.get('validation'):
+        _plot_losses(records)
+    if records.get('bleu'):
+        _plot_bleu(records['bleu'])
 
 
 def count_parameters(model: torch.nn.Module) -> int:

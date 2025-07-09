@@ -674,149 +674,293 @@ class SimpleTransformer(nn.Module):
 
         Args:
             src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).
-            beam_size (int): Beam width.
-            max_len (int): Maximum length of decoded sequences.
+            beam_size (int): Beam width for beam search.
+            max_len (int): Maximum length of decoded sequences. If None, it's computed dynamically.
 
         Returns:
             torch.Tensor: Tensor of shape (batch_size, decoded_seq_len) with predicted token IDs.
         """
-        if max_len <= 0:
+        if max_len is None or max_len <= 0:
             max_len = int(src.size(1) * 1.6) + 10
 
         with torch.no_grad():
             bos_token_id, eos_token_id, pad_token_id = 2, 3, 1
             batch_size = src.size(0)
             vocab_size = self.w_o.out_features
-            # === Encode input ===
+            device = src.device
+
+            # === Encode the input ===
             src_embed = self.dropout(self.positional_encoding_encoder(self.embedding_encoder(src)))
             enc_output = src_embed
             for layer in self.encoder_layers:
                 enc_output = layer(enc_output)
 
-            # Repeat encoder output for beam search
-            enc_output = enc_output.unsqueeze(1).repeat(1, beam_size, 1, 1)  # (batch, beam, src_len, dim)
-            enc_output = enc_output.view(batch_size * beam_size, *enc_output.shape[2:])  # (batch*beam, src_len, dim)
+            # Repeat encoder output for each beam
+            enc_output = enc_output.unsqueeze(1).repeat(1, beam_size, 1, 1)  # (B, beam, L, D)
+            enc_output = enc_output.view(batch_size * beam_size, *enc_output.shape[2:])  # (B*beam, L, D)
 
-            # === Beam initialization ===
-            sequences = torch.full((batch_size * beam_size, 1), bos_token_id, dtype=torch.long, device=src.device)
-            sequence_scores = torch.zeros(batch_size, beam_size, device=src.device)
-            sequence_scores[:, 1:] = float('-inf')  # Only keep first beam alive initially
-            sequence_scores = sequence_scores.view(-1)  # (batch*beam,)
+            # === Initialize decoder inputs ===
+            sequences = torch.full((batch_size * beam_size, 1), bos_token_id, dtype=torch.long, device=device)
+            sequence_scores = torch.zeros(batch_size, beam_size, device=device)
+            sequence_scores[:, 1:] = float('-inf')  # only keep 1st beam
+            sequence_scores = sequence_scores.view(-1)  # (B*beam,)
             finished = torch.zeros_like(sequence_scores, dtype=torch.bool)
 
-            alpha = 0.6  # length normalization coefficient
+            alpha = 0.6  # Length penalty factor
 
             for _ in range(max_len):
+                # Decoder embedding
                 trg_embed = self.dropout(self.positional_encoding_decoder(self.embedding_decoder(sequences)))
                 dec_output = trg_embed
                 for layer in self.decoder_layers:
                     dec_output = layer(dec_output, enc_output)
 
-                logits = self.w_o(dec_output[:, -1, :])  # (batch*beam, vocab_size)
+                logits = self.w_o(dec_output[:, -1, :])  # Only last token logits
                 log_probs = F.log_softmax(logits, dim=-1)
 
-                scores = sequence_scores.unsqueeze(1) + log_probs  # (batch*beam, vocab)
-                scores[finished] = float('-inf')
-                scores[finished, eos_token_id] = sequence_scores[finished]
+                # Prevent expansion of finished beams
+                log_probs[finished] = float('-inf')
+                log_probs[finished, eos_token_id] = 0  # allow only <eos>
 
-                # Select top-k scores
-                scores = scores.view(batch_size, beam_size * vocab_size)
-                top_scores, top_indices = scores.topk(beam_size, dim=-1)
+                # Expand beams
+                scores = sequence_scores.unsqueeze(1) + log_probs  # (B*beam, V)
+                scores = scores.view(batch_size, -1)  # (B, beam * V)
 
+                top_scores, top_indices = scores.topk(beam_size, dim=-1)  # select top beams
                 beam_indices = top_indices // vocab_size
                 token_indices = top_indices % vocab_size
 
-                new_sequences = []
-                for i in range(batch_size):
-                    for b in range(beam_size):
-                        beam = beam_indices[i, b] + i * beam_size
-                        token = token_indices[i, b].unsqueeze(0)
-                        new_seq = torch.cat([sequences[beam], token], dim=0)
-                        new_sequences.append(new_seq)
+                # Gather previous sequences
+                batch_offset = torch.arange(batch_size, device=device).unsqueeze(1) * beam_size
+                gather_indices = (beam_indices + batch_offset).view(-1)
+                next_tokens = token_indices.view(-1)
 
-                sequences = torch.stack(new_sequences, dim=0)
+                sequences = sequences[gather_indices]
+                sequences = torch.cat([sequences, next_tokens.unsqueeze(1)], dim=-1)
 
-                # === Apply Length Normalization ===
-                lengths = torch.full((batch_size * beam_size,), sequences.size(1), dtype=torch.float, device=src.device)
-                eos_mask = (sequences == eos_token_id)
-                eos_pos = eos_mask.float().argmax(dim=1)  # First <eos> position
+                finished = finished[gather_indices]
+                sequence_scores = top_scores.view(-1)
+
+                # Update finished
+                finished |= (next_tokens == eos_token_id)
+
+                # === Length penalty ===
+                lengths = sequences.new_full((batch_size * beam_size,), sequences.size(1), dtype=torch.float)
+                eos_mask = sequences == eos_token_id
                 has_eos = eos_mask.any(dim=1)
-                lengths[has_eos] = eos_pos[has_eos].float() + 1  # Add 1 to include the <eos> token
+                eos_positions = eos_mask.float().argmax(dim=1)
+                lengths[has_eos] = (eos_positions[has_eos] + 1).float()  # include <eos>
 
-                length_penalty = ((5.0 + lengths) ** alpha) / ((5.0 + 1.0) ** alpha)
-                sequence_scores = top_scores.view(-1) / length_penalty
+                length_penalty = ((5.0 + lengths) / 6.0).pow(alpha)
+                normalized_scores = sequence_scores / length_penalty
 
-                # Track finished beams
-                finished |= (sequences[:, -1] == eos_token_id)
                 if finished.view(batch_size, beam_size).all(dim=1).all():
                     break
 
-            # Select best sequence for each batch
-            sequence_scores = sequence_scores.view(batch_size, beam_size)
-            best_beam = sequence_scores.argmax(dim=-1)
+            # === Select best beam per batch ===
+            normalized_scores = normalized_scores.view(batch_size, beam_size)
+            best_beam = normalized_scores.argmax(dim=1)
             best_sequences = []
+
             for i in range(batch_size):
-                best_idx = i * beam_size + best_beam[i]
-                best_sequences.append(sequences[best_idx])
+                idx = i * beam_size + best_beam[i]
+                best_sequences.append(sequences[idx])
 
             return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True, padding_value=pad_token_id)
 
 
-    # def translate(self, src: torch.Tensor) -> torch.Tensor:
-    #     """Translates a given source sequence into the target language using greedy decoding.
+    # def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:
+    #     """
+    #     Translates source sequences using beam search decoding with length normalization.
     #
     #     Args:
-    #         src (torch.Tensor): Source sequence tensor of shape (batch_size, src_seq_len).
+    #         src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).
+    #         beam_size (int): Beam width for beam search.
+    #         max_len (int): Maximum length of decoded sequences. If None, it's computed dynamically.
     #
     #     Returns:
-    #         torch.Tensor: Predicted target sequence of shape (batch_size, trg_seq_len).
+    #         torch.Tensor: Tensor of shape (batch_size, decoded_seq_len) with predicted token IDs.
     #     """
-    #     with torch.no_grad():
-    #         unk_token_id, bos_token_id, eos_token_id = 0, 2, 3  # <bos> and <eos> token IDs
-    #         batch_size, max_target_length = src.shape  # Extract input dimensions
+    #     if max_len is None or max_len <= 0:
+    #         max_len = int(src.size(1) * 1.6) + 10
     #
-    #         # Encoder step
-    #         src_embed = self.embedding_encoder(src)
-    #         src_pe = self.positional_encoding_encoder(src_embed)
-    #         enc_output = src_pe
+    #     with torch.no_grad():
+    #         bos_token_id, eos_token_id, pad_token_id = 2, 3, 1
+    #         batch_size = src.size(0)
+    #         vocab_size = self.w_o.out_features
+    #         device = src.device
+    #
+    #         # === Encode input ===
+    #         src_embed = self.dropout(self.positional_encoding_encoder(self.embedding_encoder(src)))
+    #         enc_output = src_embed
     #         for layer in self.encoder_layers:
     #             enc_output = layer(enc_output)
     #
-    #         # Decoder initialization
-    #         trg_seq = torch.full((batch_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+    #         # Repeat encoder output for beam search
+    #         enc_output = enc_output.unsqueeze(1).repeat(1, beam_size, 1, 1)
+    #         enc_output = enc_output.view(batch_size * beam_size, *enc_output.shape[2:])  # (B*beam, src_len, dim)
     #
-    #         # Track whether <eos> is generated in any sequence
-    #         generated_eos = torch.zeros(batch_size, dtype=torch.bool, device=src.device)
+    #         # === Initialize beams ===
+    #         sequences = torch.full((batch_size * beam_size, 1), bos_token_id, dtype=torch.long, device=device)
+    #         sequence_scores = torch.zeros(batch_size, beam_size, device=device)
+    #         sequence_scores[:, 1:] = float('-inf')  # Only keep the first beam alive initially
+    #         sequence_scores = sequence_scores.view(-1)  # (B*beam,)
+    #         finished = torch.zeros(batch_size * beam_size, dtype=torch.bool, device=device)
     #
-    #         for _ in range(max_target_length):
-    #             # Decoder step
-    #             trg_embed = self.embedding_decoder(trg_seq)
-    #             trg_pe = self.positional_encoding_decoder(trg_embed)
+    #         alpha = 0.6  # Length normalization factor
     #
-    #             dec_output = trg_pe
+    #         for _ in range(max_len):
+    #             # Embed decoder input
+    #             trg_embed = self.dropout(self.positional_encoding_decoder(self.embedding_decoder(sequences)))
+    #             dec_output = trg_embed
     #             for layer in self.decoder_layers:
     #                 dec_output = layer(dec_output, enc_output)
     #
-    #             # Predict next token
-    #             out_logits = self.w_o(dec_output[:, -1, :])
-    #             next_token = out_logits.argmax(dim=-1, keepdim=True)
-    #             # probs = self.softmax(out_logits)
-    #             # next_token = probs.argmax(dim=-1, keepdim=True)
+    #             logits = self.w_o(dec_output[:, -1, :])  # (B*beam, vocab_size)
+    #             log_probs = F.log_softmax(logits, dim=-1)
     #
-    #             # Append predicted token to sequence
-    #             trg_seq = torch.cat([trg_seq, next_token], dim=1)
+    #             # Prevent expansion of finished beams
+    #             log_probs[finished] = float('-inf')
+    #             log_probs[finished, eos_token_id] = 0  # Only allow <eos> for finished beams
     #
-    #             # Check if <eos> token is predicted for any sequence in the batch
-    #             generated_eos |= (next_token.squeeze(-1) == eos_token_id)
+    #             # Compute new scores
+    #             scores = sequence_scores.unsqueeze(1) + log_probs  # (B*beam, vocab_size)
+    #             scores = scores.view(batch_size, -1)  # (B, beam*vocab)
     #
-    #             # Stop early if all sequences have generated <eos> token
-    #             if generated_eos.all():
+    #             # Select top-k
+    #             top_scores, top_indices = scores.topk(beam_size, dim=-1)
+    #             beam_indices = top_indices // vocab_size
+    #             token_indices = top_indices % vocab_size
+    #
+    #             # Compute flat indices into sequences
+    #             batch_offset = (torch.arange(batch_size, device=device) * beam_size).unsqueeze(1)
+    #             gather_indices = (beam_indices + batch_offset).view(-1)
+    #             next_tokens = token_indices.view(-1)
+    #
+    #             # Reorder and expand sequences
+    #             sequences = sequences[gather_indices]
+    #             sequences = torch.cat([sequences, next_tokens.unsqueeze(1)], dim=-1)
+    #
+    #             # Reorder finished and score states
+    #             finished = finished[gather_indices]
+    #             sequence_scores = top_scores.view(-1)
+    #
+    #             # Update finished beams
+    #             finished |= (next_tokens == eos_token_id)
+    #
+    #             # Length normalization
+    #             lengths = sequences.new_full((batch_size * beam_size,), sequences.size(1), dtype=torch.float)
+    #             eos_mask = (sequences == eos_token_id)
+    #             has_eos = eos_mask.any(dim=1)
+    #             first_eos = eos_mask.float().argmax(dim=1)
+    #             lengths[has_eos] = first_eos[has_eos].float() + 1  # Include the <eos> token
+    #
+    #             length_penalty = ((5.0 + lengths) / 6.0).pow(alpha)
+    #             normalized_scores = sequence_scores / length_penalty
+    #
+    #             if finished.view(batch_size, beam_size).all(dim=1).all():
     #                 break
     #
-    #         # Ensure that the output is not empty
-    #         if trg_seq.shape[1] == 1:
-    #             trg_seq = torch.tensor([[unk_token_id]], dtype=torch.long,
-    #                                    device=src.device).expand(batch_size, 2)
+    #         # Select best sequence per batch
+    #         normalized_scores = normalized_scores.view(batch_size, beam_size)
+    #         best_beam = normalized_scores.argmax(dim=1)
+    #         best_sequences = []
     #
-    #         return trg_seq
+    #         for i in range(batch_size):
+    #             idx = i * beam_size + best_beam[i]
+    #             best_sequences.append(sequences[idx])
+    #
+    #         return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True, padding_value=pad_token_id)
 
+    # def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:
+    #     """
+    #     Translates source sequences using beam search decoding with length normalization.
+    #
+    #     Args:
+    #         src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).
+    #         beam_size (int): Beam width.
+    #         max_len (int): Maximum length of decoded sequences.
+    #
+    #     Returns:
+    #         torch.Tensor: Tensor of shape (batch_size, decoded_seq_len) with predicted token IDs.
+    #     """
+    #     if max_len <= 0:
+    #         max_len = int(src.size(1) * 1.6) + 10
+    #
+    #     with torch.no_grad():
+    #         pad_token_id, bos_token_id, eos_token_id = 1, 2, 3
+    #         batch_size = src.size(0)
+    #         vocab_size = self.w_o.out_features
+    #         # === Encode input ===
+    #         src_embed = self.dropout(self.positional_encoding_encoder(self.embedding_encoder(src)))
+    #         enc_output = src_embed
+    #         for layer in self.encoder_layers:
+    #             enc_output = layer(enc_output)
+    #
+    #         # Repeat encoder output for beam search
+    #         enc_output = enc_output.unsqueeze(1).repeat(1, beam_size, 1, 1)  # (batch, beam, src_len, dim)
+    #         enc_output = enc_output.view(batch_size * beam_size, *enc_output.shape[2:])  # (batch*beam, src_len, dim)
+    #
+    #         # === Beam initialization ===
+    #         sequences = torch.full((batch_size * beam_size, 1), bos_token_id, dtype=torch.long, device=src.device)
+    #         sequence_scores = torch.zeros(batch_size, beam_size, device=src.device)
+    #         sequence_scores[:, 1:] = float('-inf')  # Only keep first beam alive initially
+    #         sequence_scores = sequence_scores.view(-1)  # (batch*beam,)
+    #         finished = torch.zeros_like(sequence_scores, dtype=torch.bool)
+    #
+    #         alpha = 0.6  # length normalization coefficient
+    #
+    #         for _ in range(max_len):
+    #             trg_embed = self.dropout(self.positional_encoding_decoder(self.embedding_decoder(sequences)))
+    #             dec_output = trg_embed
+    #             for layer in self.decoder_layers:
+    #                 dec_output = layer(dec_output, enc_output)
+    #
+    #             logits = self.w_o(dec_output[:, -1, :])  # (batch*beam, vocab_size)
+    #             log_probs = F.log_softmax(logits, dim=-1)
+    #
+    #             scores = sequence_scores.unsqueeze(1) + log_probs  # (batch*beam, vocab)
+    #             scores[finished] = float('-inf')
+    #             scores[finished, eos_token_id] = sequence_scores[finished]
+    #
+    #             # Select top-k scores
+    #             scores = scores.view(batch_size, beam_size * vocab_size)
+    #             top_scores, top_indices = scores.topk(beam_size, dim=-1)
+    #
+    #             beam_indices = top_indices // vocab_size
+    #             token_indices = top_indices % vocab_size
+    #
+    #             new_sequences = []
+    #             for i in range(batch_size):
+    #                 for b in range(beam_size):
+    #                     beam = beam_indices[i, b] + i * beam_size
+    #                     token = token_indices[i, b].unsqueeze(0)
+    #                     new_seq = torch.cat([sequences[beam], token], dim=0)
+    #                     new_sequences.append(new_seq)
+    #
+    #             sequences = torch.stack(new_sequences, dim=0)
+    #
+    #             # === Apply Length Normalization ===
+    #             lengths = torch.full((batch_size * beam_size,), sequences.size(1), dtype=torch.float, device=src.device)
+    #             eos_mask = (sequences == eos_token_id)
+    #             eos_pos = eos_mask.float().argmax(dim=1)  # First <eos> position
+    #             has_eos = eos_mask.any(dim=1)
+    #             lengths[has_eos] = eos_pos[has_eos].float() + 1  # Add 1 to include the <eos> token
+    #
+    #             length_penalty = ((5.0 + lengths) ** alpha) / ((5.0 + 1.0) ** alpha)
+    #             sequence_scores = top_scores.view(-1) / length_penalty
+    #
+    #             # Track finished beams
+    #             finished |= (sequences[:, -1] == eos_token_id)
+    #             if finished.view(batch_size, beam_size).all(dim=1).all():
+    #                 break
+    #
+    #         # Select best sequence for each batch
+    #         sequence_scores = sequence_scores.view(batch_size, beam_size)
+    #         best_beam = sequence_scores.argmax(dim=-1)
+    #         best_sequences = []
+    #         for i in range(batch_size):
+    #             best_idx = i * beam_size + best_beam[i]
+    #             best_sequences.append(sequences[best_idx])
+    #
+    #         return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True, padding_value=pad_token_id)
