@@ -315,7 +315,8 @@ class MultiHeadAttention(nn.Module):
             contain -inf and others are 0. This shape supports broadcasting over batches
             and attention heads.
         """
-        return torch.triu(torch.full((L_q, L_k), float('-inf'), device=device), diagonal=1)[None, None, :, :]
+        return torch.triu(torch.full((L_q, L_k), float('-inf'),
+                                     device=device), diagonal=1)[None, None, :, :]
 
     def _scaled_dot_product_attention(
         self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
