@@ -16,7 +16,7 @@ This script performs the following steps:
 
 import torch
 from torch.utils.data import DataLoader
-from models.SimpeTransformer import SimpleTransformer
+from models.SimpleTransformer import SimpleTransformer
 from data.iwslt14 import IWSLT14Dataset
 import evaluation
 import utils
