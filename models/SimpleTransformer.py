@@ -501,9 +501,10 @@ class Decoder(nn.Module):
 
         return dec_out
 
-from layers.PositionalEncoding import PositionalEncoding
-from layers.Encoder import Encoder
-from layers.Decoder import Decoder
+
+# from layers.PositionalEncoding import PositionalEncoding
+# from layers.Encoder import Encoder
+# from layers.Decoder import Decoder
 
 
 class SimpleTransformer(nn.Module):
