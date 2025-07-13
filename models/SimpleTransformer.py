@@ -507,6 +507,7 @@ from layers.Encoder import Encoder
 from layers.Decoder import Decoder
 
 
+
 class SimpleTransformer(nn.Module):
     """
     A simplified Transformer model for sequence-to-sequence tasks such as translation.
