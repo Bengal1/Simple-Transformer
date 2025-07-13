@@ -194,7 +194,7 @@ $$
 *Normalization Layer* is used to stabilize and accelerate training by normalizing the inputs to each layer.<br/>
 For each input vector (for each token in a sequence), subtract the mean and divide by the standard deviation of the vector's values. This centers the data around 0 with unit variance:
 ```math
-x' = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}
+\hat{x} = \frac{(x - μ)}{\sqrt{σ^{2} + ε}}
 ```
 where *μ* is the mean and *σ* is the standard deviation of the input vector.<br/><br/>
 Then apply scaling (gamma) and shifting (beta) parameters (trainable):
@@ -203,7 +203,7 @@ Then apply scaling (gamma) and shifting (beta) parameters (trainable):
 * *β* (shift): A parameter to shift the normalized output.<br/>
 
 ```math
-⇨  y = γ·x' + β
+⇨  y = γ·\hat{x} + β
 ```
 
 ## Data
