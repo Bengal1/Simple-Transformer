@@ -1,3 +1,0 @@
-"""
-Author: Or Ben-gal
-"""
