@@ -5,8 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="233ecea4-48a8-41dd-9b02-d207854bb458" name="Changes" comment="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;train.py">
+      <change afterPath="$PROJECT_DIR$/layers/Decoder.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/layers/Encoder.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/layers/FeedForward.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/layers/MultiHeadAttention.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/layers/NormLayer.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/layers/PositionalEncoding.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/layers/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/iwslt14.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/iwslt14.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/evaluation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/SimpeTransformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/SimpeTransformer.py" afterDir="false" />
@@ -51,31 +57,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.SimpeTransformer.executor&quot;: &quot;Run&quot;,
-    &quot;Python.data.executor&quot;: &quot;Run&quot;,
-    &quot;Python.data_for_debug.executor&quot;: &quot;Run&quot;,
-    &quot;Python.data_loader.executor&quot;: &quot;Run&quot;,
-    &quot;Python.draft.executor&quot;: &quot;Run&quot;,
-    &quot;Python.evaluate.executor&quot;: &quot;Run&quot;,
-    &quot;Python.evaluation.executor&quot;: &quot;Run&quot;,
-    &quot;Python.iwslt14.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;Python.prac.executor&quot;: &quot;Run&quot;,
-    &quot;Python.practice.executor&quot;: &quot;Run&quot;,
-    &quot;Python.train.executor&quot;: &quot;Run&quot;,
-    &quot;Python.utils.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Dev/PyCharmProjects/Simple-CNN-Guide&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.Decoder.executor": "Run",
+    "Python.Encoder.executor": "Run",
+    "Python.FeedForward.executor": "Run",
+    "Python.NormLayer.executor": "Run",
+    "Python.SimpeTransformer.executor": "Debug",
+    "Python.data.executor": "Run",
+    "Python.data_for_debug.executor": "Run",
+    "Python.data_loader.executor": "Run",
+    "Python.draft.executor": "Run",
+    "Python.evaluate.executor": "Run",
+    "Python.evaluation.executor": "Run",
+    "Python.iwslt14.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.prac.executor": "Run",
+    "Python.practice.executor": "Run",
+    "Python.train.executor": "Run",
+    "Python.utils.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Dev/PyCharmProjects/Simple-CNN-Guide",
+    "run.code.analysis.last.selected.profile": "aDefault",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Dev\PyCharmProjects\SimpleTransformer\data" />
@@ -101,14 +111,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1740672748819</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Update README.md">
-      <option name="closed" value="true" />
-      <created>1741303464703</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1741303464703</updated>
     </task>
     <task id="LOCAL-00008" summary="Merge remote-tracking branch 'origin/main'">
       <option name="closed" value="true" />
@@ -494,7 +496,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751994697361</updated>
     </task>
-    <option name="localTasksCounter" value="56" />
+    <task id="LOCAL-00056" summary="Merge remote-tracking branch 'origin/main'&#10;&#10;# Conflicts:&#10;#&#9;train.py">
+      <option name="closed" value="true" />
+      <created>1752103806252</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1752103806252</updated>
+    </task>
+    <option name="localTasksCounter" value="57" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

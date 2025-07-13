@@ -217,13 +217,32 @@ class NormLayer(torch.nn.Module):
 
 class MultiHeadAttention(nn.Module):
     """
-    Multi-Head Attention module for Transformer models.
+    Multi-Head Attention module for Transformer architectures.
 
-    Supports self-attention, cross-attention, and optional causal masking.
+    Supports both self-attention and cross-attention mechanisms, with optional
+    causal (autoregressive) masking. This module splits input embeddings across
+    multiple attention heads, performs scaled dot-product attention in parallel,
+    and then projects the result back to the original embedding space.
     """
 
-    def __init__(self, embed_dim: int, num_heads: int = 8, d_k: int = 64, d_v: int = 64,
-                 dropout: float = 0.1, cross_attn: bool = False, masked_attn: bool = False):
+    def __init__(self, embed_dim: int,
+                 num_heads: int = 8,
+                 d_k: int = 64,
+                 d_v: int = 64,
+                 dropout: float = 0.1,
+                 cross_attn: bool = False,
+                 masked_attn: bool = False):
+        """Initializes the multi-head attention layer.
+
+        Args:
+            embed_dim (int): Total input and output embedding dimension.
+            num_heads (int): Number of attention heads.
+            d_k (int): Dimension of the query and key projections per head.
+            d_v (int): Dimension of the value projection per head.
+            dropout (float): Dropout probability applied to attention weights and output projection.
+            cross_attn (bool): If True, enables cross-attention using a separate source input `y`.
+            masked_attn (bool): If True, applies causal masking for autoregressive decoding.
+        """
         super().__init__()
 
         self.embed_dim = embed_dim
@@ -253,16 +272,27 @@ class MultiHeadAttention(nn.Module):
         # init.xavier_uniform_(self.w_out.weight)
 
     def _split_heads(self, x: torch.Tensor, head_dim: int) -> torch.Tensor:
-        """
-        Splits the last dimension into (num_heads, head_dim) and transposes to (B, H, L, D).
+        """Splits the last dimension into (num_heads, head_dim) and transposes to (B, H, L, D).
+
+        Args:
+            x (torch.Tensor): Tensor of shape (B, L, num_heads * head_dim).
+            head_dim (int): The dimension size per attention head.
+
+        Returns:
+            torch.Tensor: Reshaped tensor of shape (B, num_heads, L, head_dim).
         """
         B, L, _ = x.size()
         return x.view(B, L, self.num_heads, head_dim).transpose(1, 2)
 
     @staticmethod
     def _combine_heads(x: torch.Tensor) -> torch.Tensor:
-        """
-        Combines the multi-head output into a single vector per position.
+        """Combines the multi-head output into a single vector per position.
+
+        Args:
+            x (torch.Tensor): Tensor of shape (B, H, L, D).
+
+        Returns:
+            torch.Tensor: Reshaped tensor of shape (B, L, H * D).
         """
         B, H, L, D = x.size()
         return x.transpose(1, 2).contiguous().view(B, L, H * D)
@@ -271,8 +301,19 @@ class MultiHeadAttention(nn.Module):
         self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
         mask: Optional[torch.Tensor] = None
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Computes scaled dot-product attention.
+        """Computes scaled dot-product attention.
+
+        Args:
+            Q (torch.Tensor): Queries of shape (B, H, L_q, D).
+            K (torch.Tensor): Keys of shape (B, H, L_k, D).
+            V (torch.Tensor): Values of shape (B, H, L_k, D).
+            mask (Optional[torch.Tensor]): Optional mask of shape (1, 1, L_q, L_k),
+                where masked positions are set to -inf.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]:
+                - Output tensor of shape (B, H, L_q, D).
+                - Attention weights of shape (B, H, L_q, L_k).
         """
         attn_scores = torch.matmul(Q, K.transpose(-2, -1)) * self.scale
 
@@ -289,8 +330,7 @@ class MultiHeadAttention(nn.Module):
         self, x: torch.Tensor, y: Optional[torch.Tensor] = None,
         return_attn_weights: bool = False
     ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Forward pass for multi-head attention.
+        """Forward pass for multi-head attention.
 
         Args:
             x: Tensor of shape (B, L_x, embed_dim)
@@ -299,6 +339,8 @@ class MultiHeadAttention(nn.Module):
 
         Returns:
             Output tensor of shape (B, L_x, embed_dim), and optionally attention weights.
+                - Output tensor of shape (B, L_x, embed_dim)
+                - Optionally, attention weights of shape (B, num_heads, L_x, L_y) if `return_attn_weights` is True.
         """
         L_x = x.shape[1]
         L_y = y.shape[1] if (self.cross_attn and y is not None) else L_x
@@ -327,16 +369,16 @@ class MultiHeadAttention(nn.Module):
         output = self.out_dropout(self.w_out(merged))
 
         return (output, attn_weights) if return_attn_weights else output
-    
+
 
 # class MultiHeadAttention(torch.nn.Module):
 #     """
 #     Multi-Head Attention module for Transformer models.
-# 
+#
 #     This module implements the multi-head attention mechanism used in Transformer
 #     architectures. It supports both self-attention and cross-attention, and can
 #     optionally apply a causal mask for autoregressive decoding.
-# 
+#
 #     Attributes:
 #         num_heads (int): Number of attention heads.
 #         d_k (int): Dimension of key vectors per head.
@@ -350,11 +392,11 @@ class MultiHeadAttention(nn.Module):
 #         attn_dropout (nn.Dropout): Dropout applied to attention weights.
 #         out_dropout (nn.Dropout): Dropout applied to the final output projection.
 #     """
-# 
+#
 #     def __init__(self, embed_dim: int, num_heads: int = 1, d_k: int = 64,
 #                  d_v: int = 128, dropout: float = 0.0, cross_attn: bool = False, masked_attn: bool = False):
 #         """Initializes the MultiHeadAttention module.
-# 
+#
 #         Args:
 #             embed_dim (int): Dimension of the input embeddings.
 #             num_heads (int, optional): Number of attention heads. Defaults to 1.
@@ -365,83 +407,83 @@ class MultiHeadAttention(nn.Module):
 #             masked_attn (bool, optional): If True, applies causal (masked) attention for autoregressive decoding. Defaults to False.
 #         """
 #         super().__init__()
-# 
+#
 #         self.num_heads = num_heads
 #         self.d_k = d_k  # Size of key vectors per head
 #         self.d_v = d_v  # Size of value vectors per head
 #         self.cross_attn = cross_attn
 #         self.masked_attn = masked_attn
-# 
+#
 #         # Linear projections for Q, K, V for each head
 #         self.w_q = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
 #         self.w_k = nn.ModuleList([nn.Linear(embed_dim, d_k) for _ in range(num_heads)])
 #         self.w_v = nn.ModuleList([nn.Linear(embed_dim, d_v) for _ in range(num_heads)])
-# 
+#
 #         self.w_out = nn.Linear(d_v * num_heads, embed_dim)
 #         # Dropout
 #         self.attn_dropout = nn.Dropout(dropout)
 #         self.out_dropout = nn.Dropout(dropout)
-# 
+#
 #     def _scaled_dot_product_attention(self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
 #                                       mask: torch.Tensor = None) -> tuple[torch.Tensor, torch.Tensor]:
 #         """Computes scaled dot-product attention.
-# 
+#
 #         Args:
 #             Q (torch.Tensor): Query tensor of shape (batch_size, num_heads, src_len, d_k).
 #             K (torch.Tensor): Key tensor of shape (batch_size, num_heads, tgt_len, d_k).
 #             V (torch.Tensor): Value tensor of shape (batch_size, num_heads, tgt_len, d_v).
 #             mask (torch.Tensor, optional): Attention mask of shape (1, 1, src_len, tgt_len), with -inf for masked positions.
-# 
+#
 #         Returns:
 #             tuple[torch.Tensor, torch.Tensor]:
 #                 - Attention output of shape (batch_size, num_heads, src_len, d_v).
 #                 - Attention probabilities of shape (batch_size, num_heads, src_len, tgt_len).
 #         """
 #         attn_scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_k, dtype=Q.dtype, device=Q.device))
-# 
+#
 #         if mask is not None:
 #             attn_scores = attn_scores + mask
-# 
+#
 #         attn_probs = F.softmax(attn_scores, dim=-1)
 #         attn_probs = self.attn_dropout(attn_probs) # Dropout
 #         return torch.matmul(attn_probs, V), attn_probs
-# 
+#
 #     def forward(self, x: torch.Tensor, y: torch.Tensor = None) -> torch.Tensor:
 #         """Performs forward pass of multi-head attention.
-# 
+#
 #         Args:
 #             x (torch.Tensor): Source tensor of shape (batch_size, src_len, embed_dim).
 #             y (torch.Tensor, optional): Target tensor for cross-attention, shape (batch_size, tgt_len, embed_dim).
 #                                         If None, self-attention is performed.
-# 
+#
 #         Returns:
 #             torch.Tensor: Output tensor of shape (batch_size, src_len, embed_dim).
 #         """
 #         batch_size, src_len, _ = x.shape
 #         _, trg_len, _ = y.shape if self.cross_attn else x.shape
-# 
+#
 #         # Initialize Q, K, V for each head
 #         Q, K, V = [], [], []
-# 
+#
 #         for i in range(self.num_heads):
 #             Q.append(self.w_q[i](x))
 #             K.append(self.w_k[i](x if not self.cross_attn else y))
 #             V.append(self.w_v[i](x if not self.cross_attn else y))
-# 
+#
 #         # Stack the Q, K, V tensors into one tensor of shape (batch_size, num_heads, max_length, d_k/d_v)
 #         Q = torch.stack(Q, dim=1)
 #         K = torch.stack(K, dim=1)
 #         V = torch.stack(V, dim=1)
-# 
+#
 #         # Create dynamic mask of shape (1, 1, src_len, trg_len)
 #         mask = None
 #         if self.masked_attn:
 #             mask = torch.triu(torch.full((src_len, trg_len), float('-inf'), device=x.device), diagonal=1)
 #             mask = mask.unsqueeze(0).unsqueeze(1)  # (1, 1, src_len, trg_len)
-# 
+#
 #         # Apply scaled dot-product attention
 #         attention_output, _ = self._scaled_dot_product_attention(Q, K, V, mask)
-# 
+#
 #         # Concatenate heads and project to output dimension + Dropout
 #         attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, src_len, -1)
 #         output = self.w_out(attention_output)
@@ -564,26 +606,36 @@ class Decoder(nn.Module):
 
         return dec_out
 
+from layers.PositionalEncoding import PositionalEncoding
+# from layers.Encoder import Encoder
+# from layers.Decoder import Decoder
+
 
 class SimpleTransformer(nn.Module):
     """
-    A simplified Transformer model for sequence-to-sequence tasks like translation.
-    It consists of stacked encoder and decoder layers, embeddings, and a final linear projection.
+    A simplified Transformer model for sequence-to-sequence tasks such as translation.
 
     Attributes:
         embedding_encoder (nn.Embedding): Embedding layer for source tokens.
-        positional_encoding_encoder (PositionalEncoding): Adds position information to source embeddings.
         embedding_decoder (nn.Embedding): Embedding layer for target tokens.
-        positional_encoding_decoder (PositionalEncoding): Adds position information to target embeddings.
-        encoder_layers (nn.ModuleList): Stacked encoder blocks.
-        decoder_layers (nn.ModuleList): Stacked decoder blocks.
-        w_o (nn.Linear): Final linear layer projecting decoder output to vocabulary logits.
+        positional_encoding_encoder (PositionalEncoding): Positional encoding for source input.
+        positional_encoding_decoder (PositionalEncoding): Positional encoding for target input.
+        dropout (nn.Dropout): Dropout applied after embeddings.
+        encoder_layers (nn.ModuleList): Stacked encoder layers.
+        decoder_layers (nn.ModuleList): Stacked decoder layers.
+        w_o (nn.Linear): Final projection layer mapping decoder output to vocabulary logits.
+        softmax (nn.Softmax): Softmax function applied to output logits.
     """
-
-    def __init__(self, src_vocab_size: int, trg_vocab_size: int, embed_dim: int,
-                 num_heads: int = 8, num_layers: int = 6, d_k: int = 64, d_v: int = 64,
-                 dropout: float = 0.1
-    ):
+    def __init__(
+            self,
+            src_vocab_size: int,
+            trg_vocab_size: int,
+            embed_dim: int,
+            num_heads: int = 8,
+            num_layers: int = 6,
+            d_k: int = 64,
+            d_v: int = 64,
+            dropout: float = 0.1):
         """Initializes the SimpleTransformer model.
 
         Args:
@@ -591,36 +643,33 @@ class SimpleTransformer(nn.Module):
             trg_vocab_size (int): Size of the target vocabulary.
             embed_dim (int): Dimensionality of token embeddings.
             num_heads (int): Number of attention heads.
-            num_layers (int): Number of encoder/decoder layers to stack.
-            d_k (int): Dimensionality of keys.
-            d_v (int): Dimensionality of values.
-            dropout (float): Dropout probability for regularization.
+            num_layers (int): Number of encoder and decoder layers.
+            d_k (int): Dimensionality of key vectors.
+            d_v (int): Dimensionality of value vectors.
+            dropout (float): Dropout rate.
         """
-
         super().__init__()
 
-        # Embedding layers for source and target
+        # Token embeddings
         self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim, padding_idx=1)
         self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim, padding_idx=1)
 
-        # Positional encoding
+        # Positional encodings
         self.positional_encoding_encoder = PositionalEncoding(embed_dim)
         self.positional_encoding_decoder = PositionalEncoding(embed_dim)
 
-        # Dropout after embedding & positional encoding
+        # Dropout layer
         self.dropout = nn.Dropout(dropout)
 
-        # Stacked encoder layers
+        # Encoder and decoder stacks
         self.encoder_layers = nn.ModuleList([
-            Encoder(embed_dim, num_heads, d_k, d_v, dropout=dropout) for _ in range(num_layers)
+            Encoder(embed_dim, num_heads, d_k, d_v, dropout) for _ in range(num_layers)
         ])
-
-        # Stacked decoder layers
         self.decoder_layers = nn.ModuleList([
-            Decoder(embed_dim, num_heads, d_k, d_v, dropout=dropout) for _ in range(num_layers)
+            Decoder(embed_dim, num_heads, d_k, d_v, dropout) for _ in range(num_layers)
         ])
 
-        # Output block
+        # Output projection
         self.w_o = nn.Linear(embed_dim, trg_vocab_size)
         self.softmax = nn.Softmax(dim=-1)
 
@@ -669,8 +718,7 @@ class SimpleTransformer(nn.Module):
         return output
 
     def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:
-        """
-        Translates source sequences using beam search decoding with length normalization.
+        """Translates source sequences using beam search decoding with length normalization.
 
         Args:
             src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).
@@ -770,8 +818,7 @@ class SimpleTransformer(nn.Module):
 
 
     # def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:
-    #     """
-    #     Translates source sequences using beam search decoding with length normalization.
+    #     """Translates source sequences using beam search decoding with length normalization.
     #
     #     Args:
     #         src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).

@@ -39,7 +39,11 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         warmup_steps (int): Number of steps to linearly increase the learning rate.
     """
 
-    def __init__(self, optimizer, model_size=256, warmup_steps=4000, last_epoch=-1):
+    def __init__(self,
+                 optimizer: torch.optim.Optimizer,
+                 model_size: int = 256,
+                 warmup_steps: int = 4000,
+                 last_epoch: int = -1):
         """Initializes the NoamLR scheduler.
 
         Args:
@@ -64,7 +68,13 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         return [lr for _ in self.base_lrs]
 
 
-def save_model(epoch, model, opt, scheduler, loss, filepath="model_checkpoint.pth"):
+def save_model(
+        epoch: int,
+        model: torch.nn.Module,
+        opt: torch.optim.Optimizer,
+        scheduler: torch.optim.lr_scheduler._LRScheduler,
+        loss: float,
+        filepath: str ="model_checkpoint.pth"):
     """
     Save model checkpoint.
 
@@ -87,61 +97,78 @@ def save_model(epoch, model, opt, scheduler, loss, filepath="model_checkpoint.pt
     # print(f"Model checkpoint saved at epoch {epoch}.")
 
 
-def load_checkpoint(model, optimizer, scheduler,
-                        checkpoint_path="model_checkpoint.pth", device="cpu") -> int:
-        """
-        Load model checkpoint.
+def load_checkpoint(
+        model: torch.nn.Module,
+        optimizer: torch.optim.Optimizer,
+        scheduler: torch.optim.lr_scheduler._LRScheduler,
+        checkpoint_path: str = "model_checkpoint.pth",
+        device: torch.device = "cpu") -> int:
+    """
+    Load model checkpoint.
 
-        Args:
-            model (nn.Module): Model to load weights into
-            optimizer (torch.optim.Optimizer): Optimizer to load state into
-            scheduler (torch.optim.lr_scheduler): Scheduler to load state into
-            checkpoint_path (str): Path to the checkpoint file
-            device (str): Device to load model onto (default: "cpu")
+    Args:
+        model (nn.Module): Model to load weights into
+        optimizer (torch.optim.Optimizer): Optimizer to load state into
+        scheduler (torch.optim.lr_scheduler): Scheduler to load state into
+        checkpoint_path (str): Path to the checkpoint file
+        device (str): Device to load model onto (default: "cpu")
 
-        Returns:
-            int: Start epoch number
-        """
-        if os.path.exists(checkpoint_path):
-            checkpoint = torch.load(checkpoint_path, map_location=device)
-            model.load_state_dict(checkpoint["model_state_dict"])
-            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-            scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
-            start_epoch = checkpoint["epoch"] + 1
-            last_loss = checkpoint["loss"]
+    Returns:
+        int: Start epoch number
+    """
+    if os.path.exists(checkpoint_path):
+        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+        start_epoch = checkpoint["epoch"] + 1
+        last_loss = checkpoint["loss"]
 
-            # print(f"Resuming model from epoch {start_epoch}")
-            # print(f"The last epoch loss: {last_loss}")
-            return start_epoch
-        return 1  # Start from epoch 1 if no checkpoint exists
+        # print(f"Resuming model from epoch {start_epoch}")
+        # print(f"The last epoch loss: {last_loss}")
+        return start_epoch
+    return 1  # Start from epoch 1 if no checkpoint exists
 
 
-def save_loss_to_csv(eval_record, epoch, file_path):
+def save_stats_to_csv(
+    stats_record: dict[str, list[float]],
+    file_path: str = None,
+    epoch: int = None):
+    """
+    Saves training statistics to a CSV file.
 
-    required_keys = ['train', 'validation', 'bleu']
-    for key in required_keys:
-        if key not in eval_record:
-            raise ValueError(f"eval_record must contain '{key}' key")
-        if not eval_record[key]:
-            raise ValueError(f"'{key}' list must not be empty")
+    Args:
+        stats_record (dict[str, list[float]]): A dictionary where each key is a metric name
+            and each value is a list of metric values per epoch.
+        file_path (str, optional): Path to the CSV file. Defaults to 'training_stats.csv'
+            in the current directory.
+        epoch (int, optional): If provided, appends only the latest values for the given
+            epoch. If None, writes the entire history and overwrites any existing file.
 
-    new_data = pd.DataFrame({
-        'epoch': [epoch],
-        'train': [eval_record['train'][-1]],
-        'validation': [eval_record['validation'][-1]],
-        'bleu': [eval_record['bleu'][-1]],
-    })
+    Raises:
+        ValueError: If there is no non-empty data to save.
+    """
+    if file_path is None:
+        file_path = "training_stats.csv"
 
-    write_header = not os.path.exists(file_path) or epoch == 1
-    mode = 'w' if write_header else 'a'
+    # Filter out empty metric lists
+    available_data = {k: v for k, v in stats_record.items() if v}
+    if not available_data:
+        raise ValueError("No non-empty stats data to save.")
 
-    # If not writing from scratch, remove existing entry for current epoch
-    if not write_header:
-        df = pd.read_csv(file_path)
-        df = df[df['epoch'] < epoch]
+    if epoch is None:
+        # Full save: assumes all lists are the same length
+        num_epochs = len(next(iter(available_data.values())))
+        df = pd.DataFrame({'epoch': list(range(num_epochs)), **available_data})
         df.to_csv(file_path, index=False)
-
-    new_data.to_csv(file_path, mode=mode, header=write_header, index=False)
+    else:
+        # Append mode: only the latest value for each stat
+        new_data = {
+            'epoch': [epoch],
+            **{k: [v[-1]] for k, v in available_data.items()}
+        }
+        df = pd.DataFrame(new_data)
+        df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
 
 
 def _plot_losses(statistics: dict[str, list[float]]):
@@ -173,7 +200,7 @@ def _plot_losses(statistics: dict[str, list[float]]):
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.6)
 
-    plt.show()
+    plt.show()  # <--- Bug!!!
 
 
 def _plot_bleu(bleu_scores: list[float]):
@@ -200,6 +227,7 @@ def _plot_bleu(bleu_scores: list[float]):
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.legend(fontsize=10)
     plt.tight_layout()
+
     plt.show()
 
 
@@ -236,7 +264,9 @@ def count_parameters(model: torch.nn.Module) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 
-def make_iwslt14_local_file(split: str, debug: bool = False, debug_size: int = 1000):
+def make_iwslt14_local_file(split: str,
+                            debug: bool = False,
+                            debug_size: int = 1000):
     """
     Saves the IWSLT14 dataset as a JSON file.
 

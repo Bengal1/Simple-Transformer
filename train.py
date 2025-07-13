@@ -109,7 +109,7 @@ def train_model(model: torch.nn.Module,
         # stats_record['bleu'].append(bleu_score)
 
         print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
-              f"Validation Loss: {val_loss:.4f}") #| BLEU Score: {bleu_score:.4f}")
+              f"Validation Loss: {val_loss:.4f}")# | BLEU Score: {bleu_score:.4f}")
 
         if val_loss < best_loss:
             best_loss = val_loss

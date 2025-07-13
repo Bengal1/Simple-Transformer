@@ -6,11 +6,12 @@ Entry point for training and evaluating the SimpleTransformer model on the IWSLT
 This script performs the following steps:
 - Loads the debug split of the IWSLT14 dataset
 - Initializes the Transformer model and its components
-- Trains the model and tracks training/validation losses
+- Trains the model, tracks training/validation losses and BLEU score
 - Saves the best checkpoint during training
 - Loads the best model checkpoint
 - Evaluates the final model on the test split (loss and BLEU score)
 - Plots training and validation loss curves
+- Plot BLEU score curve
 """
 
 import torch
@@ -32,7 +33,6 @@ batch_size = 32         # Batch size
 epochs = 10             # Number of epochs
 max_grad_clip = 1.0     # Max norm gradient
 learning_rate = 1e-3    # Learning rate
-# weight_decay = 1e-4   # Weight decay (Lambda)
 betas = (0.9, 0.98)     # Adam Optimizer betas
 epsilon = 1e-9          # Optimizer epsilon
 warmup = 3              # Scheduler warmup period
