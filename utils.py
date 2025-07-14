@@ -278,7 +278,7 @@ def make_iwslt14_local_file(split: str,
     dataset = load_dataset("ahazeemi/iwslt14-en-fr")[split]
     # debug mode is enabled
     if debug:
-        dataset = dataset.select(range(debug_size))  # Select only 100 samples for debugging
+        dataset = dataset.select(range(debug_size))
 
     # Save dataset under the correct split
     local_dataset = {

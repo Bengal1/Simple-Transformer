@@ -164,13 +164,7 @@ class MultiHeadAttention(torch.nn.Module):
 
         mask = None
         if self.masked_attn:
-            mask = torch.triu(
-                torch.full((L_x, L_y), float('-inf'), device=x.device),
-                diagonal=1
-            )[None, None, :, :]  # (1, 1, L_x, L_y)
-            # mask = torch.triu(
-            #     torch.full((L_x, L_y), float('-inf'), device=x.device),
-            #     diagonal=1).unsqueeze(0).unsqueeze(0)
+            mask = self._generate_causal_mask(L_x, L_y, device=x.device)
 
         # Scaled dot-product attention
         attn_output, attn_weights = self._scaled_dot_product_attention(Q, K, V, mask)
