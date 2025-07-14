@@ -1,0 +1,28 @@
+# === Python Bytecode ===
+__pycache__/
+*.py[cod]
+*.pyo
+
+# === Virtual Environments ===
+venv/
+.env/
+*.env
+
+# === PyCharm IDE Files ===
+.idea/
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Checkpoints, Weights, and Logs ===
+*.pth
+*.pt
+*.ckpt
+*.log
+
+# === Jupyter Notebooks Checkpoints ===
+.ipynb_checkpoints/
+
+# === Custom ===
+.idea/shelf/
