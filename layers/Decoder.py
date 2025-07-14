@@ -55,14 +55,14 @@ class Decoder(torch.nn.Module):
         """
         # Masked self-attention + residual + norm
         attn_masked = self.attention_masked(dec_input)
-        norm1 = self.norm1(attn_masked + dec_input)
+        norm1_out = self.norm1(attn_masked + dec_input)
 
         # Cross-attention with encoder output + residual + norm
-        attn_cross = self.attention_cross(norm1, enc_output)
-        norm2 = self.norm2(attn_cross + norm1)
+        attn_cross = self.attention_cross(norm1_out, enc_output)
+        norm2_out = self.norm2(attn_cross + norm1_out)
 
         # Feedforward network + residual + norm
-        ff_out = self.ff(norm2)
-        dec_out = self.norm3(ff_out + norm2)
+        ff_out = self.ff(norm2_out)
+        dec_out = self.norm3(ff_out + norm2_out)
 
         return dec_out

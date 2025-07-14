@@ -57,10 +57,10 @@ class MultiHeadAttention(torch.nn.Module):
         self.scale = 1.0 / math.sqrt(d_k)
 
         # Xavier initialization
-        # init.xavier_uniform_(self.w_q.weight)
-        # init.xavier_uniform_(self.w_k.weight)
-        # init.xavier_uniform_(self.w_v.weight)
-        # init.xavier_uniform_(self.w_out.weight)
+        init.xavier_uniform_(self.w_q.weight)
+        init.xavier_uniform_(self.w_k.weight)
+        init.xavier_uniform_(self.w_v.weight)
+        init.xavier_uniform_(self.w_out.weight)
 
     def _split_heads(self, x: torch.Tensor, head_dim: int) -> torch.Tensor:
         """Splits the last dimension into (num_heads, head_dim) and transposes to (B, H, L, D).
