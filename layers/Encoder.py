@@ -1,7 +1,7 @@
 import torch
-from NormLayer import NormLayer
-from FeedForward import FeedForward
-from MultiHeadAttention import MultiHeadAttention
+from .NormLayer import NormLayer
+from .FeedForward import FeedForward
+from .MultiHeadAttention import MultiHeadAttention
 
 
 class Encoder(torch.nn.Module):

@@ -57,454 +57,454 @@ import math
 from typing import Optional, Tuple
 
 
-class PositionalEncoding(torch.nn.Module):
-    """
-    Adds positional encoding to the input tensor.
-
-    The positional encoding follows the formula from "Attention Is All You Need"
-    and helps the Transformer model retain positional information.
-
-    Attributes:
-        embed_dim (int): The embedding dimension of the model.
-        n (int): The base for the sinusoidal encoding.
-    """
-
-    def __init__(self, embed_dim: int, n: int = 10000):
-        """Initializes the positional encoding module.
-
-        Args:
-            embed_dim (int): The embedding dimension of the model.
-            n (int, optional): The base for the sinusoidal encoding. Default is 10000.
-        """
-        super().__init__()
-        self.embed_dim = embed_dim
-        self.n = n
-
-    def _create_positional_encoding(self, seq_len: int, device: torch.device) -> torch.Tensor:
-        """Creates the positional encoding matrix.
-
-        The encoding is based on sinusoidal functions that encode relative
-        position information for each token.
-
-        Args:
-            seq_len (int): Length of the sequence for positional encoding.
-            device (torch.device): Device where the tensor should be allocated.
-
-        Returns:
-            torch.Tensor: The positional encoding matrix of shape (seq_len, embed_dim).
-        """
-        pos_encoding = torch.zeros(seq_len, self.embed_dim, device=device)
-        k_pos = torch.arange(seq_len, device=device).unsqueeze(dim=1).float()
-        _2i = torch.arange(0, self.embed_dim, step=2, device=device).float()
-
-        pos_encoding[:, 0::2] = torch.sin(k_pos / self.n ** (_2i / self.embed_dim))
-        pos_encoding[:, 1::2] = torch.cos(k_pos / self.n ** (_2i / self.embed_dim))
-
-        return pos_encoding
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Adds positional encoding to the input tensor.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
-
-        Returns:
-            torch.Tensor: Tensor with added positional encoding,
-            of shape (batch_size, seq_len, embed_dim).
-        """
-        batch_size, seq_len, _ = x.shape
-        pos_encoding = self._create_positional_encoding(seq_len, x.device)
-
-        return x + pos_encoding.unsqueeze(0)  # Broadcast across batch
-
-
-class FeedForward(torch.nn.Module):
-    """
-    Position-wise FeedForward neural network used in Transformer models.
-
-    This module applies two linear transformations with a ReLU activation and dropout
-    in between, as used in the original "Attention Is All You Need" paper.
-
-    Attributes:
-        fc1 (nn.Linear): The first linear layer that expands the input dimension to the hidden dimension.
-        fc2 (nn.Linear): The second linear layer that projects the hidden representation back to the original dimension.
-        mid_dropout (nn.Dropout): Dropout applied after the ReLU activation.
-        out_dropout (nn.Dropout): Dropout applied after the second linear layer.
-    """
-
-
-    def __init__(self, d_model: int, hidden_dim: int = 2048, dropout: float = 0.1):
-        """Initializes the FeedForward network.
-
-        Args:
-            d_model (int): The input and output feature dimension.
-            hidden_dim (int, optional): The hidden layer dimension. Default is 2048.
-            dropout (float, optional): The dropout probability. Default is 0.1.
-        """
-        super().__init__()
-        self.fc1 = nn.Linear(d_model, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, d_model)
-        self.mid_dropout = nn.Dropout(dropout)
-        self.out_dropout = nn.Dropout(dropout)
-
-        # Xavier initialization
-        # nn.init.xavier_uniform_(self.fc1.weight)
-        # nn.init.xavier_uniform_(self.fc2.weight)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Performs a forward pass through the FeedForward network.
-
-        The input tensor is passed through a linear layer, followed by ReLU activation,
-        dropout, and a final linear layer.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model).
-
-        Returns:
-            torch.Tensor: Output tensor of shape (batch_size, seq_len, d_model).
-        """
-        x = self.fc1(x)
-        x = F.relu(x)
-        x = self.mid_dropout(x)
-        x = self.fc2(x)
-        x = self.out_dropout(x)
-        return x
-
-
-class NormLayer(torch.nn.Module):
-    """
-    Implements layer normalization used in the Transformer.
-
-    This normalization technique stabilizes the training process by normalizing
-    inputs across the last dimension and scaling them with learnable parameters.
-
-    Attributes:
-        gamma (nn.Parameter): Learnable scale parameter initialized to ones.
-        beta (nn.Parameter): Learnable shift parameter initialized to zeros.
-        epsilon (float): A small value added to variance for numerical stability.
-    """
-
-    def __init__(self, d_model: int, epsilon: float = 1e-15):
-        """Initializes the layer normalization module.
-
-        Args:
-            d_model (int): The dimension of the input tensor.
-            epsilon (float, optional): A small value added to variance for numerical stability. Default is 1e-15.
-        """
-        super().__init__()
-        self.gamma = nn.Parameter(torch.ones(d_model))
-        self.beta = nn.Parameter(torch.zeros(d_model))
-        self.epsilon = epsilon
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Applies layer normalization to the input tensor.
-
-        Normalizes the input across the last dimension and applies learnable
-        scaling (`gamma`) and shifting (`beta`).
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model).
-
-        Returns:
-            torch.Tensor: Normalized tensor of the same shape as the input.
-        """
-        mean = x.mean(dim=-1, keepdim=True)
-        var = x.var(dim=-1, unbiased=False, keepdim=True)
-        std = torch.sqrt(var + self.epsilon)  # cache sqrt for efficiency
-        normalized = (x - mean) / std
-        return self.gamma * normalized + self.beta
-
-
-class MultiHeadAttention(nn.Module):
-    """
-    Multi-Head Attention module for Transformer architectures.
-
-    Supports both self-attention and cross-attention mechanisms, with optional
-    causal (autoregressive) masking. This module splits input embeddings across
-    multiple attention heads, performs scaled dot-product attention in parallel,
-    and then projects the result back to the original embedding space.
-    """
-
-    def __init__(self, embed_dim: int,
-                 num_heads: int = 8,
-                 d_k: int = 64,
-                 d_v: int = 64,
-                 dropout: float = 0.1,
-                 cross_attn: bool = False,
-                 masked_attn: bool = False):
-        """Initializes the multi-head attention layer.
-
-        Args:
-            embed_dim (int): Total input and output embedding dimension.
-            num_heads (int): Number of attention heads.
-            d_k (int): Dimension of the query and key projections per head.
-            d_v (int): Dimension of the value projection per head.
-            dropout (float): Dropout probability applied to attention weights and output projection.
-            cross_attn (bool): If True, enables cross-attention using a separate source input `y`.
-            masked_attn (bool): If True, applies causal masking for autoregressive decoding.
-        """
-        super().__init__()
-
-        self.embed_dim = embed_dim
-        self.num_heads = num_heads
-        self.d_k = d_k
-        self.d_v = d_v
-        self.cross_attn = cross_attn
-        self.masked_attn = masked_attn
-
-        # Shared linear layers
-        self.w_q = nn.Linear(embed_dim, num_heads * d_k)
-        self.w_k = nn.Linear(embed_dim, num_heads * d_k)
-        self.w_v = nn.Linear(embed_dim, num_heads * d_v)
-
-        # Output projection
-        self.w_out = nn.Linear(num_heads * d_v, embed_dim)
-        # Dropout
-        self.attn_dropout = nn.Dropout(dropout)
-        self.out_dropout = nn.Dropout(dropout)
-
-        self.scale = 1.0 / math.sqrt(d_k)
-
-        # Xavier initialization
-        # init.xavier_uniform_(self.w_q.weight)
-        # init.xavier_uniform_(self.w_k.weight)
-        # init.xavier_uniform_(self.w_v.weight)
-        # init.xavier_uniform_(self.w_out.weight)
-
-    def _split_heads(self, x: torch.Tensor, head_dim: int) -> torch.Tensor:
-        """Splits the last dimension into (num_heads, head_dim) and transposes to (B, H, L, D).
-
-        Args:
-            x (torch.Tensor): Tensor of shape (B, L, num_heads * head_dim).
-            head_dim (int): The dimension size per attention head.
-
-        Returns:
-            torch.Tensor: Reshaped tensor of shape (B, num_heads, L, head_dim).
-        """
-        B, L, _ = x.size()
-        return x.view(B, L, self.num_heads, head_dim).transpose(1, 2)
-
-    @staticmethod
-    def _combine_heads(x: torch.Tensor) -> torch.Tensor:
-        """Combines the multi-head output into a single vector per position.
-
-        Args:
-            x (torch.Tensor): Tensor of shape (B, H, L, D).
-
-        Returns:
-            torch.Tensor: Reshaped tensor of shape (B, L, H * D).
-        """
-        B, H, L, D = x.size()
-        return x.transpose(1, 2).contiguous().view(B, L, H * D)
-
-    def _generate_causal_mask(self, L_q: int, L_k: int, device: torch.device) -> torch.Tensor:
-        """
-        Generates a causal (upper triangular) attention mask for autoregressive decoding.
-
-        This mask prevents attention to future positions by setting the upper triangle
-        (above the main diagonal) to negative infinity, which effectively masks those
-        positions when added to the attention logits before softmax.
-
-        Args:
-            L_q (int): Length of the query sequence (usually the current input length).
-            L_k (int): Length of the key sequence (memory size or same as L_q for self-attention).
-            device (torch.device): Device on which to create the mask.
-
-        Returns:
-            torch.Tensor: A mask tensor of shape (1, 1, L_q, L_k), where masked positions
-            contain -inf and others are 0. This shape supports broadcasting over batches
-            and attention heads.
-        """
-        return torch.triu(torch.full((L_q, L_k), float('-inf'),device=device), diagonal=1)[None, None, :, :]
-
-    def _scaled_dot_product_attention(
-        self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
-        mask: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Computes scaled dot-product attention.
-
-        Args:
-            Q (torch.Tensor): Queries of shape (B, H, L_q, D).
-            K (torch.Tensor): Keys of shape (B, H, L_k, D).
-            V (torch.Tensor): Values of shape (B, H, L_k, D).
-            mask (Optional[torch.Tensor]): Optional mask of shape (1, 1, L_q, L_k),
-                where masked positions are set to -inf.
-
-        Returns:
-            Tuple[torch.Tensor, torch.Tensor]:
-                - Output tensor of shape (B, H, L_q, D).
-                - Attention weights of shape (B, H, L_q, L_k).
-        """
-        attn_scores = torch.matmul(Q, K.transpose(-2, -1)) * self.scale
-
-        if mask is not None:
-            attn_scores = attn_scores + mask  # Add -inf to masked positions
-
-        attn_probs = F.softmax(attn_scores, dim=-1)
-        attn_probs = self.attn_dropout(attn_probs)
-
-        output = torch.matmul(attn_probs, V)
-        return output, attn_probs
-
-    def forward(
-        self, x: torch.Tensor, y: Optional[torch.Tensor] = None,
-        return_attn_weights: bool = False
-        ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
-        """Forward pass for multi-head attention.
-
-        Args:
-            x: Tensor of shape (B, L_x, embed_dim)
-            y: Optional tensor for cross-attention (B, L_y, embed_dim). If None, self-attention is used.
-            return_attn_weights: If True, also returns attention weights.
-
-        Returns:
-            Output tensor of shape (B, L_x, embed_dim), and optionally attention weights.
-                - Output tensor of shape (B, L_x, embed_dim)
-                - Optionally, attention weights of shape (B, num_heads, L_x, L_y) if `return_attn_weights` is True.
-        """
-        L_x = x.shape[1]
-        L_y = y.shape[1] if (self.cross_attn and y is not None) else L_x
-
-        # Linear projections and reshape
-        kv_source = x if not self.cross_attn or y is None else y
-        Q = self._split_heads(self.w_q(x), self.d_k)
-        K = self._split_heads(self.w_k(kv_source), self.d_k)
-        V = self._split_heads(self.w_v(kv_source), self.d_v)
-
-        mask = None
-        if self.masked_attn:
-            mask = self._generate_causal_mask(L_x, L_y, device=x.device)
-
-        # Scaled dot-product attention
-        attn_output, attn_weights = self._scaled_dot_product_attention(Q, K, V, mask)
-
-        # Merge heads and project output
-        merged = self._combine_heads(attn_output)
-        output = self.out_dropout(self.w_out(merged))
-
-        return (output, attn_weights) if return_attn_weights else output
-
-
-class Encoder(nn.Module):
-    """
-    A single Transformer encoder block.
-
-    This module represents a standard Transformer encoder block, which includes:
-    - Multi-head self-attention
-    - Layer normalization with residual connections
-    - Position-wise feedforward network
-
-    Attributes:
-        attention (MultiHeadAttention): Multi-head self-attention mechanism.
-        norm1 (NormLayer): Layer normalization after attention with residual connection.
-        ff (FeedForward): Position-wise feedforward network.
-        norm2 (NormLayer): Layer normalization after feedforward network with residual connection.
-    """
-
-    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
-        """Initializes the Encoder block.
-
-        Args:
-            embed_dim (int): Dimensionality of the input embeddings.
-            num_heads (int): Number of attention heads.
-            d_k (int): Dimensionality of key vectors per head.
-            d_v (int): Dimensionality of value vectors per head.
-            dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.0.
-        """
-        super().__init__()
-        self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout)
-        self.norm1 = NormLayer(embed_dim)
-
-        self.ff = FeedForward(embed_dim, dropout=dropout)
-        self.norm2 = NormLayer(embed_dim)
-
-    def forward(self, enc_input: torch.Tensor) -> torch.Tensor:
-        """Applies the encoder block forward pass.
-
-        Args:
-            enc_input (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
-
-        Returns:
-            torch.Tensor: Output tensor of shape (batch_size, seq_len, embed_dim).
-        """
-        # Multi-head self-attention + residual + norm
-        attn_out = self.attention(enc_input)
-        norm1_out = self.norm1(attn_out + enc_input)
-
-        # Feedforward network + residual + norm
-        ff_out = self.ff(norm1_out)
-        enc_out = self.norm2(ff_out + norm1_out)
-
-        return enc_out
-
-
-class Decoder(nn.Module):
-    """
-    A single Transformer decoder block.
-
-    This module represents a Transformer decoder block consisting of:
-    - Masked multi-head self-attention
-    - Multi-head cross-attention with encoder output
-    - Layer normalization with residual connections
-    - Position-wise feedforward network
-
-    Attributes:
-        attention_masked (MultiHeadAttention): Masked multi-head self-attention mechanism.
-        norm1 (NormLayer): Layer normalization after masked self-attention with residual connection.
-        attention_cross (MultiHeadAttention): Cross-attention mechanism using encoder output.
-        norm2 (NormLayer): Layer normalization after cross-attention with residual connection.
-        ff (FeedForward): Position-wise feedforward network.
-        norm3 (NormLayer): Layer normalization after feedforward network with residual connection.
-    """
-
-    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
-        """Initializes the Decoder block.
-
-        Args:
-            embed_dim (int): Dimensionality of the input embeddings.
-            num_heads (int): Number of attention heads.
-            d_k (int): Dimensionality of key vectors per head.
-            d_v (int): Dimensionality of value vectors per head.
-            dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
-        """
-        super().__init__()
-        self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, masked_attn=True)
-        self.norm1 = NormLayer(embed_dim)
-
-        self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, cross_attn=True)
-        self.norm2 = NormLayer(embed_dim)
-
-        self.ff = FeedForward(embed_dim, dropout=dropout)
-        self.norm3 = NormLayer(embed_dim)
-
-    def forward(self, dec_input: torch.Tensor, enc_output: torch.Tensor) -> torch.Tensor:
-        """Applies the decoder block forward pass.
-
-        Args:
-            dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, embed_dim).
-            enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, embed_dim).
-
-        Returns:
-            torch.Tensor: Decoder output tensor of shape (batch_size, trg_seq_len, embed_dim).
-        """
-        # Masked self-attention + residual + norm
-        attn_masked = self.attention_masked(dec_input)
-        norm1 = self.norm1(attn_masked + dec_input)
-
-        # Cross-attention with encoder output + residual + norm
-        attn_cross = self.attention_cross(norm1, enc_output)
-        norm2 = self.norm2(attn_cross + norm1)
-
-        # Feedforward network + residual + norm
-        ff_out = self.ff(norm2)
-        dec_out = self.norm3(ff_out + norm2)
-
-        return dec_out
-
-
-# from layers.PositionalEncoding import PositionalEncoding
-# from layers.Encoder import Encoder
-# from layers.Decoder import Decoder
+# class PositionalEncoding(torch.nn.Module):
+#     """
+#     Adds positional encoding to the input tensor.
+#
+#     The positional encoding follows the formula from "Attention Is All You Need"
+#     and helps the Transformer model retain positional information.
+#
+#     Attributes:
+#         embed_dim (int): The embedding dimension of the model.
+#         n (int): The base for the sinusoidal encoding.
+#     """
+#
+#     def __init__(self, embed_dim: int, n: int = 10000):
+#         """Initializes the positional encoding module.
+#
+#         Args:
+#             embed_dim (int): The embedding dimension of the model.
+#             n (int, optional): The base for the sinusoidal encoding. Default is 10000.
+#         """
+#         super().__init__()
+#         self.embed_dim = embed_dim
+#         self.n = n
+#
+#     def _create_positional_encoding(self, seq_len: int, device: torch.device) -> torch.Tensor:
+#         """Creates the positional encoding matrix.
+#
+#         The encoding is based on sinusoidal functions that encode relative
+#         position information for each token.
+#
+#         Args:
+#             seq_len (int): Length of the sequence for positional encoding.
+#             device (torch.device): Device where the tensor should be allocated.
+#
+#         Returns:
+#             torch.Tensor: The positional encoding matrix of shape (seq_len, embed_dim).
+#         """
+#         pos_encoding = torch.zeros(seq_len, self.embed_dim, device=device)
+#         k_pos = torch.arange(seq_len, device=device).unsqueeze(dim=1).float()
+#         _2i = torch.arange(0, self.embed_dim, step=2, device=device).float()
+#
+#         pos_encoding[:, 0::2] = torch.sin(k_pos / self.n ** (_2i / self.embed_dim))
+#         pos_encoding[:, 1::2] = torch.cos(k_pos / self.n ** (_2i / self.embed_dim))
+#
+#         return pos_encoding
+#
+#     def forward(self, x: torch.Tensor) -> torch.Tensor:
+#         """Adds positional encoding to the input tensor.
+#
+#         Args:
+#             x (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
+#
+#         Returns:
+#             torch.Tensor: Tensor with added positional encoding,
+#             of shape (batch_size, seq_len, embed_dim).
+#         """
+#         batch_size, seq_len, _ = x.shape
+#         pos_encoding = self._create_positional_encoding(seq_len, x.device)
+#
+#         return x + pos_encoding.unsqueeze(0)  # Broadcast across batch
+#
+#
+# class FeedForward(torch.nn.Module):
+#     """
+#     Position-wise FeedForward neural network used in Transformer models.
+#
+#     This module applies two linear transformations with a ReLU activation and dropout
+#     in between, as used in the original "Attention Is All You Need" paper.
+#
+#     Attributes:
+#         fc1 (nn.Linear): The first linear layer that expands the input dimension to the hidden dimension.
+#         fc2 (nn.Linear): The second linear layer that projects the hidden representation back to the original dimension.
+#         mid_dropout (nn.Dropout): Dropout applied after the ReLU activation.
+#         out_dropout (nn.Dropout): Dropout applied after the second linear layer.
+#     """
+#
+#
+#     def __init__(self, d_model: int, hidden_dim: int = 2048, dropout: float = 0.1):
+#         """Initializes the FeedForward network.
+#
+#         Args:
+#             d_model (int): The input and output feature dimension.
+#             hidden_dim (int, optional): The hidden layer dimension. Default is 2048.
+#             dropout (float, optional): The dropout probability. Default is 0.1.
+#         """
+#         super().__init__()
+#         self.fc1 = nn.Linear(d_model, hidden_dim)
+#         self.fc2 = nn.Linear(hidden_dim, d_model)
+#         self.mid_dropout = nn.Dropout(dropout)
+#         self.out_dropout = nn.Dropout(dropout)
+#
+#         # Xavier initialization
+#         # nn.init.xavier_uniform_(self.fc1.weight)
+#         # nn.init.xavier_uniform_(self.fc2.weight)
+#
+#     def forward(self, x: torch.Tensor) -> torch.Tensor:
+#         """Performs a forward pass through the FeedForward network.
+#
+#         The input tensor is passed through a linear layer, followed by ReLU activation,
+#         dropout, and a final linear layer.
+#
+#         Args:
+#             x (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model).
+#
+#         Returns:
+#             torch.Tensor: Output tensor of shape (batch_size, seq_len, d_model).
+#         """
+#         x = self.fc1(x)
+#         x = F.relu(x)
+#         x = self.mid_dropout(x)
+#         x = self.fc2(x)
+#         x = self.out_dropout(x)
+#         return x
+#
+#
+# class NormLayer(torch.nn.Module):
+#     """
+#     Implements layer normalization used in the Transformer.
+#
+#     This normalization technique stabilizes the training process by normalizing
+#     inputs across the last dimension and scaling them with learnable parameters.
+#
+#     Attributes:
+#         gamma (nn.Parameter): Learnable scale parameter initialized to ones.
+#         beta (nn.Parameter): Learnable shift parameter initialized to zeros.
+#         epsilon (float): A small value added to variance for numerical stability.
+#     """
+#
+#     def __init__(self, d_model: int, epsilon: float = 1e-15):
+#         """Initializes the layer normalization module.
+#
+#         Args:
+#             d_model (int): The dimension of the input tensor.
+#             epsilon (float, optional): A small value added to variance for numerical stability. Default is 1e-15.
+#         """
+#         super().__init__()
+#         self.gamma = nn.Parameter(torch.ones(d_model))
+#         self.beta = nn.Parameter(torch.zeros(d_model))
+#         self.epsilon = epsilon
+#
+#     def forward(self, x: torch.Tensor) -> torch.Tensor:
+#         """Applies layer normalization to the input tensor.
+#
+#         Normalizes the input across the last dimension and applies learnable
+#         scaling (`gamma`) and shifting (`beta`).
+#
+#         Args:
+#             x (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model).
+#
+#         Returns:
+#             torch.Tensor: Normalized tensor of the same shape as the input.
+#         """
+#         mean = x.mean(dim=-1, keepdim=True)
+#         var = x.var(dim=-1, unbiased=False, keepdim=True)
+#         std = torch.sqrt(var + self.epsilon)  # cache sqrt for efficiency
+#         normalized = (x - mean) / std
+#         return self.gamma * normalized + self.beta
+#
+#
+# class MultiHeadAttention(nn.Module):
+#     """
+#     Multi-Head Attention module for Transformer architectures.
+#
+#     Supports both self-attention and cross-attention mechanisms, with optional
+#     causal (autoregressive) masking. This module splits input embeddings across
+#     multiple attention heads, performs scaled dot-product attention in parallel,
+#     and then projects the result back to the original embedding space.
+#     """
+#
+#     def __init__(self, embed_dim: int,
+#                  num_heads: int = 8,
+#                  d_k: int = 64,
+#                  d_v: int = 64,
+#                  dropout: float = 0.1,
+#                  cross_attn: bool = False,
+#                  masked_attn: bool = False):
+#         """Initializes the multi-head attention layer.
+#
+#         Args:
+#             embed_dim (int): Total input and output embedding dimension.
+#             num_heads (int): Number of attention heads.
+#             d_k (int): Dimension of the query and key projections per head.
+#             d_v (int): Dimension of the value projection per head.
+#             dropout (float): Dropout probability applied to attention weights and output projection.
+#             cross_attn (bool): If True, enables cross-attention using a separate source input `y`.
+#             masked_attn (bool): If True, applies causal masking for autoregressive decoding.
+#         """
+#         super().__init__()
+#
+#         self.embed_dim = embed_dim
+#         self.num_heads = num_heads
+#         self.d_k = d_k
+#         self.d_v = d_v
+#         self.cross_attn = cross_attn
+#         self.masked_attn = masked_attn
+#
+#         # Shared linear layers
+#         self.w_q = nn.Linear(embed_dim, num_heads * d_k)
+#         self.w_k = nn.Linear(embed_dim, num_heads * d_k)
+#         self.w_v = nn.Linear(embed_dim, num_heads * d_v)
+#
+#         # Output projection
+#         self.w_out = nn.Linear(num_heads * d_v, embed_dim)
+#         # Dropout
+#         self.attn_dropout = nn.Dropout(dropout)
+#         self.out_dropout = nn.Dropout(dropout)
+#
+#         self.scale = 1.0 / math.sqrt(d_k)
+#
+#         # Xavier initialization
+#         # init.xavier_uniform_(self.w_q.weight)
+#         # init.xavier_uniform_(self.w_k.weight)
+#         # init.xavier_uniform_(self.w_v.weight)
+#         # init.xavier_uniform_(self.w_out.weight)
+#
+#     def _split_heads(self, x: torch.Tensor, head_dim: int) -> torch.Tensor:
+#         """Splits the last dimension into (num_heads, head_dim) and transposes to (B, H, L, D).
+#
+#         Args:
+#             x (torch.Tensor): Tensor of shape (B, L, num_heads * head_dim).
+#             head_dim (int): The dimension size per attention head.
+#
+#         Returns:
+#             torch.Tensor: Reshaped tensor of shape (B, num_heads, L, head_dim).
+#         """
+#         B, L, _ = x.size()
+#         return x.view(B, L, self.num_heads, head_dim).transpose(1, 2)
+#
+#     @staticmethod
+#     def _combine_heads(x: torch.Tensor) -> torch.Tensor:
+#         """Combines the multi-head output into a single vector per position.
+#
+#         Args:
+#             x (torch.Tensor): Tensor of shape (B, H, L, D).
+#
+#         Returns:
+#             torch.Tensor: Reshaped tensor of shape (B, L, H * D).
+#         """
+#         B, H, L, D = x.size()
+#         return x.transpose(1, 2).contiguous().view(B, L, H * D)
+#
+#     def _generate_causal_mask(self, L_q: int, L_k: int, device: torch.device) -> torch.Tensor:
+#         """
+#         Generates a causal (upper triangular) attention mask for autoregressive decoding.
+#
+#         This mask prevents attention to future positions by setting the upper triangle
+#         (above the main diagonal) to negative infinity, which effectively masks those
+#         positions when added to the attention logits before softmax.
+#
+#         Args:
+#             L_q (int): Length of the query sequence (usually the current input length).
+#             L_k (int): Length of the key sequence (memory size or same as L_q for self-attention).
+#             device (torch.device): Device on which to create the mask.
+#
+#         Returns:
+#             torch.Tensor: A mask tensor of shape (1, 1, L_q, L_k), where masked positions
+#             contain -inf and others are 0. This shape supports broadcasting over batches
+#             and attention heads.
+#         """
+#         return torch.triu(torch.full((L_q, L_k), float('-inf'),device=device), diagonal=1)[None, None, :, :]
+#
+#     def _scaled_dot_product_attention(
+#         self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
+#         mask: Optional[torch.Tensor] = None
+#     ) -> Tuple[torch.Tensor, torch.Tensor]:
+#         """Computes scaled dot-product attention.
+#
+#         Args:
+#             Q (torch.Tensor): Queries of shape (B, H, L_q, D).
+#             K (torch.Tensor): Keys of shape (B, H, L_k, D).
+#             V (torch.Tensor): Values of shape (B, H, L_k, D).
+#             mask (Optional[torch.Tensor]): Optional mask of shape (1, 1, L_q, L_k),
+#                 where masked positions are set to -inf.
+#
+#         Returns:
+#             Tuple[torch.Tensor, torch.Tensor]:
+#                 - Output tensor of shape (B, H, L_q, D).
+#                 - Attention weights of shape (B, H, L_q, L_k).
+#         """
+#         attn_scores = torch.matmul(Q, K.transpose(-2, -1)) * self.scale
+#
+#         if mask is not None:
+#             attn_scores = attn_scores + mask  # Add -inf to masked positions
+#
+#         attn_probs = F.softmax(attn_scores, dim=-1)
+#         attn_probs = self.attn_dropout(attn_probs)
+#
+#         output = torch.matmul(attn_probs, V)
+#         return output, attn_probs
+#
+#     def forward(
+#         self, x: torch.Tensor, y: Optional[torch.Tensor] = None,
+#         return_attn_weights: bool = False
+#         ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
+#         """Forward pass for multi-head attention.
+#
+#         Args:
+#             x: Tensor of shape (B, L_x, embed_dim)
+#             y: Optional tensor for cross-attention (B, L_y, embed_dim). If None, self-attention is used.
+#             return_attn_weights: If True, also returns attention weights.
+#
+#         Returns:
+#             Output tensor of shape (B, L_x, embed_dim), and optionally attention weights.
+#                 - Output tensor of shape (B, L_x, embed_dim)
+#                 - Optionally, attention weights of shape (B, num_heads, L_x, L_y) if `return_attn_weights` is True.
+#         """
+#         L_x = x.shape[1]
+#         L_y = y.shape[1] if (self.cross_attn and y is not None) else L_x
+#
+#         # Linear projections and reshape
+#         kv_source = x if not self.cross_attn or y is None else y
+#         Q = self._split_heads(self.w_q(x), self.d_k)
+#         K = self._split_heads(self.w_k(kv_source), self.d_k)
+#         V = self._split_heads(self.w_v(kv_source), self.d_v)
+#
+#         mask = None
+#         if self.masked_attn:
+#             mask = self._generate_causal_mask(L_x, L_y, device=x.device)
+#
+#         # Scaled dot-product attention
+#         attn_output, attn_weights = self._scaled_dot_product_attention(Q, K, V, mask)
+#
+#         # Merge heads and project output
+#         merged = self._combine_heads(attn_output)
+#         output = self.out_dropout(self.w_out(merged))
+#
+#         return (output, attn_weights) if return_attn_weights else output
+#
+#
+# class Encoder(nn.Module):
+#     """
+#     A single Transformer encoder block.
+#
+#     This module represents a standard Transformer encoder block, which includes:
+#     - Multi-head self-attention
+#     - Layer normalization with residual connections
+#     - Position-wise feedforward network
+#
+#     Attributes:
+#         attention (MultiHeadAttention): Multi-head self-attention mechanism.
+#         norm1 (NormLayer): Layer normalization after attention with residual connection.
+#         ff (FeedForward): Position-wise feedforward network.
+#         norm2 (NormLayer): Layer normalization after feedforward network with residual connection.
+#     """
+#
+#     def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
+#         """Initializes the Encoder block.
+#
+#         Args:
+#             embed_dim (int): Dimensionality of the input embeddings.
+#             num_heads (int): Number of attention heads.
+#             d_k (int): Dimensionality of key vectors per head.
+#             d_v (int): Dimensionality of value vectors per head.
+#             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.0.
+#         """
+#         super().__init__()
+#         self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout)
+#         self.norm1 = NormLayer(embed_dim)
+#
+#         self.ff = FeedForward(embed_dim, dropout=dropout)
+#         self.norm2 = NormLayer(embed_dim)
+#
+#     def forward(self, enc_input: torch.Tensor) -> torch.Tensor:
+#         """Applies the encoder block forward pass.
+#
+#         Args:
+#             enc_input (torch.Tensor): Input tensor of shape (batch_size, seq_len, embed_dim).
+#
+#         Returns:
+#             torch.Tensor: Output tensor of shape (batch_size, seq_len, embed_dim).
+#         """
+#         # Multi-head self-attention + residual + norm
+#         attn_out = self.attention(enc_input)
+#         norm1_out = self.norm1(attn_out + enc_input)
+#
+#         # Feedforward network + residual + norm
+#         ff_out = self.ff(norm1_out)
+#         enc_out = self.norm2(ff_out + norm1_out)
+#
+#         return enc_out
+#
+#
+# class Decoder(nn.Module):
+#     """
+#     A single Transformer decoder block.
+#
+#     This module represents a Transformer decoder block consisting of:
+#     - Masked multi-head self-attention
+#     - Multi-head cross-attention with encoder output
+#     - Layer normalization with residual connections
+#     - Position-wise feedforward network
+#
+#     Attributes:
+#         attention_masked (MultiHeadAttention): Masked multi-head self-attention mechanism.
+#         norm1 (NormLayer): Layer normalization after masked self-attention with residual connection.
+#         attention_cross (MultiHeadAttention): Cross-attention mechanism using encoder output.
+#         norm2 (NormLayer): Layer normalization after cross-attention with residual connection.
+#         ff (FeedForward): Position-wise feedforward network.
+#         norm3 (NormLayer): Layer normalization after feedforward network with residual connection.
+#     """
+#
+#     def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
+#         """Initializes the Decoder block.
+#
+#         Args:
+#             embed_dim (int): Dimensionality of the input embeddings.
+#             num_heads (int): Number of attention heads.
+#             d_k (int): Dimensionality of key vectors per head.
+#             d_v (int): Dimensionality of value vectors per head.
+#             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
+#         """
+#         super().__init__()
+#         self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, masked_attn=True)
+#         self.norm1 = NormLayer(embed_dim)
+#
+#         self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, cross_attn=True)
+#         self.norm2 = NormLayer(embed_dim)
+#
+#         self.ff = FeedForward(embed_dim, dropout=dropout)
+#         self.norm3 = NormLayer(embed_dim)
+#
+#     def forward(self, dec_input: torch.Tensor, enc_output: torch.Tensor) -> torch.Tensor:
+#         """Applies the decoder block forward pass.
+#
+#         Args:
+#             dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, embed_dim).
+#             enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, embed_dim).
+#
+#         Returns:
+#             torch.Tensor: Decoder output tensor of shape (batch_size, trg_seq_len, embed_dim).
+#         """
+#         # Masked self-attention + residual + norm
+#         attn_masked = self.attention_masked(dec_input)
+#         norm1 = self.norm1(attn_masked + dec_input)
+#
+#         # Cross-attention with encoder output + residual + norm
+#         attn_cross = self.attention_cross(norm1, enc_output)
+#         norm2 = self.norm2(attn_cross + norm1)
+#
+#         # Feedforward network + residual + norm
+#         ff_out = self.ff(norm2)
+#         dec_out = self.norm3(ff_out + norm2)
+#
+#         return dec_out
+
+
+from layers.PositionalEncoding import PositionalEncoding
+from layers.Encoder import Encoder
+from layers.Decoder import Decoder
 
 
 class SimpleTransformer(nn.Module):
