@@ -13,7 +13,9 @@ class PositionalEncoding(torch.nn.Module):
         n (int): The base for the sinusoidal encoding.
     """
 
-    def __init__(self, embed_dim: int, n: int = 10000):
+    def __init__(self,
+                 embed_dim: int,
+                 n: int = 10000):
         """Initializes the positional encoding module.
 
         Args:
@@ -24,7 +26,9 @@ class PositionalEncoding(torch.nn.Module):
         self.embed_dim = embed_dim
         self.n = n
 
-    def _create_positional_encoding(self, seq_len: int, device: torch.device) -> torch.Tensor:
+    def _create_positional_encoding(self,
+                                    seq_len: int,
+                                    device: torch.device) -> torch.Tensor:
         """Creates the positional encoding matrix.
 
         The encoding is based on sinusoidal functions that encode relative

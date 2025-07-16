@@ -88,7 +88,8 @@ class MultiHeadAttention(torch.nn.Module):
         B, H, L, D = x.size()
         return x.transpose(1, 2).contiguous().view(B, L, H * D)
 
-    def _generate_causal_mask(self, L_q: int, L_k: int, device: torch.device) -> torch.Tensor:
+    def _generate_causal_mask(self, L_q: int, L_k: int,
+                              device: torch.device) -> torch.Tensor:
         """
         Generates a causal (upper triangular) attention mask for autoregressive decoding.
 
@@ -106,7 +107,8 @@ class MultiHeadAttention(torch.nn.Module):
             contain -inf and others are 0. This shape supports broadcasting over batches
             and attention heads.
         """
-        return torch.triu(torch.full((L_q, L_k), float('-inf'),device=device), diagonal=1)[None, None, :, :]
+        return torch.triu(torch.full((L_q, L_k), float('-inf'),device=device),
+                          diagonal=1)[None, None, :, :]
 
     def _scaled_dot_product_attention(
         self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,

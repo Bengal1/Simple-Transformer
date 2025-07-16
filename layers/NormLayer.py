@@ -15,7 +15,9 @@ class NormLayer(torch.nn.Module):
         epsilon (float): A small value added to variance for numerical stability.
     """
 
-    def __init__(self, d_model: int, epsilon: float = 1e-15):
+    def __init__(self,
+                 d_model: int,
+                 epsilon: float = 1e-15):
         """Initializes the layer normalization module.
 
         Args:

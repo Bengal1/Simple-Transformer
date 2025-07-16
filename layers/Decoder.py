@@ -23,7 +23,12 @@ class Decoder(torch.nn.Module):
         norm3 (NormLayer): Layer normalization after feedforward network with residual connection.
     """
 
-    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
+    def __init__(self,
+                 embed_dim: int,
+                 num_heads: int,
+                 d_k: int,
+                 d_v: int,
+                 dropout: float = 0.1):
         """Initializes the Decoder block.
 
         Args:
@@ -34,16 +39,20 @@ class Decoder(torch.nn.Module):
             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
         """
         super().__init__()
-        self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, masked_attn=True)
+        self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v,
+                                                   dropout=dropout, masked_attn=True)
         self.norm1 = NormLayer(embed_dim)
 
-        self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout, cross_attn=True)
+        self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v,
+                                                  dropout=dropout, cross_attn=True)
         self.norm2 = NormLayer(embed_dim)
 
         self.ff = FeedForward(embed_dim, dropout=dropout)
         self.norm3 = NormLayer(embed_dim)
 
-    def forward(self, dec_input: torch.Tensor, enc_output: torch.Tensor) -> torch.Tensor:
+    def forward(self,
+                dec_input: torch.Tensor,
+                enc_output: torch.Tensor) -> torch.Tensor:
         """Applies the decoder block forward pass.
 
         Args:

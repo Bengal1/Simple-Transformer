@@ -96,7 +96,8 @@ def evaluate_bleu(model: torch.nn.Module,
             trg_batch = trg_batch.to(device)
 
             # === Generate predictions with beam search ===
-            output_batch = model.translate(src_batch, beam_size=beam_size, max_len=max_len)
+            output_batch = model.translate(src_batch, beam_size=beam_size,
+                                           max_len=max_len)
             output_batch = output_batch.cpu().tolist()
             trg_batch = trg_batch.cpu().tolist()
 
@@ -104,7 +105,8 @@ def evaluate_bleu(model: torch.nn.Module,
                 decoded_pred = _decode_sequence(predict_seq, idx_to_token)
                 decoded_ref = _decode_sequence(ref_seq, idx_to_token)
 
-                pred_str, ref_str_list = _format_for_bleu(decoded_pred, decoded_ref, special_token_set)
+                pred_str, ref_str_list = _format_for_bleu(decoded_pred, decoded_ref,
+                                                          special_token_set)
 
                 if pred_str and ref_str_list[0]:  # skip empty samples
                     predictions.append(pred_str)

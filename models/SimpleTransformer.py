@@ -559,10 +559,12 @@ class SimpleTransformer(nn.Module):
 
         # Encoder and decoder stacks
         self.encoder_layers = nn.ModuleList([
-            Encoder(embed_dim, num_heads, d_k, d_v, dropout) for _ in range(num_layers)
+            Encoder(embed_dim, num_heads, d_k, d_v, dropout)
+            for _ in range(num_layers)
         ])
         self.decoder_layers = nn.ModuleList([
-            Decoder(embed_dim, num_heads, d_k, d_v, dropout) for _ in range(num_layers)
+            Decoder(embed_dim, num_heads, d_k, d_v, dropout)
+            for _ in range(num_layers)
         ])
 
         # Output projection
@@ -613,7 +615,10 @@ class SimpleTransformer(nn.Module):
         output = self.w_o(dec_output)
         return output
 
-    def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:
+
+    def translate(self, src: torch.Tensor,
+                  beam_size: int = 2,
+                  max_len: int = None) -> torch.Tensor:
         """Translates source sequences using beam search decoding with length normalization.
 
         Args:
@@ -634,17 +639,20 @@ class SimpleTransformer(nn.Module):
             device = src.device
 
             # === Encode the input ===
-            src_embed = self.dropout(self.positional_encoding_encoder(self.embedding_encoder(src)))
+            src_embed = self.dropout(self.positional_encoding_encoder(
+                        self.embedding_encoder(src)))
             enc_output = src_embed
             for layer in self.encoder_layers:
                 enc_output = layer(enc_output)
 
             # Repeat encoder output for each beam
             enc_output = enc_output.unsqueeze(1).repeat(1, beam_size, 1, 1)  # (B, beam, L, D)
-            enc_output = enc_output.view(batch_size * beam_size, *enc_output.shape[2:])  # (B*beam, L, D)
+            enc_output = enc_output.view(batch_size * beam_size,
+                                         *enc_output.shape[2:])  # (B*beam, L, D)
 
             # === Initialize decoder inputs ===
-            sequences = torch.full((batch_size * beam_size, 1), bos_token_id, dtype=torch.long, device=device)
+            sequences = torch.full((batch_size * beam_size, 1), bos_token_id,
+                                   dtype=torch.long, device=device)
             sequence_scores = torch.zeros(batch_size, beam_size, device=device)
             sequence_scores[:, 1:] = float('-inf')  # only keep 1st beam
             sequence_scores = sequence_scores.view(-1)  # (B*beam,)
@@ -654,7 +662,8 @@ class SimpleTransformer(nn.Module):
 
             for _ in range(max_len):
                 # Decoder embedding
-                trg_embed = self.dropout(self.positional_encoding_decoder(self.embedding_decoder(sequences)))
+                trg_embed = self.dropout(self.positional_encoding_decoder(
+                            self.embedding_decoder(sequences)))
                 dec_output = trg_embed
                 for layer in self.decoder_layers:
                     dec_output = layer(dec_output, enc_output)
@@ -675,12 +684,14 @@ class SimpleTransformer(nn.Module):
                 token_indices = top_indices % vocab_size
 
                 # Gather previous sequences
-                batch_offset = torch.arange(batch_size, device=device).unsqueeze(1) * beam_size
+                batch_offset = torch.arange(batch_size, device=device
+                                            ).unsqueeze(1) * beam_size
                 gather_indices = (beam_indices + batch_offset).view(-1)
                 next_tokens = token_indices.view(-1)
 
                 sequences = sequences[gather_indices]
-                sequences = torch.cat([sequences, next_tokens.unsqueeze(1)], dim=-1)
+                sequences = torch.cat([sequences,
+                                       next_tokens.unsqueeze(1)], dim=-1)
 
                 finished = finished[gather_indices]
                 sequence_scores = top_scores.view(-1)
@@ -689,7 +700,8 @@ class SimpleTransformer(nn.Module):
                 finished |= (next_tokens == eos_token_id)
 
                 # === Length penalty ===
-                lengths = sequences.new_full((batch_size * beam_size,), sequences.size(1), dtype=torch.float)
+                lengths = sequences.new_full((batch_size * beam_size,)
+                                             , sequences.size(1), dtype=torch.float)
                 eos_mask = sequences == eos_token_id
                 has_eos = eos_mask.any(dim=1)
                 eos_positions = eos_mask.float().argmax(dim=1)
@@ -710,7 +722,8 @@ class SimpleTransformer(nn.Module):
                 idx = i * beam_size + best_beam[i]
                 best_sequences.append(sequences[idx])
 
-            return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True, padding_value=pad_token_id)
+            return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True,
+                                                   padding_value=pad_token_id)
 
 
     # def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:

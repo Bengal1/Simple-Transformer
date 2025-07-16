@@ -168,7 +168,8 @@ def save_stats_to_csv(
             **{k: [v[-1]] for k, v in available_data.items()}
         }
         df = pd.DataFrame(new_data)
-        df.to_csv(file_path, mode='a', header=not os.path.exists(file_path), index=False)
+        df.to_csv(file_path, mode='a', header=not os.path.exists(file_path),
+                  index=False)
 
 
 def _plot_losses(statistics: dict[str, list[float]]):
@@ -190,10 +191,13 @@ def _plot_losses(statistics: dict[str, list[float]]):
     epochs = range(1, len(train_loss) + 1)  # Assuming loss is recorded per epoch
 
     plt.figure(figsize=(10, 5))
-    plt.plot(epochs, train_loss, linestyle='-', color='#1f77b4', label='Train Loss', linewidth=2)
-    plt.plot(epochs, validation_loss, linestyle='-', color='#d62728', label='Validation Loss', linewidth=2)
+    plt.plot(epochs, train_loss, linestyle='-', color='#1f77b4',
+             label='Train Loss', linewidth=2)
+    plt.plot(epochs, validation_loss, linestyle='-', color='#d62728',
+             label='Validation Loss', linewidth=2)
 
-    plt.title("Training & Validation Loss Over Epochs", fontsize=16, fontweight='bold')
+    plt.title("Training & Validation Loss Over Epochs",
+              fontsize=16, fontweight='bold')
     plt.xticks(epochs) # This ensures that xticks are integers
     plt.xlabel("Epoch", fontsize=12)
     plt.ylabel("Loss", fontsize=12)

@@ -20,7 +20,12 @@ class Encoder(torch.nn.Module):
         norm2 (NormLayer): Layer normalization after feedforward network with residual connection.
     """
 
-    def __init__(self, embed_dim: int, num_heads: int, d_k: int, d_v: int, dropout: float = 0.1):
+    def __init__(self,
+                 embed_dim: int,
+                 num_heads: int,
+                 d_k: int,
+                 d_v: int,
+                 dropout: float = 0.1):
         """Initializes the Encoder block.
 
         Args:
@@ -31,7 +36,8 @@ class Encoder(torch.nn.Module):
             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.0.
         """
         super().__init__()
-        self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v, dropout=dropout)
+        self.attention = MultiHeadAttention(embed_dim, num_heads, d_k, d_v,
+                                            dropout=dropout)
         self.norm1 = NormLayer(embed_dim)
 
         self.ff = FeedForward(embed_dim, dropout=dropout)

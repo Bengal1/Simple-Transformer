@@ -19,7 +19,10 @@ class FeedForward(torch.nn.Module):
     """
 
 
-    def __init__(self, d_model: int, hidden_dim: int = 2048, dropout: float = 0.1):
+    def __init__(self,
+                 d_model: int,
+                 hidden_dim: int = 2048,
+                 dropout: float = 0.1):
         """Initializes the FeedForward network.
 
         Args:

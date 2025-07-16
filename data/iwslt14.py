@@ -39,7 +39,9 @@ class IWSLT14Dataset(torch.utils.data.Dataset):
     fr_vocab = {"<unk>": 0, "<pad>": 1, "<bos>": 2, "<eos>": 3}
     special_tokens = ["<unk>", "<pad>", "<bos>", "<eos>"]
 
-    def __init__(self, split="train", local_file=None):
+    def __init__(self,
+                 split="train",
+                 local_file=None):
         """Initializes the IWSLT14Dataset.
 
         Args:
@@ -79,8 +81,9 @@ class IWSLT14Dataset(torch.utils.data.Dataset):
                 en_sentences = iwslt_data[self.split]["en"]
                 fr_sentences = iwslt_data[self.split]["fr"]
             else:
-                # This assumes the dataset does not contain the split key (i.e., it's flat)
-                raise KeyError(f"The dataset for the split '{self.split}' is not found in the file.")
+                # Dataset does not contain the split key
+                raise KeyError(f"The dataset for the split"
+                               f" '{self.split}' is not found in the file.")
 
         else:
             # Load the dataset from Hugging Face
@@ -92,13 +95,15 @@ class IWSLT14Dataset(torch.utils.data.Dataset):
         # Tokenize
         self.tokenized_data = {
             self.split: (
-                [self._tokenize_text(sentence, self.en_nlp) for sentence in en_sentences],
-                [self._tokenize_text(sentence, self.fr_nlp) for sentence in fr_sentences],
+                [self._tokenize_text(sentence, self.en_nlp)
+                 for sentence in en_sentences],
+                [self._tokenize_text(sentence, self.fr_nlp)
+                 for sentence in fr_sentences],
             )
         }
 
     @staticmethod
-    def _tokenize_text(text: str, nlp_model) -> list:
+    def _tokenize_text(text: str, nlp_model: spacy.Language) -> list[str]:
         """Tokenizes a given text using the specified spaCy NLP model.
 
         Args:
@@ -138,7 +143,7 @@ class IWSLT14Dataset(torch.utils.data.Dataset):
         """Returns the number of sentence pairs in the selected split."""
         return len(self.tokenized_data[self.split][0])
 
-    def __getitem__(self, idx: int) -> tuple:
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         """Retrieves tokenized and padded sentences for the selected split.
         
         Args:
@@ -158,25 +163,28 @@ class IWSLT14Dataset(torch.utils.data.Dataset):
         fr_sentence += ["<pad>"] * (self.max_length - len(fr_sentence))
 
         # Convert tokens to indices
-        en_indices = [IWSLT14Dataset.en_vocab.get(token, self.unk_idx) for token in en_sentence]
-        fr_indices = [IWSLT14Dataset.fr_vocab.get(token, self.unk_idx) for token in fr_sentence]
+        en_indices = [IWSLT14Dataset.en_vocab.get(token, self.unk_idx)
+                      for token in en_sentence]
+        fr_indices = [IWSLT14Dataset.fr_vocab.get(token, self.unk_idx)
+                      for token in fr_sentence]
 
         return torch.tensor(en_indices), torch.tensor(fr_indices)
 
     @classmethod
-    def get_vocab_sizes(cls) -> tuple:
+    def get_vocab_sizes(cls) -> tuple[int, int]:
         """Returns the total vocabulary size for both English and French."""
         return len(cls.en_vocab), len(cls.fr_vocab)
 
     @classmethod
-    def get_special_tokens(cls):
+    def get_special_tokens(cls) -> list[str]:
         """Returns list of special tokens."""
         return cls.special_tokens
 
     @classmethod
     def get_special_tokens_dict(cls) -> dict[str, int]:
         """Return a dict of special tokens and their indices."""
-        return {token: cls.en_vocab[token] for token in cls.special_tokens if token in cls.en_vocab}
+        return {token: cls.en_vocab[token] for token in
+                cls.special_tokens if token in cls.en_vocab}
 
     def get_padding_index(self) -> int:
         """Returns the padding index for embedding layers."""
