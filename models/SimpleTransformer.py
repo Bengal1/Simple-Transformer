@@ -526,7 +526,7 @@ class SimpleTransformer(nn.Module):
             self,
             src_vocab_size: int,
             trg_vocab_size: int,
-            embed_dim: int,
+            embed_dim: int = 512,
             num_heads: int = 8,
             num_layers: int = 6,
             d_k: int = 64,
@@ -581,7 +581,9 @@ class SimpleTransformer(nn.Module):
         # init.normal_(self.embedding_decoder.weight, mean=0.0, std=1.0)
         # self.embedding_decoder.weight.data *= math.sqrt(embed_dim)
 
-    def forward(self, src: torch.Tensor, trg: torch.Tensor) -> torch.Tensor:
+    def forward(self,
+                src: torch.Tensor,
+                trg: torch.Tensor) -> torch.Tensor:
         """Forward pass of the Transformer model.
 
         Args:
@@ -616,7 +618,8 @@ class SimpleTransformer(nn.Module):
         return output
 
 
-    def translate(self, src: torch.Tensor,
+    def translate(self,
+                  src: torch.Tensor,
                   beam_size: int = 2,
                   max_len: int = None) -> torch.Tensor:
         """Translates source sequences using beam search decoding with length normalization.

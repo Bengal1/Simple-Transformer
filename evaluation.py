@@ -1,5 +1,4 @@
 import torch
-import torch.nn.functional as F
 import evaluate as hf_evaluate
 
 
