@@ -370,6 +370,8 @@ Given an input: `This is Simple Transformer Guide!` and a target: `Ceci est un g
 
 Mistake at one step can lead to poor outputs later — exposure bias.
 
+### Padding Mask
+
 ### Beam Search
 Beam Search is a decoding algorithm used to generate the most likely output sequence by keeping multiple hypotheses (beams) at each step, instead of just the best one (like greedy decoding).
 
