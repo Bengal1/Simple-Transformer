@@ -505,6 +505,7 @@ from typing import Optional, Tuple
 from layers.PositionalEncoding import PositionalEncoding
 from layers.Encoder import Encoder
 from layers.Decoder import Decoder
+from torch.onnx.symbolic_opset11 import unsqueeze
 
 
 class SimpleTransformer(nn.Module):
@@ -546,6 +547,10 @@ class SimpleTransformer(nn.Module):
         """
         super().__init__()
 
+        self.pad_token_id = 1
+        self.bos_token_id = 2
+        self.eos_token_id = 3
+
         # Token embeddings
         self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim, padding_idx=1)
         self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim, padding_idx=1)
@@ -569,7 +574,7 @@ class SimpleTransformer(nn.Module):
 
         # Output projection
         self.w_o = nn.Linear(embed_dim, trg_vocab_size)
-        self.softmax = nn.Softmax(dim=-1)
+        # self.softmax = nn.Softmax(dim=-1)
 
         # Xavier initialization - W_o
         # init.xavier_uniform_(self.w_o.weight)
@@ -580,6 +585,18 @@ class SimpleTransformer(nn.Module):
         # 
         # init.normal_(self.embedding_decoder.weight, mean=0.0, std=1.0)
         # self.embedding_decoder.weight.data *= math.sqrt(embed_dim)
+
+    @staticmethod
+    def _generate_padding_mask(
+                               seq: torch.Tensor,
+                               pad_token_id: int) -> torch.Tensor:
+        """
+        Generates a boolean padding mask for a given sequence.
+        True indicates padding (should be masked out).
+        Shape: (batch_size, 1, 1, seq_len)
+        """
+        mask = (seq == pad_token_id).unsqueeze(1).unsqueeze(2) # (B, 1, 1, L)
+        return mask
 
     def forward(self,
                 src: torch.Tensor,
@@ -593,6 +610,10 @@ class SimpleTransformer(nn.Module):
         Returns:
             torch.Tensor: Output logits of shape (batch_size, trg_seq_len, trg_vocab_size).
         """
+
+        src_padding_mask = self._generate_padding_mask(src, self.pad_token_id)
+        trg_padding_mask = self._generate_padding_mask(trg, self.pad_token_id)
+
         # Source embeddings + positional encoding
         src_embed = self.embedding_encoder(src)
         src_pe = self.positional_encoding_encoder(src_embed)
@@ -606,12 +627,13 @@ class SimpleTransformer(nn.Module):
         # Pass through stacked Encoders
         enc_output = src_pe
         for layer in self.encoder_layers:
-            enc_output = layer(enc_output)
+            enc_output = layer(enc_output, src_padding_mask)
 
         # Pass through stacked Decoders
         dec_output = trg_pe
         for layer in self.decoder_layers:
-            dec_output = layer(dec_output, enc_output)
+            dec_output = layer(dec_output, enc_output,
+                               trg_padding_mask, src_padding_mask)
 
         # Output layer (no Softmax; handled by nn.CrossEntropyLoss)
         output = self.w_o(dec_output)
@@ -636,26 +658,34 @@ class SimpleTransformer(nn.Module):
             max_len = int(src.size(1) * 1.6) + 10
 
         with torch.no_grad():
-            bos_token_id, eos_token_id, pad_token_id = 2, 3, 1
             batch_size = src.size(0)
             vocab_size = self.w_o.out_features
             device = src.device
 
             # === Encode the input ===
+            src_padding_mask = self._generate_padding_mask(src, self.pad_token_id)
             src_embed = self.dropout(self.positional_encoding_encoder(
                         self.embedding_encoder(src)))
             enc_output = src_embed
             for layer in self.encoder_layers:
-                enc_output = layer(enc_output)
+                enc_output = layer(enc_output, src_padding_mask)
 
             # Repeat encoder output for each beam
             enc_output = enc_output.unsqueeze(1).repeat(1, beam_size, 1, 1)  # (B, beam, L, D)
             enc_output = enc_output.view(batch_size * beam_size,
                                          *enc_output.shape[2:])  # (B*beam, L, D)
 
+            src_padding_mask_beams = src_padding_mask.repeat(1, beam_size, 1, 1)  # (B, beam, 1, L_src)
+            src_padding_mask_beams = src_padding_mask_beams.view(
+                batch_size * beam_size,
+                *src_padding_mask_beams.shape[2:]).unsqueeze(1)  # (B*beam, 1, 1, L_src)
+
             # === Initialize decoder inputs ===
-            sequences = torch.full((batch_size * beam_size, 1), bos_token_id,
+            sequences = torch.full((batch_size * beam_size, 1), self.bos_token_id,
                                    dtype=torch.long, device=device)
+            trg_padding_mask_beams = (sequences == self.pad_token_id).unsqueeze(
+                1).unsqueeze(2)
+
             sequence_scores = torch.zeros(batch_size, beam_size, device=device)
             sequence_scores[:, 1:] = float('-inf')  # only keep 1st beam
             sequence_scores = sequence_scores.view(-1)  # (B*beam,)
@@ -669,14 +699,15 @@ class SimpleTransformer(nn.Module):
                             self.embedding_decoder(sequences)))
                 dec_output = trg_embed
                 for layer in self.decoder_layers:
-                    dec_output = layer(dec_output, enc_output)
+                    dec_output = layer(dec_output, enc_output,
+                                       trg_padding_mask_beams, src_padding_mask_beams)
 
                 logits = self.w_o(dec_output[:, -1, :])  # Only last token logits
                 log_probs = F.log_softmax(logits, dim=-1)
 
                 # Prevent expansion of finished beams
                 log_probs[finished] = float('-inf')
-                log_probs[finished, eos_token_id] = 0  # allow only <eos>
+                log_probs[finished, self.eos_token_id] = 0  # allow only <eos>
 
                 # Expand beams
                 scores = sequence_scores.unsqueeze(1) + log_probs  # (B*beam, V)
@@ -696,16 +727,19 @@ class SimpleTransformer(nn.Module):
                 sequences = torch.cat([sequences,
                                        next_tokens.unsqueeze(1)], dim=-1)
 
+                trg_padding_mask_beams = (sequences == self.pad_token_id).unsqueeze(
+                    1).unsqueeze(2)
+
                 finished = finished[gather_indices]
                 sequence_scores = top_scores.view(-1)
 
                 # Update finished
-                finished |= (next_tokens == eos_token_id)
+                finished |= (next_tokens == self.eos_token_id)
 
                 # === Length penalty ===
                 lengths = sequences.new_full((batch_size * beam_size,)
                                              , sequences.size(1), dtype=torch.float)
-                eos_mask = sequences == eos_token_id
+                eos_mask = sequences == self.eos_token_id
                 has_eos = eos_mask.any(dim=1)
                 eos_positions = eos_mask.float().argmax(dim=1)
                 lengths[has_eos] = (eos_positions[has_eos] + 1).float()  # include <eos>
@@ -726,7 +760,7 @@ class SimpleTransformer(nn.Module):
                 best_sequences.append(sequences[idx])
 
             return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True,
-                                                   padding_value=pad_token_id)
+                                                   padding_value=self.pad_token_id)
 
 
     # def translate(self, src: torch.Tensor, beam_size: int = 2, max_len: int = None) -> torch.Tensor:

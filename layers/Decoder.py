@@ -1,4 +1,5 @@
 import torch
+from typing import Optional
 from .NormLayer import NormLayer
 from .FeedForward import FeedForward
 from .MultiHeadAttention import MultiHeadAttention
@@ -52,22 +53,30 @@ class Decoder(torch.nn.Module):
 
     def forward(self,
                 dec_input: torch.Tensor,
-                enc_output: torch.Tensor) -> torch.Tensor:
+                enc_output: torch.Tensor,
+                trg_padding_mask: Optional[torch.Tensor] = None,
+                src_padding_mask: Optional[torch.Tensor] = None
+                ) -> torch.Tensor:
         """Applies the decoder block forward pass.
 
         Args:
             dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, embed_dim).
             enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, embed_dim).
+            trg_padding_mask (Optional[torch.Tensor], optional): Padding mask for the decoder input.
+                Shape: (batch_size, trg_seq_len). Default is None.
+            src_padding_mask (Optional[torch.Tensor], optional): Padding mask for the encoder output.
+                Shape: (batch_size, src_seq_len). Default is None.
 
         Returns:
             torch.Tensor: Decoder output tensor of shape (batch_size, trg_seq_len, embed_dim).
         """
         # Masked self-attention + residual + norm
-        attn_masked = self.attention_masked(dec_input)
+        attn_masked = self.attention_masked(dec_input, padding_mask=trg_padding_mask)
         norm1_out = self.norm1(attn_masked + dec_input)
 
         # Cross-attention with encoder output + residual + norm
-        attn_cross = self.attention_cross(norm1_out, enc_output)
+        attn_cross = self.attention_cross(norm1_out, enc_output,
+                                          padding_mask=src_padding_mask)
         norm2_out = self.norm2(attn_cross + norm1_out)
 
         # Feedforward network + residual + norm

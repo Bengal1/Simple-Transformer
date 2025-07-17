@@ -305,4 +305,4 @@ and test splits of IWSLT14 Fr-En, uncomment the code below and run it
 """
 # for sp in ["train", "validation", "test"]:
 #     make_iwslt14_local_file(split=sp, debug=False)  # Full dataset
-#     make_iwslt14_local_file(split=sp, debug=True)  # Debug dataset
+#     make_iwslt14_local_file(split=sp, debug=True)  # Debug datasetstill
