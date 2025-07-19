@@ -22,6 +22,8 @@ This repository follow the original transformer from the paper with 6 encoder an
 The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
 In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$.
 
+<img align="right" height="460" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
+
 Given: &nbsp; $`W_{Q}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{K}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{V}∈ℝ^{E×d_v}`$  and Input &nbsp; $`X∈ℝ^{M×E}`$:
 
 $$
@@ -32,8 +34,6 @@ Each token in the input sequence is represented using three matrices: <br/>
 ***Query (Q)***: Represents the word we are currently processing and is used to find relevant words in the input. <br/>
 ***Key (K)***: Represents all words in the input sequence and is used to compare with the query to determine relevance. <br/>
 ***Value (V)***: Holds the actual word representations, which are combined based on attention scores to form the final output. <br/>
-
-<img align="right" height="460" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
 
 To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values, we scale the scores:  
 ```math
