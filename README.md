@@ -53,6 +53,9 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 In *Cross-Attention*, Q comes from the decoder's input (e.g., previously generated tokens or a prompt), while K and V come from the encoder's output, allowing the decoder to focus on relevant information from the input sequence. This means self-attention captures dependencies within a sequence, while cross-attention links information between two different sequences.
 <br/>
 
+
+<img align="right" height="561" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
+
 Feature          | Self-Attention                                            | Cross-Attention
 -----------------|-----------------------------------------------------------|------------------------------------------------------------------
 Q (Query) Source | From the same sequence (input or decoder tokens)          | From the decoder’s conditional input (generated tokens or prompt)
