@@ -49,7 +49,7 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 
 ### Self-Attention vs. Cross-Attention
 
-<img align="right" height="561" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
+<img align="right" height="460" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
 
 *Self-Attention* is the simplest way of attention. we use the input sequence and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. This will tell us the affinity between vectors(tokens/words). <br/>
 In *Cross-Attention*, Q comes from the decoder's input (e.g., previously generated tokens or a prompt), while K and V come from the encoder's output, allowing the decoder to focus on relevant information from the input sequence. This means self-attention captures dependencies within a sequence, while cross-attention links information between two different sequences.
