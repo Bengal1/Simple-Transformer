@@ -22,7 +22,7 @@ This repository follow the original transformer from the paper with 6 encoder an
 The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
 In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$.
 
-<img align="right" height="460" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
+<img align="right" width="400" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
 
 Given: &nbsp; $`W_{Q}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{K}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{V}∈ℝ^{E×d_v}`$  and Input &nbsp; $`X∈ℝ^{M×E}`$:
 
