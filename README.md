@@ -10,6 +10,8 @@ This Repository is built for learning purposes, it contain theoretical and pract
 - [![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/) <br/>
 - [![Datasets](https://img.shields.io/badge/HuggingFace-Datasets-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/datasets) <br/>
 - [![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) <br/>
+- [![PyPI version](https://img.shields.io/pypi/v/sacrebleu.svg)](https://pypi.org/project/sacrebleu/) <br/>
+
 
 ## Transformer
 
