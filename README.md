@@ -11,6 +11,7 @@ This Repository is built for learning purposes, it contain theoretical and pract
 - [![Datasets](https://img.shields.io/badge/HuggingFace-Datasets-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/datasets) <br/>
 - [![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) <br/>
 - [![PyPI](https://img.shields.io/pypi/v/sacrebleu?label=sacrebleu&style=flat-square)](https://pypi.org/project/sacrebleu/) <br/>
+[![sacrebleu](https://img.shields.io/pypi/v/sacrebleu?label=sacrebleu&color=blue&logo=python&logoColor=white&style=flat-square)](https://pypi.org/project/sacrebleu/)
 
 
 ## Transformer
