@@ -25,7 +25,7 @@ class Decoder(torch.nn.Module):
     """
 
     def __init__(self,
-                 embed_dim: int,
+                 d_model: int,
                  num_heads: int,
                  d_k: int,
                  d_v: int,
@@ -33,23 +33,28 @@ class Decoder(torch.nn.Module):
         """Initializes the Decoder block.
 
         Args:
-            embed_dim (int): Dimensionality of the input embeddings.
+            d_model (int): Dimensionality of the input embeddings.
             num_heads (int): Number of attention heads.
             d_k (int): Dimensionality of key vectors per head.
             d_v (int): Dimensionality of value vectors per head.
             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
         """
         super().__init__()
-        self.attention_masked = MultiHeadAttention(embed_dim, num_heads, d_k, d_v,
+        self.attention_masked = MultiHeadAttention(d_model, num_heads, d_k, d_v,
                                                    dropout=dropout, masked_attn=True)
-        self.norm1 = NormLayer(embed_dim)
+        # self.norm1 = NormLayer(d_model)
+        self.norm1 = torch.nn.LayerNorm(d_model)
 
-        self.attention_cross = MultiHeadAttention(embed_dim, num_heads, d_k, d_v,
+        self.attention_cross = MultiHeadAttention(d_model, num_heads, d_k, d_v,
                                                   dropout=dropout, cross_attn=True)
-        self.norm2 = NormLayer(embed_dim)
+        # self.norm2 = NormLayer(d_model)
+        self.norm2 = torch.nn.LayerNorm(d_model)
 
-        self.ff = FeedForward(embed_dim, dropout=dropout)
-        self.norm3 = NormLayer(embed_dim)
+        self.ff = FeedForward(d_model, dropout=dropout)
+        # self.norm3 = NormLayer(d_model)
+        self.norm3 = torch.nn.LayerNorm(d_model)
+
+        self.dropout = torch.nn.Dropout(p=dropout)
 
     def forward(self,
                 dec_input: torch.Tensor,
@@ -60,27 +65,30 @@ class Decoder(torch.nn.Module):
         """Applies the decoder block forward pass.
 
         Args:
-            dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, embed_dim).
-            enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, embed_dim).
+            dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, d_model).
+            enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, d_model).
             trg_padding_mask (Optional[torch.Tensor], optional): Padding mask for the decoder input.
                 Shape: (batch_size, trg_seq_len). Default is None.
             src_padding_mask (Optional[torch.Tensor], optional): Padding mask for the encoder output.
                 Shape: (batch_size, src_seq_len). Default is None.
 
         Returns:
-            torch.Tensor: Decoder output tensor of shape (batch_size, trg_seq_len, embed_dim).
+            torch.Tensor: Decoder output tensor of shape (batch_size, trg_seq_len, d_model).
         """
         # Masked self-attention + residual + norm
         attn_masked = self.attention_masked(dec_input, padding_mask=trg_padding_mask)
+        attn_masked = self.dropout(attn_masked)
         norm1_out = self.norm1(attn_masked + dec_input)
 
         # Cross-attention with encoder output + residual + norm
         attn_cross = self.attention_cross(norm1_out, enc_output,
                                           padding_mask=src_padding_mask)
+        attn_cross = self.dropout(attn_cross)
         norm2_out = self.norm2(attn_cross + norm1_out)
 
         # Feedforward network + residual + norm
         ff_out = self.ff(norm2_out)
+        ff_out = self.dropout(ff_out)
         dec_out = self.norm3(ff_out + norm2_out)
 
         return dec_out

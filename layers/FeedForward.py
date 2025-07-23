@@ -33,8 +33,7 @@ class FeedForward(torch.nn.Module):
         super().__init__()
         self.fc1 = nn.Linear(d_model, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, d_model)
-        self.mid_dropout = nn.Dropout(dropout)
-        self.out_dropout = nn.Dropout(dropout)
+        # self.dropout = nn.Dropout(dropout)
 
         # Xavier initialization
         # nn.init.xavier_uniform_(self.fc1.weight)
@@ -54,7 +53,7 @@ class FeedForward(torch.nn.Module):
         """
         x = self.fc1(x)
         x = F.relu(x)
-        x = self.mid_dropout(x)
+        # x = self.dropout(x)
         x = self.fc2(x)
-        x = self.out_dropout(x)
+
         return x

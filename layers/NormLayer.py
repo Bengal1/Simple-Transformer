@@ -17,12 +17,13 @@ class NormLayer(torch.nn.Module):
 
     def __init__(self,
                  d_model: int,
-                 epsilon: float = 1e-15):
+                 epsilon: float = 1e-5):
         """Initializes the layer normalization module.
 
         Args:
             d_model (int): The dimension of the input tensor.
-            epsilon (float, optional): A small value added to variance for numerical stability. Default is 1e-15.
+            epsilon (float, optional): A small value added to variance for
+                                    numerical stability. Default is 1e-6.
         """
         super().__init__()
         self.gamma = nn.Parameter(torch.ones(d_model))

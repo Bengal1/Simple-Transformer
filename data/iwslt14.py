@@ -1,199 +1,495 @@
 """
-Module for loading and preprocessing the IWSLT14 English-French dataset.
+Handles loading and preprocessing the IWSLT14 English-French dataset.
 
-Defines a PyTorch Dataset class that handles tokenization, vocabulary building,
-and padding for training sequence-to-sequence translation models.
+This module defines the `IWSLT14Dataset` class, which supports loading the
+IWSLT14 dataset from Hugging Face or a local file, tokenizing English and
+French sentences using spaCy, constructing vocabularies, and padding sequences
+based on a configurable percentile of input lengths.
+
+Classes:
+    IWSLT14Dataset: Manages dataset loading, tokenization, vocabulary building,
+        and returns PyTorch-compatible dataset splits.
+    _IWSLT14SplitDatasetView: A lightweight wrapper around tokenized splits
+        for integration with PyTorch's DataLoader.
+
+Features:
+    - Loads English-French translation pairs from IWSLT14.
+    - Tokenizes using spaCy with optional language model downloads.
+    - Builds separate vocabularies for English (source) and French (target)
+      from training data only.
+    - Adds <pad>, <bos>, <eos>, <unk> special tokens to each vocabulary.
+    - Pads sequences to a length based on a specified percentile (default: 95).
+    - Returns split views suitable for use in PyTorch training loops.
 """
+
 
 import json
 import torch
 import spacy
+import math
+import logging
 from datasets import load_dataset
+from typing import Optional
 
-
-class IWSLT14Dataset(torch.utils.data.Dataset):
+class IWSLT14Dataset:
     """
-    Custom PyTorch Dataset for the IWSLT14 English-French translation dataset.
+    A dataset class for loading and preprocessing the IWSLT14 English-French translation dataset.
 
-    This dataset handles tokenization, vocabulary construction, and padding for training translation models.
+    Handles loading from Hugging Face or local files, tokenization using spaCy,
+    vocabulary construction, and sequence padding for training sequence-to-sequence models.
 
     Attributes:
-        split (str): The dataset split ('train', 'validation', or 'test').
-        local_file (str, optional): Path to a local dataset file (if provided, loads from disk instead of Hugging Face).
-        en_nlp (spacy.Language): spaCy tokenizer for English.
-        fr_nlp (spacy.Language): spaCy tokenizer for French.
-        max_length (int): Maximum sequence length, including special tokens.
-        pad_idx (int): Index of the padding token.
-        unk_idx (int): Index of the unknown token.
-
-    Class Attributes:
-        en_vocab (dict): English vocabulary mapping tokens to indices. This dictionary is
-                            updated dynamically with each dataset split.
-        fr_vocab (dict): French vocabulary mapping tokens to indices. Like `en_vocab`, it expands
-                            with each dataset instance.
-        special_tokens (list): List of special tokens (`"<unk>"`, `"<pad>"`, `"<bos>"`, `"<eos>"`)
-                            used for handling unknown words, padding, and marking sentence boundaries.
+        SPECIAL_TOKENS_CONFIG (dict): Configuration for special token strings and IDs.
+        local_files (dict): Optional mapping of split names to local file paths.
+        max_length (int): Maximum sequence length (auto-computed unless overridden).
+        en_vocabulary (dict): English (source) token-to-ID mapping.
+        fr_vocabulary (dict): French (target) token-to-ID mapping.
+        tokenized_datasets (dict): Tokenized sentence data for all splits.
+        en_nlp (spacy.Language): spaCy English tokenizer.
+        fr_nlp (spacy.Language): spaCy French tokenizer.
     """
 
-    en_vocab = {"<unk>": 0, "<pad>": 1, "<bos>": 2, "<eos>": 3}
-    fr_vocab = {"<unk>": 0, "<pad>": 1, "<bos>": 2, "<eos>": 3}
-    special_tokens = ["<unk>", "<pad>", "<bos>", "<eos>"]
+    SPECIAL_TOKENS_CONFIG = {
+        "<pad>": {"default_id": 0, "attr_name": "pad_idx"},
+        "<bos>": {"default_id": 1, "attr_name": "bos_idx"},
+        "<eos>": {"default_id": 2, "attr_name": "eos_idx"},
+        "<unk>": {"default_id": 3, "attr_name": "unk_idx"},
+    }
 
     def __init__(self,
-                 split="train",
-                 local_file=None):
-        """Initializes the IWSLT14Dataset.
+                 local_files: dict[str, str] = None,
+                 max_length: int = 50):
+        """Initializes the dataset and triggers loading, tokenization, and vocabulary construction.
 
         Args:
-            split (str, optional): The dataset split to load ('train', 'validation', or 'test'). Defaults to "train".
-            local_file (str, optional): Path to a local dataset file. If provided, the dataset is loaded from this file
-                                        instead of being fetched from Hugging Face.
-
-        Raises:
-            KeyError: If the specified split is not found in the local dataset file.
+            local_files (dict, optional): Local file paths for train/validation/test splits.
+            max_length (int): Max length for padded sequences (used only as fallback).
         """
-        super().__init__()
-        self.split = split  # Store split type
-        self.local_file = local_file  # Debugging option
+        self.local_files = local_files if local_files is not None else {}
+        self.max_length = max_length
 
-        self._load_tokenizers()
-        self._load_dataset()
-        self._update_global_vocab()
-        self._set_special_indices()
-        self._compute_max_length()
+        self.en_vocabulary = {}
+        self.fr_vocabulary = {}
 
-    def _load_tokenizers(self):
-        """Loads spaCy tokenizers for English and French."""
+        # Initialize vocabularies with special tokens
+        logging.info("Initializing vocabularies with special tokens "
+                     "based on SPECIAL_TOKENS_CONFIG.")
+        for token_str, config in self.SPECIAL_TOKENS_CONFIG.items():
+            self.en_vocabulary[token_str] = config["default_id"]
+            self.fr_vocabulary[token_str] = config["default_id"]
+
+        self.tokenized_datasets = {}
+
+        # Loads spaCy tokenizers for English and French.
         self.en_nlp = spacy.load("en_core_web_sm")
         self.fr_nlp = spacy.load("fr_core_news_sm")
 
-    def _load_dataset(self):
-        """Loads the specified split of the IWSLT14 dataset and tokenizes sentences.
-        If a local file is provided, loads from disk. Otherwise, fetches data from Hugging Face.
+        self._load_all_dataset()
+        logging.info("All dataset splits loaded and tokenized.")
+
+        self._update_vocabularies()
+        logging.info("Vocabularies built and special indices set.")
+
+        self._compute_max_length()
+        logging.debug(f"Maximum sequence length computed: {self.max_length}")
+
+        print("Finished loading all dataset splits and building vocabulary.")
+
+
+    def _load_all_dataset(self):
+        """Loads and tokenizes all splits (train, validation, test).
+
+        Uses either local JSON files or downloads from Hugging Face. Tokenized data
+        is stored internally for later vocabulary building and dataset creation.
         """
-        if self.local_file:
-            print(f"Loading local dataset from {self.local_file}...")
-            with open(self.local_file, "r", encoding="utf-8") as f:
-                iwslt_data = json.load(f)
+        for split_name in ["train", "validation", "test"]:
+            if split_name not in self.tokenized_datasets:
+                self.tokenized_datasets[split_name] = {"en": [], "fr": []}
 
-            # Handle nested structure for splits like "train", "validation", "test"
-            if self.split in iwslt_data:
-                en_sentences = iwslt_data[self.split]["en"]
-                fr_sentences = iwslt_data[self.split]["fr"]
-            else:
-                # Dataset does not contain the split key
-                raise KeyError(f"The dataset for the split"
-                               f" '{self.split}' is not found in the file.")
+        for split_name, file_path in self.local_files.items():
+            if file_path:  # If a local file path is provided for the split
+                with open(file_path, "r", encoding="utf-8") as f:
+                    iwslt_data = json.load(f)
 
-        else:
-            # Load the dataset from Hugging Face
-            print(f"Loading IWSLT14 {self.split} dataset...")
-            iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr", split=self.split)
-            en_sentences = iwslt_data["en"]
-            fr_sentences = iwslt_data["fr"]
+                if split_name in iwslt_data:
+                    en_sentences = iwslt_data[split_name]["en"]
+                    fr_sentences = iwslt_data[split_name]["fr"]
+                else:
+                    raise KeyError(
+                        f"The dataset for the split '{split_name}' is not found "
+                        f"in the file '{file_path}'.")
 
-        # Tokenize
-        self.tokenized_data = {
-            self.split: (
-                [self._tokenize_text(sentence, self.en_nlp)
-                 for sentence in en_sentences],
-                [self._tokenize_text(sentence, self.fr_nlp)
-                 for sentence in fr_sentences],
-            )
-        }
+                # Tokenize and store directly into self.tokenized_datasets
+                self.tokenized_datasets[split_name]["en"] = [
+                    self._tokenize_text(sentence, self.en_nlp) for sentence in
+                    en_sentences]
+                self.tokenized_datasets[split_name]["fr"] = [
+                    self._tokenize_text(sentence, self.fr_nlp) for sentence in
+                    fr_sentences]
+
+            else:  # Load the dataset from Hugging Face for the specific split_name
+                print(f"Loading IWSLT14 {split_name} dataset from Hugging Face...")
+                try:
+                    iwslt_data = load_dataset("ahazeemi/iwslt14-en-fr",
+                                              split=split_name)
+                    en_sentences = iwslt_data["en"]
+                    fr_sentences = iwslt_data["fr"]
+
+                    # Tokenize and store directly into self.tokenized_datasets
+                    self.tokenized_datasets[split_name]["en"] = [
+                        self._tokenize_text(sentence, self.en_nlp) for sentence in
+                        en_sentences]
+                    self.tokenized_datasets[split_name]["fr"] = [
+                        self._tokenize_text(sentence, self.fr_nlp) for sentence in
+                        fr_sentences]
+                except Exception as e:
+                    print(
+                        f"Could not load split '{split_name}' from Hugging Face: {e}")
 
     @staticmethod
     def _tokenize_text(text: str, nlp_model: spacy.Language) -> list[str]:
-        """Tokenizes a given text using the specified spaCy NLP model.
+        """Tokenizes a single sentence using the provided spaCy NLP model.
 
         Args:
             text (str): The input sentence.
-            nlp_model: The spaCy NLP model to use.
+            nlp_model (spacy.Language): A loaded spaCy tokenizer.
 
         Returns:
-            list: A list of tokenized words.
+            list[str]: A list of tokenized words.
         """
         return [token.text for token in nlp_model(text)]
 
-    def _update_global_vocab(self):
-        """Updates the global English and French vocabularies with tokens from the current
-        dataset split.
+
+
+    def _update_vocabularies(self):
+        """Builds English and French vocabularies from the training split.
+
+        This method processes the tokenized training data to extract all unique tokens
+        in both source (English) and target (French) languages. Assigns unique
+        integer IDs to each token, and stores the resulting mappings.
+
+        Additionally, assign special token IDs to class variables and estimates an
+        appropriate maximum sequence length for padding and truncation based on the
+        distribution of sentence lengths in the training set.
         """
-        tokenized_en, tokenized_fr = self.tokenized_data[self.split]
-        for token in set(token for sentence in tokenized_en for token in sentence):
-            if token not in IWSLT14Dataset.en_vocab:
-                IWSLT14Dataset.en_vocab[token] = len(IWSLT14Dataset.en_vocab)
-        for token in set(token for sentence in tokenized_fr for token in sentence):
-            if token not in IWSLT14Dataset.fr_vocab:
-                IWSLT14Dataset.fr_vocab[token] = len(IWSLT14Dataset.fr_vocab)
+        if "train" not in self.tokenized_datasets:
+            logging.warning("'train' split not found in self.tokenized_datasets. Vocabulary will be empty.")
+            return
+
+        # Update English vocabulary using only the 'train' split
+        self._process_vocabulary_for_language("en", ["train"])
+
+        # Update French vocabulary using only the 'train' split
+        self._process_vocabulary_for_language("fr", ["train"])
+
+        # Set special tokens variables
+        self. _set_special_indices()
+
+        # Set maximum sentence length
+        self._compute_max_length()
+
+
+    def _process_vocabulary_for_language(self, lang_code: str,
+                                         splits_to_consider: list):
+        """Adds all unique tokens from specified splits into the appropriate vocabulary.
+
+        Args:
+            lang_code (str): Language code ('en' or 'fr').
+            splits_to_consider (list): List of split names to extract tokens from.
+
+        Raises:
+            ValueError: If an unsupported language code is given.
+        """
+        unique_tokens_across_specified_splits = set()
+        for split_name in splits_to_consider:
+            if split_name in self.tokenized_datasets and lang_code in self.tokenized_datasets[
+                split_name]:
+                for sentence_tokens in self.tokenized_datasets[split_name][lang_code]:
+                    unique_tokens_across_specified_splits.update(sentence_tokens)
+
+        if lang_code == "en":
+            target_vocab = self.en_vocabulary
+        elif lang_code == "fr":
+            target_vocab = self.fr_vocabulary
+        else:
+            raise ValueError(
+                f"Unsupported language code '{lang_code}'. Expected 'en' or 'fr'."
+            )
+
+        for token in unique_tokens_across_specified_splits:
+            if token not in target_vocab:
+                target_vocab[token] = len(target_vocab)
 
     def _set_special_indices(self):
-        """Sets indices for special tokens."""
-        self.unk_idx = IWSLT14Dataset.en_vocab["<unk>"]
-        self.pad_idx = IWSLT14Dataset.en_vocab["<pad>"]
+        """Assigns instance attributes for special token indices.
 
-    def _compute_max_length(self):
-        """Determines the maximum sentence length in the dataset."""
-        tokenized_en, tokenized_fr = self.tokenized_data[self.split]
-        max_en_length = max(len(sentence) for sentence in tokenized_en)
-        max_fr_length = max(len(sentence) for sentence in tokenized_fr)
-        self.max_length = max(max_en_length, max_fr_length) + 2  # +2 for <bos> and <eos>
+        Verifies presence and correctness of special tokens in the vocabulary.
 
-    def __len__(self) -> int:
-        """Returns the number of sentence pairs in the selected split."""
-        return len(self.tokenized_data[self.split][0])
-
-    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        """Retrieves tokenized and padded sentences for the selected split.
-        
-        Args:
-            idx (int): Index of the sentence pair.
-        
-        Returns:
-            Tuple[torch.Tensor, torch.Tensor]: Token indices for English and French sentences.
+        Raises:
+            ValueError: If any special token is missing or incorrectly indexed.
         """
-        tokenized_en, tokenized_fr = self.tokenized_data[self.split]
+        logging.info("Setting special token indices.")
 
-        # Add <bos> and <eos> tokens
-        en_sentence = ["<bos>"] + tokenized_en[idx] + ["<eos>"]
-        fr_sentence = ["<bos>"] + tokenized_fr[idx] + ["<eos>"]
+        for token_str, config in self.SPECIAL_TOKENS_CONFIG.items():
+            attr_name = config["attr_name"]
+            expected_id = config["default_id"]
 
-        # Pad sentences
-        en_sentence += ["<pad>"] * (self.max_length - len(en_sentence))
-        fr_sentence += ["<pad>"] * (self.max_length - len(fr_sentence))
+            if token_str in self.en_vocabulary:
+                actual_id = self.en_vocabulary[token_str]
+                if actual_id == expected_id:
+                    # Token found and has the CORRECT ID
+                    setattr(self, attr_name, actual_id)
+                    logging.debug(
+                        f"Set '{attr_name}' for token '{token_str}' to correct index {actual_id}.")
+                else:
+                    # Critical Error: Token found, but its ID is WRONG
+                    error_msg = (
+                        f"Critical Error: Special token '{token_str}' found in vocabulary "
+                        f"but has incorrect ID {actual_id}. Expected {expected_id}. "
+                        "Its designated position was likely taken by another token. "
+                        "This is an unrecoverable vocabulary setup error."
+                    )
+                    logging.critical(error_msg)
+                    raise ValueError(error_msg)
+            else:
+                # Critical Error: Special token is completely missing from vocabulary
+                error_msg = (
+                    f"Critical Error: Special token '{token_str}' not found in the English vocabulary. "
+                    f"This token is essential for proper model operation and should have ID {expected_id}. "
+                    "Ensure the vocabulary building process correctly includes all "
+                    f"defined SPECIAL_TOKENS_CONFIG entries. This is an unrecoverable setup error."
+                )
+                logging.critical(error_msg)
+                raise ValueError(error_msg)
 
-        # Convert tokens to indices
-        en_indices = [IWSLT14Dataset.en_vocab.get(token, self.unk_idx)
-                      for token in en_sentence]
-        fr_indices = [IWSLT14Dataset.fr_vocab.get(token, self.unk_idx)
-                      for token in fr_sentence]
+        logging.info("Special token indices verification and setup complete.")
 
-        return torch.tensor(en_indices), torch.tensor(fr_indices)
+    def _compute_max_length(self, percentile: float = 0.95):
+        """Computes the padded sequence length using a percentile of training data lengths.
+
+        Args:
+            percentile (float): Percentile of sentence lengths to use (0 < p <= 1.0).
+
+        Raises:
+            ValueError: If the percentile is outside the valid range.
+        """
+        if "train" not in self.tokenized_datasets or \
+                not self.tokenized_datasets["train"].get("en") or \
+                not self.tokenized_datasets["train"].get("fr"):
+            logging.warning(
+                "'train' split not found or its language data is empty. Cannot compute max_length.")
+            self.max_length = 50  # Set a default fallback length
+            return
+
+        all_en_lengths = [len(s) for s in self.tokenized_datasets["train"]["en"]]
+        all_fr_lengths = [len(s) for s in self.tokenized_datasets["train"]["fr"]]
+
+        # Changed variable name for consistency, 'all_training_lengths' was used previously
+        all_training_lengths = all_en_lengths + all_fr_lengths
+
+        if not all_training_lengths:
+            logging.warning(
+                "Combined training data is empty. Cannot compute max_length.")
+            self.max_length = 50  # Set a default fallback length
+            return
+
+        all_training_lengths.sort()
+
+        if percentile == 1.0:
+            computed_max_len = all_training_lengths[-1]
+        elif 0 < percentile < 1.0:
+            index = math.ceil(percentile * len(all_training_lengths)) - 1
+            index = max(0, index)  # Ensure index is not negative
+            computed_max_len = all_training_lengths[index]
+        else:
+            # Raise an error for invalid input, as it's a programming mistake
+            raise ValueError("Percentile must be between 0 and 1.0.")
+
+        # Add 2 for <bos> and <eos> tokens
+        self.max_length = computed_max_len + 2
+
+        # Use logging.info for general informative messages that you might want to see in debug mode
+        logging.info(
+            f"Computed max_length (at {percentile * 100}% percentile) "
+            f"for training data: {self.max_length}"
+        )
+
+    def get_vocabularies(self) -> tuple[dict, dict]:
+        """
+        Returns the English and French vocabularies.
+
+        Raises:
+            RuntimeError: If vocabularies are empty (indicating a failure in population).
+
+        Returns:
+            tuple[dict, dict]: A tuple containing the English and French vocabularies.
+        """
+        if not self.en_vocabulary:
+            error_msg = "English vocabulary is empty. Ensure vocabulary building completed successfully."
+            logging.critical(error_msg)
+            raise RuntimeError(error_msg)
+
+        if not self.fr_vocabulary:
+            error_msg = "French vocabulary is empty. Ensure vocabulary building completed successfully."
+            logging.critical(error_msg)
+            raise RuntimeError(error_msg)
+
+        logging.debug("Returning initialized vocabularies.")
+        return self.en_vocabulary, self.fr_vocabulary
 
     @classmethod
-    def get_vocab_sizes(cls) -> tuple[int, int]:
-        """Returns the total vocabulary size for both English and French."""
-        return len(cls.en_vocab), len(cls.fr_vocab)
+    def get_special_tokens_dict(cls) -> dict:
+        """Returns a dictionary of special tokens and their default IDs.
+
+        Returns:
+            dict: Mapping from token strings to IDs.
+        """
+        return {token_str: config["default_id"]
+                for token_str, config in cls.SPECIAL_TOKENS_CONFIG.items()}
 
     @classmethod
-    def get_special_tokens(cls) -> list[str]:
-        """Returns list of special tokens."""
-        return cls.special_tokens
+    def get_special_tokens_list(cls) -> list:
+        """Returns a list of special token strings.
 
-    @classmethod
-    def get_special_tokens_dict(cls) -> dict[str, int]:
-        """Return a dict of special tokens and their indices."""
-        return {token: cls.en_vocab[token] for token in
-                cls.special_tokens if token in cls.en_vocab}
+        Returns:
+            list: List of special tokens.
+        """
+        return list(cls.SPECIAL_TOKENS_CONFIG.keys())
 
     def get_padding_index(self) -> int:
-        """Returns the padding index for embedding layers."""
+        """Returns the index used for padding tokens.
+
+        Returns:
+            int: Padding token index.
+        """
         return self.pad_idx
 
-    def get_unknown_index(self) -> int:
-        """Returns the unknown token index."""
-        return self.unk_idx
+    def get_vocabularies_sizes(self) -> tuple[int, int]:
+        """Returns the size of the English and French vocabularies.
 
-    def get_max_length(self) -> int:
-        """Returns the maximum sentence length, considering <bos> and <eos>."""
+        Returns:
+            tuple[int, int]: (size of en_vocab, size of fr_vocab)
+        """
+        return len(self.en_vocabulary), len(self.fr_vocabulary)
+
+    def get_max_length(self):
+        """Returns the maximum sequence length used for padding.
+
+        Returns:
+            int: Max sequence length.
+        """
         return self.max_length
+
+
+    def get_split_dataset(self, split_name: str):
+        """Returns a dataset view for a specific split (train/validation/test).
+
+        Args:
+            split_name (str): Name of the split to retrieve.
+
+        Returns:
+            _IWSLT14SplitDatasetView: Dataset wrapper for the specified split.
+
+        Raises:
+            ValueError: If the split is not found.
+        """
+        if split_name not in self.tokenized_datasets:
+            raise ValueError(f"Split '{split_name}' not available in the dataset.")
+
+        # Create a temporary 'active_split' for a new IWSLT14Dataset instance
+        # that only acts on the data for the requested split.
+        # This leverages the __len__ and __getitem__ you already have.
+        # Note: This creates a new "view" of the data, not a copy of raw data.
+        return _IWSLT14SplitDatasetView(self.tokenized_datasets[split_name],
+                                       self.en_vocabulary,
+                                       self.fr_vocabulary,
+                                       self.pad_idx,
+                                       self.bos_idx,
+                                       self.eos_idx,
+                                       self.unk_idx,
+                                       self.max_length)
+
+    def get_datasets(self) -> tuple:
+        """Returns dataset views for all splits (train, validation, test).
+
+        Returns:
+            tuple: (train_dataset, validation_dataset, test_dataset)
+        """
+        train_dataset = self.get_split_dataset("train")
+        validation_dataset = self.get_split_dataset("validation")
+        test_dataset = self.get_split_dataset("test")
+
+        return train_dataset, validation_dataset, test_dataset
+
+
+
+class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
+    """
+    PyTorch-compatible Dataset class for a single IWSLT14 split.
+
+    Used to index and retrieve padded input/output token sequences.
+
+    Attributes:
+        split_data (dict): Dictionary with 'en' and 'fr' tokenized data.
+        en_vocab (dict): Source language vocabulary.
+        fr_vocab (dict): Target language vocabulary.
+        pad_idx (int): Padding token index.
+        bos_idx (int): Beginning-of-sentence token index.
+        eos_idx (int): End-of-sentence token index.
+        unk_idx (int): Unknown token index.
+        max_length (int): Maximum sequence length to pad/truncate.
+    """
+
+    def __init__(self, split_data: dict, en_vocab: dict, fr_vocab: dict,
+                 pad_idx: int, bos_idx: int, eos_idx: int, unk_idx: int,
+                 max_length: int):
+        super().__init__()
+        self.tokenized_en = split_data["en"]
+        self.tokenized_fr = split_data["fr"]
+        self.en_vocabulary = en_vocab
+        self.fr_vocabulary = fr_vocab
+        self.pad_idx = pad_idx
+        self.bos_idx = bos_idx
+        self.eos_idx = eos_idx
+        self.unk_idx = unk_idx
+        self.max_length = max_length
+
+
+    def __len__(self) -> int:
+        """Returns the number of examples in the dataset.
+
+        Returns:
+            int: Number of samples.
+        """
+        return len(self.tokenized_en)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
+        """Fetches and process the source and target sequences at a given index.
+
+        Add '<bos>' and '<eos>' to every sentence and padded it from '<eos>' up
+        to max_length
+
+        Args:
+            idx (int): Index of the example to retrieve.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: Tuple containing padded source and target tensors.
+        """
+        en_sentence = ["<bos>"] + self.tokenized_en[idx] + ["<eos>"]
+        fr_sentence = ["<bos>"] + self.tokenized_fr[idx] + ["<eos>"]
+
+        # Truncate if sentence is longer than max_length
+        if len(en_sentence) > self.max_length:
+            en_sentence = en_sentence[:self.max_length - 1] + ["<eos>"] # Ensure EOS
+        else:
+            en_sentence += ["<pad>"] * (self.max_length - len(en_sentence))
+
+        if len(fr_sentence) > self.max_length:
+            fr_sentence = fr_sentence[:self.max_length - 1] + ["<eos>"]
+        else:
+            fr_sentence += ["<pad>"] * (self.max_length - len(fr_sentence))
+
+        en_indices = [self.en_vocabulary.get(token, self.unk_idx) for token in en_sentence]
+        fr_indices = [self.fr_vocabulary.get(token, self.unk_idx) for token in fr_sentence]
+
+        return torch.tensor(en_indices, dtype=torch.long), torch.tensor(fr_indices, dtype=torch.long)

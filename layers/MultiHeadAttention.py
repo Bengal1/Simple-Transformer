@@ -16,7 +16,7 @@ class MultiHeadAttention(torch.nn.Module):
     and then projects the result back to the original embedding space.
     """
 
-    def __init__(self, embed_dim: int,
+    def __init__(self, d_model: int,
                  num_heads: int = 8,
                  d_k: int = 64,
                  d_v: int = 64,
@@ -26,7 +26,7 @@ class MultiHeadAttention(torch.nn.Module):
         """Initializes the multi-head attention layer.
 
         Args:
-            embed_dim (int): Total input and output embedding dimension.
+            d_model (int): Input and output embedding dimension.
             num_heads (int): Number of attention heads.
             d_k (int): Dimension of the query and key projections per head.
             d_v (int): Dimension of the value projection per head.
@@ -36,7 +36,7 @@ class MultiHeadAttention(torch.nn.Module):
         """
         super().__init__()
 
-        self.embed_dim = embed_dim
+        self.d_model = d_model
         self.num_heads = num_heads
         self.d_k = d_k
         self.d_v = d_v
@@ -44,15 +44,15 @@ class MultiHeadAttention(torch.nn.Module):
         self.masked_attn = masked_attn
 
         # Shared linear layers
-        self.w_q = nn.Linear(embed_dim, num_heads * d_k)
-        self.w_k = nn.Linear(embed_dim, num_heads * d_k)
-        self.w_v = nn.Linear(embed_dim, num_heads * d_v)
+        self.w_q = nn.Linear(d_model, num_heads * d_k)
+        self.w_k = nn.Linear(d_model, num_heads * d_k)
+        self.w_v = nn.Linear(d_model, num_heads * d_v)
 
         # Output projection
-        self.w_out = nn.Linear(num_heads * d_v, embed_dim)
+        self.w_out = nn.Linear(num_heads * d_v, d_model)
+
         # Dropout
-        self.attn_dropout = nn.Dropout(dropout)
-        self.out_dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(dropout)
 
         self.scale = 1.0 / math.sqrt(d_k)
 
@@ -63,30 +63,33 @@ class MultiHeadAttention(torch.nn.Module):
         init.xavier_uniform_(self.w_out.weight)
 
     def _split_heads(self, x: torch.Tensor, head_dim: int) -> torch.Tensor:
-        """Splits the last dimension into (num_heads, head_dim) and transposes to (B, H, L, D).
+        """Splits the last dimension into (num_heads, head_dim) and
+            transposes to (batch_size, head_num, sqe_len, head_dim).
 
         Args:
-            x (torch.Tensor): Tensor of shape (B, L, num_heads * head_dim).
+            x (torch.Tensor): Tensor of shape (batch_size, seq_len, num_heads * head_dim).
             head_dim (int): The dimension size per attention head.
 
         Returns:
-            torch.Tensor: Reshaped tensor of shape (B, num_heads, L, head_dim).
+            torch.Tensor: Reshaped tensor of shape (batch_size, num_heads, seq_len, head_dim).
         """
-        B, L, _ = x.size()
-        return x.view(B, L, self.num_heads, head_dim).transpose(1, 2)
+        batch_size, seq_len, _ = x.size()
+        return x.view(batch_size, seq_len, self.num_heads,
+                      head_dim).transpose(1, 2)
 
     @staticmethod
     def _combine_heads(x: torch.Tensor) -> torch.Tensor:
         """Combines the multi-head output into a single vector per position.
 
         Args:
-            x (torch.Tensor): Tensor of shape (B, H, L, D).
+            x (torch.Tensor): Tensor of shape (batch_size, head_num, seq_len, head_dim).
 
         Returns:
-            torch.Tensor: Reshaped tensor of shape (B, L, H * D).
+            torch.Tensor: Reshaped tensor of shape (batch_size, seq_len, head_num * head_dim).
         """
-        B, H, L, D = x.size()
-        return x.transpose(1, 2).contiguous().view(B, L, H * D)
+        batch_size, head_num, seq_len, head_dim = x.size()
+        return x.transpose(1, 2).contiguous().view(
+                batch_size, seq_len, head_num * head_dim)
 
     @staticmethod
     def _generate_causal_mask(
@@ -137,7 +140,7 @@ class MultiHeadAttention(torch.nn.Module):
             attn_scores = attn_scores + mask  # Add -inf to masked positions
 
         attn_probs = F.softmax(attn_scores, dim=-1)
-        attn_probs = self.attn_dropout(attn_probs)
+        attn_probs = self.dropout(attn_probs)
 
         output = torch.matmul(attn_probs, V)
         return output, attn_probs
@@ -151,16 +154,17 @@ class MultiHeadAttention(torch.nn.Module):
         """Forward pass for multi-head attention.
 
         Args:
-            x: Tensor of shape (B, L_x, embed_dim)
-            y: Optional tensor for cross-attention (B, L_y, embed_dim). If None, self-attention is used.
+            x: Tensor of shape (B, L_x, d_model)
+            y: Optional tensor for cross-attention (batch_size, L_y, d_model). If None, self-attention is used.
             padding_mask (Optional[torch.Tensor], optional): Padding mask applied to the attention scores.
-                Shape: (B, L_y) for cross-attention or (B, L_x) for self-attention. Default is None.
+                Shape: (batch_size, L_y) for cross-attention or (batch_size, L_x) for self-attention. Default is None.
             return_attn_weights: If True, also returns attention weights. Default is False.
 
         Returns:
-            Output tensor of shape (B, L_x, embed_dim), and optionally attention weights.
-                - Output tensor of shape (B, L_x, embed_dim)
-                - Optionally, attention weights of shape (B, num_heads, L_x, L_y) if `return_attn_weights` is True.
+            Output tensor of shape (batch_size, L_x, d_model), and optionally attention weights.
+                - Output tensor of shape (batch_size, L_x, d_model)
+                - Optionally, attention weights of shape (batch_size, num_heads,
+                                        L_x, L_y) if `return_attn_weights` is True.
         """
         if self.cross_attn and y is not None:
             kv_source = y
@@ -176,21 +180,17 @@ class MultiHeadAttention(torch.nn.Module):
         K = self._split_heads(self.w_k(kv_source), self.d_k)
         V = self._split_heads(self.w_v(kv_source), self.d_v)
 
-        causal_mask = None
+        combined_mask = None
         if self.masked_attn:
-            causal_mask = self._generate_causal_mask(L_x, L_y, device=x.device)
-
-        combined_mask = causal_mask  # Start building the final mask
+            combined_mask = self._generate_causal_mask(L_x, L_y, device=x.device)
 
         if padding_mask is not None:
-            padding_mask_reshaped = padding_mask
-            padding_mask_float = padding_mask_reshaped.float().masked_fill(
-                                padding_mask_reshaped == 0, 0.0).masked_fill(
-                                padding_mask_reshaped == 1, float('-inf'))
+            padding_mask_float = torch.zeros_like(padding_mask,
+                                                  dtype=x.dtype).masked_fill_(
+                                                    padding_mask, float('-inf'))
             if combined_mask is None:
                 combined_mask = padding_mask_float
             else:
-                # When combining, element-wise minimum ensures -inf takes precedence
                 combined_mask = torch.min(combined_mask, padding_mask_float)
 
         # Scaled dot-product attention
@@ -199,7 +199,8 @@ class MultiHeadAttention(torch.nn.Module):
 
         # Merge heads and project output
         merged = self._combine_heads(attn_output)
-        output = self.out_dropout(self.w_out(merged))
+        # output = self.dropout(self.w_out(merged))
+        output = self.w_out(merged)
 
         return (output, attn_weights) if return_attn_weights else output
 

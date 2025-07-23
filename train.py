@@ -3,7 +3,7 @@ import evaluation
 import utils
 
 
-def train_epoch(model: torch.nn.Module,
+def _train_epoch(model: torch.nn.Module,
                 train_loader: torch.utils.data.DataLoader,
                 optimizer: torch.optim.Optimizer,
                 scheduler: torch.optim.lr_scheduler._LRScheduler,
@@ -62,7 +62,8 @@ def train_model(model: torch.nn.Module,
                 optimizer: torch.optim.Optimizer,
                 scheduler: torch.optim.lr_scheduler._LRScheduler,
                 criterion: torch.nn.modules.loss,
-                val_dataset: torch.utils.data.Dataset,
+                trg_vocabulary: dict,
+                special_tokens: list,
                 trg_vocab_size: int,
                 device: torch.device,
                 epochs: int = 10,
@@ -77,7 +78,8 @@ def train_model(model: torch.nn.Module,
         optimizer (torch.optim.Optimizer): Optimizer used for training.
         scheduler (torch.optim.lr_scheduler._LRScheduler): Learning rate scheduler.
         criterion (torch.nn.modules.loss): Loss function.
-        val_dataset (torch.utils.data.Dataset): Custom validation dataset.
+        trg_vocabulary (dict): Target language vocabulary
+        special_tokens (list): List of the special tokens
         trg_vocab_size (int): Size of the target vocabulary.
         device (torch.device): Device to run training on.
         epochs (int): Number of training epochs.
@@ -97,16 +99,19 @@ def train_model(model: torch.nn.Module,
     best_loss = float('inf')
 
     for epoch in range(1, epochs + 1):
-        train_loss = train_epoch(model, train_loader, optimizer, scheduler,
+        train_loss = _train_epoch(model, train_loader, optimizer, scheduler,
                                  criterion, device, max_grad_clip, trg_vocab_size)
         stats_record['train'].append(train_loss)
+
         # Validation
         val_loss = evaluation.evaluate_model(model, val_loader, criterion, device)
         stats_record['validation'].append(val_loss)
+
         # Evaluate BLEU
-        # bleu_score = evaluation.evaluate_bleu(model, val_loader, val_dataset.fr_vocab,
-        #                                       device, val_dataset.get_special_tokens())
-        # stats_record['bleu'].append(bleu_score)
+        bleu_score = evaluation.evaluate_bleu(model, val_loader,
+                                              trg_vocabulary, device,
+                                              special_tokens)
+        stats_record['bleu'].append(bleu_score)
 
         print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
               f"Validation Loss: {val_loss:.4f}")# | BLEU Score: {bleu_score:.4f}")
