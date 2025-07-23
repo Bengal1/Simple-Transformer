@@ -1,6 +1,7 @@
 import torch
 # import evaluate as hf_evaluate
 import sacrebleu
+import logging
 
 def evaluate_model(model: torch.nn.Module,
                    data_loader: torch.utils.data.DataLoader,
