@@ -106,8 +106,10 @@ class SimpleTransformer(nn.Module):
         self.scale = math.sqrt(embed_dim)
 
         # Token embeddings
-        self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim, padding_idx=1)
-        self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim, padding_idx=1)
+        self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim,
+                                              padding_idx=self.pad_token_id)
+        self.embedding_decoder = nn.Embedding(trg_vocab_size, embed_dim,
+                                              padding_idx=self.pad_token_id)
 
         # Positional encodings
         self.positional_encoding_encoder = PositionalEncoding(embed_dim)

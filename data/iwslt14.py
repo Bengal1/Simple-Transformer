@@ -93,7 +93,7 @@ class IWSLT14Dataset:
         self._compute_max_length()
         logging.debug(f"Maximum sequence length computed: {self.max_length}")
 
-        print("Finished loading all dataset splits and building vocabulary.")
+        print("Finished loading all dataset splits and building vocabulary.\n")
 
 
     def _load_all_dataset(self):

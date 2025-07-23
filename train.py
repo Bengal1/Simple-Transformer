@@ -1,6 +1,8 @@
 import torch
+import logging
 import evaluation
 import utils
+
 
 
 def _train_epoch(model: torch.nn.Module,
@@ -95,10 +97,14 @@ def train_model(model: torch.nn.Module,
     """
     stats_record = {'train': [], 'validation': [], 'bleu': []}
 
-    model.train()
     best_loss = float('inf')
+    # best_epoch_checkpoint = None
+
+    logging.info(f"Starting model training for {epochs} epochs on {device}.")
 
     for epoch in range(1, epochs + 1):
+        logging.info(f"--- Epoch {epoch}/{epochs} ---")
+
         train_loss = _train_epoch(model, train_loader, optimizer, scheduler,
                                  criterion, device, max_grad_clip, trg_vocab_size)
         stats_record['train'].append(train_loss)
@@ -108,11 +114,13 @@ def train_model(model: torch.nn.Module,
         stats_record['validation'].append(val_loss)
 
         # Evaluate BLEU
-        bleu_score = evaluation.evaluate_bleu(model, val_loader,
-                                              trg_vocabulary, device,
-                                              special_tokens)
-        stats_record['bleu'].append(bleu_score)
+        # bleu_score = evaluation.evaluate_bleu(model, val_loader,
+        #                                       trg_vocabulary, device,
+        #                                       special_tokens)
+        # stats_record['bleu'].append(bleu_score)
 
+        # logging.info(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
+        #              f"Validation Loss: {val_loss:.4f} | BLEU Score: {bleu_score:.4f}")
         print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
               f"Validation Loss: {val_loss:.4f}")# | BLEU Score: {bleu_score:.4f}")
 

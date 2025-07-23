@@ -19,12 +19,13 @@ and preprocess datasets for machine translation tasks.
 import os
 import json
 import torch
+import logging
 import pandas as pd
-from datasets import load_dataset
 import matplotlib.pyplot as plt
+from typing import Optional
+from datasets import load_dataset
 from data.iwslt14 import IWSLT14Dataset
 from torch.utils.data import DataLoader
-from typing import Optional
 
 
 class NoamLR(torch.optim.lr_scheduler._LRScheduler):
@@ -44,22 +45,27 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
 
     def __init__(self,
                  optimizer: torch.optim.Optimizer,
-                 model_size: int = 256,
+                 model_size: int = 512,
                  warmup_steps: int = 4000,
                  last_epoch: int = -1):
         """Initializes the NoamLR scheduler.
 
         Args:
             optimizer (Optimizer): Wrapped optimizer.
-            model_size (int, optional): Dimensionality of the model (default: 256).
+            model_size (int, optional): Dimensionality of the model (default: 512).
             warmup_steps (int, optional): Number of warm-up steps (default: 4000).
             last_epoch (int, optional): The index of last epoch. Default: -1.
         """
+        if model_size <= 0:
+            raise ValueError("model_size must be a positive integer.")
+        if warmup_steps <= 0:
+            raise ValueError("warmup_steps must be a positive integer.")
+
         self.model_size = model_size
         self.warmup_steps = warmup_steps
         super().__init__(optimizer, last_epoch)
 
-    def get_lr(self) -> list:
+    def get_lr(self) -> list[float]:
         """Computes the learning rate for the current step based on the Noam schedule.
 
         Returns:
@@ -67,6 +73,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         """
         step = max(1, self._step_count)  # Avoid division by zero
         scale = self.model_size ** -0.5
+        # Calculate the Noam learning rate based on the current step
         lr = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
         return [lr for _ in self.base_lrs]
 
@@ -96,8 +103,19 @@ def save_model(
         'scheduler_state_dict': scheduler.state_dict(),
         'loss': loss
     }
-    torch.save(checkpoint, filepath)
-    # print(f"Model checkpoint saved at epoch {epoch}.")
+    try:
+        # Ensure the directory exists
+        output_dir = os.path.dirname(filepath)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+            logging.debug(f"Ensured directory exists: {output_dir}")
+
+        torch.save(checkpoint, filepath)
+        logging.info(
+            f"Model checkpoint saved successfully at epoch {epoch} to {filepath}")
+    except Exception as e:
+        logging.error(
+            f"Failed to save model checkpoint at epoch {epoch} to {filepath}: {e}")
 
 
 def load_checkpoint(
@@ -105,7 +123,7 @@ def load_checkpoint(
         optimizer: torch.optim.Optimizer,
         scheduler: torch.optim.lr_scheduler._LRScheduler,
         checkpoint_path: str = "model_checkpoint.pth",
-        device: torch.device = "cpu") -> int:
+        device: torch.device = torch.device("cpu")) -> int:
     """
     Load model checkpoint.
 
@@ -114,65 +132,106 @@ def load_checkpoint(
         optimizer (torch.optim.Optimizer): Optimizer to load state into
         scheduler (torch.optim.lr_scheduler): Scheduler to load state into
         checkpoint_path (str): Path to the checkpoint file
-        device (str): Device to load model onto (default: "cpu")
+        device (torch.device): Device to load model onto (default: torch.device("cpu"))
 
     Returns:
         int: Start epoch number
     """
     if os.path.exists(checkpoint_path):
-        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
-        model.load_state_dict(checkpoint["model_state_dict"])
-        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
-        start_epoch = checkpoint["epoch"] + 1
-        last_loss = checkpoint["loss"]
+        try:
+            logging.info(f"Attempting to load checkpoint from: {checkpoint_path}")
+            checkpoint = torch.load(checkpoint_path, map_location=device)
 
-        # print(f"Resuming model from epoch {start_epoch}")
-        # print(f"The last epoch loss: {last_loss}")
-        return start_epoch
-    return 1  # Start from epoch 1 if no checkpoint exists
+            model.load_state_dict(checkpoint["model_state_dict"])
+            optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+
+            start_epoch = checkpoint["epoch"] + 1
+            last_loss = checkpoint.get("loss", "N/A") # Use .get() for optional keys
+
+            logging.info(f"Successfully resumed model from epoch {start_epoch}. "
+                         f"Last epoch loss: {last_loss}")
+            return start_epoch
+        except KeyError as e:
+            logging.error(f"Checkpoint file '{checkpoint_path}' is corrupt or "
+                          f"missing expected key: {e}. Starting from epoch 1.")
+            return 1
+        except Exception as e:
+            logging.error(f"Failed to load checkpoint from '{checkpoint_path}': "
+                          f"{e}. Starting from epoch 1.")
+            return 1
+    else:
+        logging.info(f"No checkpoint found at '{checkpoint_path}'. "
+                     f"Starting training from epoch 1.")
+        return 1
 
 
 def save_stats_to_csv(
-    stats_record: dict[str, list[float]],
-    file_path: str = None,
-    epoch: int = None):
+        stats_record: dict[str, list[float]],
+        file_path: str = None,
+        epoch: int = None):
     """
     Saves training statistics to a CSV file.
 
+    This function conditionally saves either the entire history of metrics
+    or appends the latest epoch's metrics to an existing file.
+
     Args:
-        stats_record (dict[str, list[float]]): A dictionary where each key is a metric name
-            and each value is a list of metric values per epoch.
-        file_path (str, optional): Path to the CSV file. Defaults to 'training_stats.csv'
-            in the current directory.
-        epoch (int, optional): If provided, appends only the latest values for the given
-            epoch. If None, writes the entire history and overwrites any existing file.
+        stats_record (dict[str, list[float]]): A dictionary where each key is a
+            metric name and each value is a list of metric values per epoch.
+        file_path (str, optional): Path to the CSV file. If None, defaults to
+            'training_stats.csv' in the current working directory.
+        epoch (int, optional): If provided, the function appends only the latest
+            values for the given epoch to the CSV. If None, it overwrites any
+            existing file with the entire history from `stats_record`.
 
     Raises:
-        ValueError: If there is no non-empty data to save.
+        ValueError: If `stats_record` contains no non-empty lists of metrics.
+        OSError: If there's an issue creating the output directory or writing the file.
     """
-    if file_path is None:
-        file_path = "training_stats.csv"
+    target_path = file_path if file_path is not None else "training_stats.csv"
 
-    # Filter out empty metric lists
     available_data = {k: v for k, v in stats_record.items() if v}
     if not available_data:
-        raise ValueError("No non-empty stats data to save.")
+        logging.warning("No non-empty stats data provided to save. Aborting save operation.")
+        raise ValueError("Cannot save stats: No non-empty data found in 'stats_record'.")
 
-    if epoch is None:
-        # Full save: assumes all lists are the same length
-        num_epochs = len(next(iter(available_data.values())))
-        df = pd.DataFrame({'epoch': list(range(num_epochs)), **available_data})
-        df.to_csv(file_path, index=False)
-    else:
-        # Append mode: only the latest value for each stat
-        new_data = {
-            'epoch': [epoch],
-            **{k: [v[-1]] for k, v in available_data.items()}
-        }
-        df = pd.DataFrame(new_data)
-        df.to_csv(file_path, mode='a', header=not os.path.exists(file_path),
-                  index=False)
+    output_dir = os.path.dirname(target_path)
+    if output_dir:  # Checks if output_dir is not an empty string
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            logging.debug(f"Ensured output directory exists: '{output_dir}'")
+        except Exception as e:
+            logging.error(f"Failed to create directory '{output_dir}': {e}")
+            raise OSError(
+                f"Could not create output directory '{output_dir}'.") from e
+
+    try:
+        if epoch is None:   # Full save mode
+            num_epochs = len(next(iter(available_data.values())))
+
+            # Create a DataFrame for all historical data
+            df = pd.DataFrame(
+                {'epoch': list(range(1, num_epochs + 1)), **available_data})
+            df.to_csv(target_path, index=False)
+            logging.info(
+                f"Full training statistics (epochs 1-{num_epochs}) saved to: '{target_path}'")
+        else:   # Append mode
+            new_data = {
+                'epoch': [epoch],
+                **{k: [v[-1]] for k, v in available_data.items()}
+            }
+            # Create a DataFrame for the new data point
+            df = pd.DataFrame(new_data)
+
+            write_header = not os.path.exists(target_path)
+
+            df.to_csv(target_path, mode='a', header=write_header, index=False)
+            logging.info(f"Epoch {epoch} statistics appended to: '{target_path}'")
+
+    except Exception as e:
+        logging.error(f"Failed to save training statistics to '{target_path}': {e}")
+        raise OSError(f"Could not write to file '{target_path}'.") from e
 
 
 def _plot_losses(statistics: dict[str, list[float]]):
@@ -180,7 +239,7 @@ def _plot_losses(statistics: dict[str, list[float]]):
     Plots the training and validation loss on the same graph for direct comparison.
 
     Args:
-        loss_record (dict): A dictionary with two keys:
+        statistics (dict): A dictionary with two keys:
             - 'train' (list): Training loss values per epoch.
             - 'validation' (list): Validation loss values per epoch.
 
@@ -189,6 +248,10 @@ def _plot_losses(statistics: dict[str, list[float]]):
     - The y-axis represents the loss values.
     - Both train and validation losses are plotted with different colors and markers.
     """
+    if "train" not in statistics or "validation" not in statistics:
+        raise ValueError(
+            "Input dictionary must contain 'train' and 'validation' keys.")
+
     train_loss = statistics['train']
     validation_loss = statistics['validation']
     epochs = range(1, len(train_loss) + 1)  # Assuming loss is recorded per epoch
@@ -207,7 +270,7 @@ def _plot_losses(statistics: dict[str, list[float]]):
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.6)
 
-    plt.show()  # <--- Bug!!!
+    plt.show()
 
 
 def _plot_bleu(bleu_scores: list[float]):
@@ -222,6 +285,10 @@ def _plot_bleu(bleu_scores: list[float]):
     - The y-axis represents BLEU scores.
     - BLEU scores are plotted with a green line to show trends in translation quality.
     """
+    if not bleu_scores:
+        logging.warning("No BLEU scores provided to plot. Skipping BLEU plot.")
+        return
+
     epochs = list(range(1, len(bleu_scores) + 1))
 
     plt.figure(figsize=(8, 5))
@@ -260,7 +327,7 @@ def plot_metrics(records: dict[str, list[float]]):
 
 def count_parameters(model: torch.nn.Module) -> int:
     """
-    Returns the number of trainable parameters in a PyTorch model.
+    Returns and prints the number of trainable parameters in a PyTorch model.
 
     Args:
         model (torch.nn.Module): The model whose parameters are to be counted.
@@ -268,7 +335,90 @@ def count_parameters(model: torch.nn.Module) -> int:
     Returns:
         int: The total number of trainable parameters.
     """
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Number of trainable parameters: {num_params}")
+    return num_params
+
+
+# def make_iwslt14_local_file(split: str,
+#                             debug: bool = False,
+#                             debug_size: int = 1000):
+#     """
+#     Saves the IWSLT14 dataset as a JSON file.
+#
+#     Args:
+#         split (str): The dataset split to save ("train", "validation", or "test").
+#         debug (bool): If True, saves only a small subset (e.g., 100 examples) for debugging.
+#         debug_size (int): Number of samples to keep in debug mode.
+#
+#     Raises:
+#         ValueError: If an invalid dataset split is provided.
+#         FileNotFoundError: If the output directory cannot be created.
+#         IOError: If there's an issue writing the JSON file.
+#     """
+#     if split not in ["train", "validation", "test"]:
+#         logging.error(
+#             f"Invalid dataset split provided: '{split}'. Must be 'train', 'validation', or 'test'.")
+#         raise ValueError(f"Invalid 'split' argument: '{split}'.")
+#
+#     try:
+#         logging.info(
+#             f"Loading IWSLT14 '{split}' split from 'ahazeemi/iwslt14-en-fr' dataset.")
+#         dataset = load_dataset("ahazeemi/iwslt14-en-fr")[split]
+#
+#         if debug:
+#             if debug_size <= 0:
+#                 logging.warning(
+#                     f"Debug size '{debug_size}' is invalid. Using default of 100.")
+#                 debug_size = 100  # Fallback for invalid debug_size
+#
+#             logging.info(
+#                 f"Debug mode enabled: Selecting {debug_size} samples from '{split}' split.")
+#             # Ensure debug_size doesn't exceed dataset size
+#             actual_debug_size = min(debug_size, len(dataset))
+#             dataset = dataset.select(range(actual_debug_size))
+#             logging.debug(f"Selected {actual_debug_size} samples for debug mode.")
+#
+#         logging.debug(
+#             f"Dataset loaded. Total samples in '{split}' split: {len(dataset)}")
+#
+#     except KeyError:
+#         logging.error(
+#             f"'{split}' split not found in 'ahazeemi/iwslt14-en-fr' dataset. Please check the split name.")
+#         raise
+#     except Exception as e:
+#         logging.error(f"Failed to load dataset for split '{split}': {e}")
+#         raise
+#
+#     local_dataset = {
+#         split: {
+#             "en": dataset["en"],
+#             "fr": dataset["fr"]
+#         }
+#     }
+#
+#     filename = f"iwslt14_{split}_debug.json" if debug else f"iwslt14_{split}.json"
+#
+#     # Ensure the output directory exists
+#     output_dir = "data/local_datasets"  # Standardized output directory
+#     os.makedirs(output_dir, exist_ok=True)
+#
+#     full_filepath = os.path.join(output_dir, filename)
+#
+#     try:
+#         logging.info(
+#             f"Saving '{split}' dataset to '{full_filepath}' ({'debug' if debug else 'full'}).")
+#         with open(full_filepath, "w", encoding="utf-8") as f:
+#             json.dump(local_dataset, f, ensure_ascii=False, indent=4)
+#         logging.info(f"'{split}' dataset successfully saved to '{full_filepath}'.")
+#     except IOError as e:
+#         logging.error(f"Failed to save dataset to '{full_filepath}': {e}")
+#         raise FileNotFoundError(
+#             f"Could not write to file '{full_filepath}'. Check permissions or disk space.") from e
+#     except Exception as e:
+#         logging.error(
+#             f"An unexpected error occurred while saving '{full_filepath}': {e}")
+#         raise
 
 
 def make_iwslt14_local_file(split: str,
@@ -282,10 +432,26 @@ def make_iwslt14_local_file(split: str,
         debug (bool): If True, saves only a small subset (e.g., 100 examples) for debugging.
         debug_size (int): Number of samples to keep in debug mode.
     """
+    if split not in ["train", "validation", "test"]:
+        logging.error(
+            f"Invalid dataset split provided: '{split}'. Must be 'train', 'validation', or 'test'.")
+        raise ValueError(f"Invalid 'split' argument: '{split}'.")
+
     dataset = load_dataset("ahazeemi/iwslt14-en-fr")[split]
-    # debug mode is enabled
-    if debug:
-        dataset = dataset.select(range(debug_size))
+
+    if debug: # Debug mode
+        if debug_size <= 0:
+            logging.warning(
+                f"Debug size '{debug_size}' is invalid. Using default of 100.")
+            debug_size = 100  # Fallback for invalid debug_size
+        logging.info(
+            f"Debug mode enabled: Selecting {debug_size} samples from '{split}' split.")
+        actual_debug_size = min(debug_size, len(dataset))
+        dataset = dataset.select(range(actual_debug_size))
+        logging.debug(f"Selected {actual_debug_size} samples for debug mode.")
+
+    logging.debug(
+        f"Dataset loaded. Total samples in '{split}' split: {len(dataset)}")
 
     # Save dataset under the correct split
     local_dataset = {
@@ -296,7 +462,13 @@ def make_iwslt14_local_file(split: str,
     }
 
     filename = f"iwslt14_{split}_debug.json" if debug else f"iwslt14_{split}.json"
-    with open(filename, "w", encoding="utf-8") as f:
+
+    output_dir = "data/local_datasets"
+    os.makedirs(output_dir, exist_ok=True)
+
+    full_filepath = os.path.join(output_dir, filename)
+
+    with open(full_filepath, "w", encoding="utf-8") as f:
         json.dump(local_dataset, f, ensure_ascii=False, indent=4)
 
     print(f"{split} dataset saved as {filename} ({'debug' if debug else 'full'})")
