@@ -16,7 +16,8 @@ def evaluate_model(model: torch.nn.Module,
         device (torch.device): The device (CPU or GPU) to run the evaluation on.
 
     Returns:
-        float: The average loss over the dataset. Returns `float('inf')` if no batches are processed.
+        float: The average loss over the dataset. Returns `float('inf')` if no batches
+                are processed.
     """
     model.eval()
     total_loss = 0.0
