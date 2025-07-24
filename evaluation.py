@@ -41,7 +41,8 @@ def evaluate_model(model: torch.nn.Module,
     return total_loss / num_batches if num_batches > 0 else float('inf')
 
 
-def _decode_sequence(seq: list[int], idx_to_token: dict[int, str]) -> list[str]:
+def _decode_sequence(seq: list[int],
+                     idx_to_token: dict[int, str]) -> list[str]:
     """
     Converts a list of token indices to a list of tokens (strings).
     Handles potential out-of-vocabulary indices by mapping to '<unk>'.
@@ -49,8 +50,8 @@ def _decode_sequence(seq: list[int], idx_to_token: dict[int, str]) -> list[str]:
     return [idx_to_token.get(idx, "<unk>") for idx in seq]
 
 
-def _remove_special_tokens(tokens: list[str], special_token_set: set[str]) -> list[
-    str]:
+def _remove_special_tokens(tokens: list[str],
+                           special_token_set: set[str]) -> list[str]:
     """
     Removes specified special tokens from a list of tokens.
     """
@@ -58,7 +59,6 @@ def _remove_special_tokens(tokens: list[str], special_token_set: set[str]) -> li
 
 
 # --- BLEU Evaluation Function ---
-
 def evaluate_bleu(model: torch.nn.Module,
                   data_loader: torch.utils.data.DataLoader,
                   trg_vocab: dict[str, int],
@@ -130,7 +130,8 @@ def evaluate_bleu(model: torch.nn.Module,
     # Handle cases where no valid sequences were generated/found
     if not all_predictions_joined or not all_references_joined:
         print(
-            "Warning: No valid predictions or references found for BLEU calculation. Returning 0.0.")
+            "Warning: No valid predictions or references found for BLEU calculation. "
+            "Returning 0.0.")
         return 0.0
 
     bleu_result = sacrebleu.corpus_bleu(all_predictions_joined,
@@ -145,6 +146,6 @@ def evaluate_bleu(model: torch.nn.Module,
         print(f"Length Ratio: {bleu_result.ratio:.4f}")
         print(f"Translation Length: {bleu_result.sys_len}")
         print(f"Reference Length: {bleu_result.ref_len}")
-        print("--------------------------")
+        print("----------------------------")
 
     return bleu_result.score

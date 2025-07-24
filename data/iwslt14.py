@@ -36,7 +36,8 @@ class IWSLT14Dataset:
     A dataset class for loading and preprocessing the IWSLT14 English-French translation dataset.
 
     Handles loading from Hugging Face or local files, tokenization using spaCy,
-    vocabulary construction, and sequence padding for training sequence-to-sequence models.
+    vocabulary construction, and sequence padding for training sequence-to-sequence
+    models.
 
     Attributes:
         SPECIAL_TOKENS_CONFIG (dict): Configuration for special token strings and IDs.
@@ -59,7 +60,8 @@ class IWSLT14Dataset:
     def __init__(self,
                  local_files: dict[str, str] = None,
                  max_length: int = None):
-        """Initializes the dataset and triggers loading, tokenization, and vocabulary construction.
+        """Initializes the dataset and triggers loading, tokenization, and
+           vocabulary construction.
 
         Args:
             local_files (dict, optional): Local file paths for train/validation/test splits.
@@ -163,7 +165,8 @@ class IWSLT14Dataset:
                         f"Could not load split '{split_name}' from Hugging Face: {e}")
 
     @staticmethod
-    def _tokenize_text(text: str, nlp_model: spacy.Language) -> list[str]:
+    def _tokenize_text(text: str,
+                       nlp_model: spacy.Language) -> list[str]:
         """Tokenizes a single sentence using the provided spaCy NLP model.
 
         Args:
@@ -174,8 +177,6 @@ class IWSLT14Dataset:
             list[str]: A list of tokenized words.
         """
         return [token.text for token in nlp_model(text)]
-
-
 
     def _update_vocabularies(self):
         """Builds English and French vocabularies from the training split.
@@ -189,7 +190,8 @@ class IWSLT14Dataset:
         distribution of sentence lengths in the training set.
         """
         if "train" not in self.tokenized_datasets:
-            logging.warning("'train' split not found in self.tokenized_datasets. Vocabulary will be empty.")
+            logging.warning("'train' split not found in self.tokenized_datasets. "
+                            "Vocabulary will be empty.")
             return
 
         # Update English vocabulary using only the 'train' split
@@ -204,8 +206,8 @@ class IWSLT14Dataset:
         # Set maximum sentence length
         self._compute_max_length()
 
-
-    def _process_vocabulary_for_language(self, lang_code: str,
+    def _process_vocabulary_for_language(self,
+                                         lang_code: str,
                                          splits_to_consider: list):
         """Adds all unique tokens from specified splits into the appropriate vocabulary.
 
@@ -277,10 +279,11 @@ class IWSLT14Dataset:
             else:
                 # Critical Error: Special token is completely missing from vocabulary
                 error_msg = (
-                    f"Critical Error: Special token '{token_str}' not found in the English vocabulary. "
-                    f"This token is essential for proper model operation and should have ID {expected_id}. "
-                    "Ensure the vocabulary building process correctly includes all "
-                    f"defined SPECIAL_TOKENS_CONFIG entries. This is an unrecoverable setup error."
+                    f"Critical Error: Special token '{token_str}' not found in the "
+                    f"English vocabulary. This token is essential for proper model "
+                    f"operation and should have ID {expected_id}. Ensure the "
+                    f"vocabulary building process correctly includes all defined "
+                    f"SPECIAL_TOKENS_CONFIG entries. This is an unrecoverable setup error."
                 )
                 logging.critical(error_msg)
                 raise ValueError(error_msg)
@@ -303,14 +306,14 @@ class IWSLT14Dataset:
                 not self.tokenized_datasets["train"].get("en") or \
                 not self.tokenized_datasets["train"].get("fr"):
             logging.warning(
-                "'train' split not found or its language data is empty. Cannot compute max_length.")
+                "'train' split not found or its language data is empty. "
+                "Cannot compute max_length.")
             self.max_length = 50  # Set a default fallback length
             return
 
         all_en_lengths = [len(s) for s in self.tokenized_datasets["train"]["en"]]
         all_fr_lengths = [len(s) for s in self.tokenized_datasets["train"]["fr"]]
 
-        # Changed variable name for consistency, 'all_training_lengths' was used previously
         all_training_lengths = all_en_lengths + all_fr_lengths
 
         if not all_training_lengths:
@@ -328,13 +331,11 @@ class IWSLT14Dataset:
             index = max(0, index)  # Ensure index is not negative
             computed_max_len = all_training_lengths[index]
         else:
-            # Raise an error for invalid input, as it's a programming mistake
             raise ValueError("Percentile must be between 0 and 1.0.")
 
         # Add 2 for <bos> and <eos> tokens
         self.max_length = computed_max_len + 2
 
-        # Use logging.info for general informative messages that you might want to see in debug mode
         logging.info(
             f"Computed max_length (at {percentile * 100}% percentile) "
             f"for training data: {self.max_length}"
@@ -366,7 +367,6 @@ class IWSLT14Dataset:
         logging.info(f"Added {len(tokens)} tokens to the {target_language} "
                      f"vocabulary.")
 
-
     def get_vocabularies(self) -> tuple[dict, dict]:
         """
         Returns the English and French vocabularies.
@@ -378,12 +378,14 @@ class IWSLT14Dataset:
             tuple[dict, dict]: A tuple containing the English and French vocabularies.
         """
         if not self.en_vocabulary:
-            error_msg = "English vocabulary is empty. Ensure vocabulary building completed successfully."
+            error_msg = ("English vocabulary is empty. Ensure vocabulary building "
+                         "completed successfully.")
             logging.critical(error_msg)
             raise RuntimeError(error_msg)
 
         if not self.fr_vocabulary:
-            error_msg = "French vocabulary is empty. Ensure vocabulary building completed successfully."
+            error_msg = ("French vocabulary is empty. Ensure vocabulary building "
+                         "completed successfully.")
             logging.critical(error_msg)
             raise RuntimeError(error_msg)
 
@@ -433,7 +435,6 @@ class IWSLT14Dataset:
         """
         return self.max_length
 
-
     def get_split_dataset(self, split_name: str):
         """Returns a dataset view for a specific split (train/validation/test).
 
@@ -449,10 +450,6 @@ class IWSLT14Dataset:
         if split_name not in self.tokenized_datasets:
             raise ValueError(f"Split '{split_name}' not available in the dataset.")
 
-        # Create a temporary 'active_split' for a new IWSLT14Dataset instance
-        # that only acts on the data for the requested split.
-        # This leverages the __len__ and __getitem__ you already have.
-        # Note: This creates a new "view" of the data, not a copy of raw data.
         return _IWSLT14SplitDatasetView(self.tokenized_datasets[split_name],
                                        self.en_vocabulary,
                                        self.fr_vocabulary,
@@ -473,7 +470,6 @@ class IWSLT14Dataset:
         test_dataset = self.get_split_dataset("test")
 
         return train_dataset, validation_dataset, test_dataset
-
 
 
 class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
@@ -528,7 +524,8 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
             idx (int): Index of the example to retrieve.
 
         Returns:
-            tuple[torch.Tensor, torch.Tensor]: Tuple containing padded source and target tensors.
+            tuple[torch.Tensor, torch.Tensor]: Tuple containing padded source and
+                                                target tensors.
         """
         en_sentence = ["<bos>"] + self.tokenized_data["en"][idx] + ["<eos>"]
         fr_sentence = ["<bos>"] + self.tokenized_data["fr"][idx] + ["<eos>"]
@@ -544,8 +541,10 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
         else:
             fr_sentence += ["<pad>"] * (self.max_length - len(fr_sentence))
 
-        en_indices = [self.en_vocabulary.get(token, self.unk_idx) for token in en_sentence]
-        fr_indices = [self.fr_vocabulary.get(token, self.unk_idx) for token in fr_sentence]
+        en_indices = [self.en_vocabulary.get(token,
+                                             self.unk_idx) for token in en_sentence]
+        fr_indices = [self.fr_vocabulary.get(token,
+                                             self.unk_idx) for token in fr_sentence]
 
         return (torch.tensor(en_indices, dtype=torch.long),
                 torch.tensor(fr_indices, dtype=torch.long))
