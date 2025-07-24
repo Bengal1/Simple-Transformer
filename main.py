@@ -27,11 +27,11 @@ import logging
 # ------------------ Hyperparameters & Config ------------------ #
 EMBED_DIM = 512         # Embedding dimension
 NUM_HEADS = 8           # Number of attention heads
-NUM_LAYERS = 6           # Number of Encoder/Decoder layers
+NUM_LAYERS = 6          # Number of Encoder/Decoder layers
 D_K = 64                # Dimension for K-space
 D_V = 64                # Dimension for V-space
 BATCH_SIZE = 32         # Batch size
-EPOCHS = 15             # Number of epochs
+EPOCHS = 10             # Number of epochs
 MAX_GRAD_CLIP = 1.0     # Max norm gradient
 LEARNING_RATE = 1e-3    # Learning rate
 BETAS = (0.9, 0.98)     # Adam Optimizer betas
@@ -39,6 +39,7 @@ EPSILON = 1e-9          # Optimizer's epsilon
 WARMUP = 50             # Scheduler warmup period
 DROPOUT = 0.1           # Dropout probability
 LABEL_SMOOTHING = 0.1   # Label smoothing parameter
+WEIGHT_DECAY = 1e-3     # Weight decay parameter (Lambda)
 APP_DEBUG_MODE = False  # Debug mode variable (Flag)
 
 DEBUG_DATA_PATHS = {"train": "data/local_datasets/iwslt14_train_debug.json",
@@ -102,7 +103,7 @@ criterion = torch.nn.CrossEntropyLoss(
     label_smoothing=LABEL_SMOOTHING).to(device)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE,
-                             betas=BETAS, eps=EPSILON)
+                             betas=BETAS, eps=EPSILON, weight_decay=WEIGHT_DECAY)
 
 scheduler = utils.NoamLR(optimizer, model_size=EMBED_DIM, warmup_steps=WARMUP)
 

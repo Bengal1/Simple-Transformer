@@ -44,6 +44,6 @@ class NormLayer(torch.nn.Module):
         """
         mean = x.mean(dim=-1, keepdim=True)
         var = x.var(dim=-1, unbiased=False, keepdim=True)
-        std = torch.sqrt(var + self.epsilon)  # cache sqrt for efficiency
+        std = torch.sqrt(var + self.epsilon)
         normalized = (x - mean) / std
         return self.gamma * normalized + self.beta

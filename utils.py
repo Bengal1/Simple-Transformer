@@ -336,7 +336,7 @@ def count_parameters(model: torch.nn.Module) -> int:
         int: The total number of trainable parameters.
     """
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"Number of trainable parameters: {num_params}")
+    print(f"Number of trainable parameters: {num_params:,}")
     return num_params
 
 
