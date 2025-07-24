@@ -133,14 +133,14 @@ class SimpleTransformer(nn.Module):
         # self.softmax = nn.Softmax(dim=-1)
 
         # Xavier initialization - W_o
-        # init.xavier_uniform_(self.w_o.weight)
+        init.xavier_uniform_(self.w_o.weight)
 
         # Normal initialization - Embedding
-        # init.normal_(self.embedding_encoder.weight, mean=0.0, std=1.0)
-        # self.embedding_encoder.weight.data *= math.sqrt(embed_dim)
-        # 
-        # init.normal_(self.embedding_decoder.weight, mean=0.0, std=1.0)
-        # self.embedding_decoder.weight.data *= math.sqrt(embed_dim)
+        init.normal_(self.embedding_encoder.weight, mean=0.0, std=1.0)
+        self.embedding_encoder.weight.data *= math.sqrt(embed_dim)
+
+        init.normal_(self.embedding_decoder.weight, mean=0.0, std=1.0)
+        self.embedding_decoder.weight.data *= math.sqrt(embed_dim)
 
     @staticmethod
     def _generate_padding_mask(

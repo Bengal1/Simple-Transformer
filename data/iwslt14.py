@@ -58,7 +58,7 @@ class IWSLT14Dataset:
 
     def __init__(self,
                  local_files: dict[str, str] = None,
-                 max_length: int = 50):
+                 max_length: int = None):
         """Initializes the dataset and triggers loading, tokenization, and vocabulary construction.
 
         Args:
@@ -81,8 +81,24 @@ class IWSLT14Dataset:
         self.tokenized_datasets = {}
 
         # Loads spaCy tokenizers for English and French.
-        self.en_nlp = spacy.load("en_core_web_sm")
-        self.fr_nlp = spacy.load("fr_core_news_sm")
+        logging.info("Loading spaCy English and French models.  ")
+        # self.en_nlp = spacy.load("en_core_web_sm")
+        # self.fr_nlp = spacy.load("fr_core_news_sm")
+        try:
+            self.en_nlp = spacy.load("en_core_web_sm")
+            logging.info("SpaCy English model 'en_core_web_sm' loaded successfully.")
+        except OSError:
+            logging.error("SpaCy English model 'en_core_web_sm' not found. "
+                          "Please run: python -m spacy download en_core_web_sm")
+            raise
+
+        try:
+            self.fr_nlp = spacy.load("fr_core_news_sm")
+            logging.info("SpaCy French model 'fr_core_news_sm' loaded successfully.")
+        except OSError:
+            logging.error("SpaCy French model 'fr_core_news_sm' not found. "
+                          "Please run: python -m spacy download fr_core_news_sm")
+            raise
 
         self._load_all_dataset()
         logging.info("All dataset splits loaded and tokenized.")
@@ -94,7 +110,7 @@ class IWSLT14Dataset:
         logging.debug(f"Maximum sequence length computed: {self.max_length}")
 
         print("Finished loading all dataset splits and building vocabulary.\n")
-
+        # logging.info("Finished loading all dataset splits and building vocabulary.")
 
     def _load_all_dataset(self):
         """Loads and tokenizes all splits (train, validation, test).
@@ -202,8 +218,8 @@ class IWSLT14Dataset:
         """
         unique_tokens_across_specified_splits = set()
         for split_name in splits_to_consider:
-            if split_name in self.tokenized_datasets and lang_code in self.tokenized_datasets[
-                split_name]:
+            if (split_name in self.tokenized_datasets and lang_code in
+                    self.tokenized_datasets[split_name]):
                 for sentence_tokens in self.tokenized_datasets[split_name][lang_code]:
                     unique_tokens_across_specified_splits.update(sentence_tokens)
 
@@ -215,10 +231,8 @@ class IWSLT14Dataset:
             raise ValueError(
                 f"Unsupported language code '{lang_code}'. Expected 'en' or 'fr'."
             )
-
-        for token in unique_tokens_across_specified_splits:
-            if token not in target_vocab:
-                target_vocab[token] = len(target_vocab)
+        self.add_tokens_to_vocabulary(list(unique_tokens_across_specified_splits),
+                                      lang_code)
 
     def _set_special_indices(self):
         """Assigns instance attributes for special token indices.
@@ -234,18 +248,27 @@ class IWSLT14Dataset:
             attr_name = config["attr_name"]
             expected_id = config["default_id"]
 
-            if token_str in self.en_vocabulary:
-                actual_id = self.en_vocabulary[token_str]
-                if actual_id == expected_id:
+            if token_str in self.en_vocabulary and token_str in self.en_vocabulary:
+                actual_id_en = self.en_vocabulary[token_str]
+                actual_id_fr = self.fr_vocabulary[token_str]
+                if actual_id_en == expected_id and actual_id_fr == expected_id:
                     # Token found and has the CORRECT ID
-                    setattr(self, attr_name, actual_id)
-                    logging.debug(
-                        f"Set '{attr_name}' for token '{token_str}' to correct index {actual_id}.")
+                    setattr(self, attr_name, expected_id)
+                    logging.debug(f"Set '{attr_name}' for token '{token_str}' to "
+                                  f"correct index {expected_id}.")
                 else:
                     # Critical Error: Token found, but its ID is WRONG
+                    error_details = []
+                    if actual_id_en != expected_id:
+                        error_details.append(
+                            f"English: {actual_id_en} (expected {expected_id})")
+                    if actual_id_fr != expected_id:
+                        error_details.append(
+                            f"French: {actual_id_fr} (expected {expected_id})")
+
                     error_msg = (
                         f"Critical Error: Special token '{token_str}' found in vocabulary "
-                        f"but has incorrect ID {actual_id}. Expected {expected_id}. "
+                        f"but has incorrect ID(s): {'; '.join(error_details)}. "
                         "Its designated position was likely taken by another token. "
                         "This is an unrecoverable vocabulary setup error."
                     )
@@ -273,6 +296,9 @@ class IWSLT14Dataset:
         Raises:
             ValueError: If the percentile is outside the valid range.
         """
+        if self.max_length is not None:
+            return
+
         if "train" not in self.tokenized_datasets or \
                 not self.tokenized_datasets["train"].get("en") or \
                 not self.tokenized_datasets["train"].get("fr"):
@@ -313,6 +339,33 @@ class IWSLT14Dataset:
             f"Computed max_length (at {percentile * 100}% percentile) "
             f"for training data: {self.max_length}"
         )
+
+    def add_tokens_to_vocabulary(self, tokens: list[str], target_language: str):
+        """
+                Adds new tokens to the specified language's vocabulary.
+
+                Args:
+                    tokens (List[str]): A list of token strings to add.
+                    target_language (str): The language code ('en' for English,
+                                'fr' for French) to which the tokens should be added.
+
+                Raises:
+                    ValueError: If an unsupported language code is provided.
+                """
+        if target_language == "en":
+            target_vocab = self.en_vocabulary
+        elif target_language == "fr":
+            target_vocab = self.fr_vocabulary
+        else:
+            raise ValueError(
+                f"Unsupported language code '{target_language}'. Expected 'en' or 'fr'.")
+
+        for token in tokens:
+            if token not in target_vocab:
+                target_vocab[token] = len(target_vocab)
+        logging.info(f"Added {len(tokens)} tokens to the {target_language} "
+                     f"vocabulary.")
+
 
     def get_vocabularies(self) -> tuple[dict, dict]:
         """
@@ -440,12 +493,14 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
         max_length (int): Maximum sequence length to pad/truncate.
     """
 
-    def __init__(self, split_data: dict, en_vocab: dict, fr_vocab: dict,
+    def __init__(self,
+                 split_data: dict,
+                 en_vocab: dict[str, int],
+                 fr_vocab: dict[str, int],
                  pad_idx: int, bos_idx: int, eos_idx: int, unk_idx: int,
                  max_length: int):
         super().__init__()
-        self.tokenized_en = split_data["en"]
-        self.tokenized_fr = split_data["fr"]
+        self.tokenized_data = split_data
         self.en_vocabulary = en_vocab
         self.fr_vocabulary = fr_vocab
         self.pad_idx = pad_idx
@@ -456,12 +511,12 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
 
 
     def __len__(self) -> int:
-        """Returns the number of examples in the dataset.
+        """Returns the number of samples in the dataset.
 
         Returns:
             int: Number of samples.
         """
-        return len(self.tokenized_en)
+        return len(self.tokenized_data["en"])
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         """Fetches and process the source and target sequences at a given index.
@@ -475,8 +530,8 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
         Returns:
             tuple[torch.Tensor, torch.Tensor]: Tuple containing padded source and target tensors.
         """
-        en_sentence = ["<bos>"] + self.tokenized_en[idx] + ["<eos>"]
-        fr_sentence = ["<bos>"] + self.tokenized_fr[idx] + ["<eos>"]
+        en_sentence = ["<bos>"] + self.tokenized_data["en"][idx] + ["<eos>"]
+        fr_sentence = ["<bos>"] + self.tokenized_data["fr"][idx] + ["<eos>"]
 
         # Truncate if sentence is longer than max_length
         if len(en_sentence) > self.max_length:
@@ -492,4 +547,5 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
         en_indices = [self.en_vocabulary.get(token, self.unk_idx) for token in en_sentence]
         fr_indices = [self.fr_vocabulary.get(token, self.unk_idx) for token in fr_sentence]
 
-        return torch.tensor(en_indices, dtype=torch.long), torch.tensor(fr_indices, dtype=torch.long)
+        return (torch.tensor(en_indices, dtype=torch.long),
+                torch.tensor(fr_indices, dtype=torch.long))
