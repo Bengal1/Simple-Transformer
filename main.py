@@ -45,7 +45,7 @@ EPSILON         = 1e-9      # Optimizer's epsilon for numerical stability
 WARMUP          = 50        # Scheduler warmup period (number of steps)
 WEIGHT_DECAY    = 1e-3      # Weight decay parameter (L2 regularization)
 # --- Application-Specific Settings ---
-DEBUG_MODE      = TRUE      # Debug mode flag (enables/disables debug features)
+DEBUG_MODE      = True      # Debug mode flag (enables/disables debug features)
 LOGGING_LEVEL   = utils.LogLevel.WARNING # Initial logging verbosity level
 
 
