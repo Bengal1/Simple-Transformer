@@ -1,8 +1,27 @@
+"""
+This module provides functions for training and evaluating a neural machine
+translation model, specifically a Transformer. It includes utilities for
+performing a single training epoch, managing the training loop across multiple
+epochs, and integrating with evaluation metrics like validation loss and BLEU score.
+
+The `_train_epoch` function handles the forward and backward passes for one
+training iteration, including loss computation, gradient clipping, and optimizer/
+scheduler steps. The `train_model` orchestrates the entire training process,
+iterating through epochs, calling `_train_epoch`, performing validation,
+and saving the best performing model.
+
+Key functionalities:
+- Training loop management with epoch-wise statistics recording.
+- Integration with PyTorch's DataLoader, Optimizer, and LR Scheduler.
+- Support for gradient clipping to prevent exploding gradients.
+- Logging of training and validation progress.
+- Model checkpointing based on validation loss improvement.
+"""
+
 import torch
 import logging
 import evaluation
 import utils
-
 
 
 def _train_epoch(model: torch.nn.Module,
@@ -89,7 +108,8 @@ def train_model(model: torch.nn.Module,
 
 
     Returns:
-        dict[str, list[float]]: Dictionary with epoch-level training and validation losses.
+        dict[str, list[float]]: Dictionary with epoch-level training and validation
+                                losses.
             Keys:
                 - 'train': List of training loss values.
                 - 'validation': List of validation loss values.
@@ -104,7 +124,7 @@ def train_model(model: torch.nn.Module,
 
     for epoch in range(1, epochs + 1):
         logging.info(f"--- Epoch {epoch}/{epochs} ---")
-
+        # Train
         train_loss = _train_epoch(model, train_loader, optimizer, scheduler,
                                  criterion, device, max_grad_clip, trg_vocab_size)
         stats_record['train'].append(train_loss)

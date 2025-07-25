@@ -45,8 +45,21 @@ def evaluate_model(model: torch.nn.Module,
 def _decode_sequence(seq: list[int],
                      idx_to_token: dict[int, str]) -> list[str]:
     """
-    Converts a list of token indices to a list of tokens (strings).
-    Handles potential out-of-vocabulary indices by mapping to '<unk>'.
+    Converts a sequence of token indices into a list of human-readable tokens.
+
+    This method iterates through a list of integer token IDs and uses a provided
+    mapping to convert each ID back into its corresponding string token. If an
+    index is encountered that is not present in the `idx_to_token` dictionary,
+    it defaults to the '<unk>' (unknown) token, ensuring robust decoding.
+
+    Args:
+        seq (list[int]): A list of integer indices representing a sequence of tokens.
+        idx_to_token (dict[int, str]): A dictionary mapping integer indices to their
+                                        corresponding string tokens.
+
+    Returns:
+        list[str]: A list of string tokens corresponding to the input
+                    sequence of indices.
     """
     return [idx_to_token.get(idx, "<unk>") for idx in seq]
 
@@ -54,7 +67,20 @@ def _decode_sequence(seq: list[int],
 def _remove_special_tokens(tokens: list[str],
                            special_token_set: set[str]) -> list[str]:
     """
-    Removes specified special tokens from a list of tokens.
+    Filters a list of tokens, removing any tokens that are considered 'special'.
+
+    This utility function is useful for post-processing token sequences, such as
+    removing padding tokens, start-of-sequence, or end-of-sequence markers,
+    to obtain a clean sequence of content tokens.
+
+    Args:
+        tokens (list[str]): The input list of string tokens.
+        special_token_set (set[str]): A set containing string representations of
+                                       special tokens to be removed.
+
+    Returns:
+        list[str]: A new list containing only the tokens that were not present
+                   in the `special_token_set`.
     """
     return [tok for tok in tokens if tok not in special_token_set]
 
@@ -114,11 +140,11 @@ def evaluate_bleu(model: torch.nn.Module,
             # Process each sample in the current batch
             for predict_seq_ids, ref_seq_ids in zip(predicted_ids_batch,
                                                     reference_ids_batch):
-                # 1. Decode IDs to token strings
+                # Decode IDs to token strings
                 decoded_pred = _decode_sequence(predict_seq_ids, idx_to_token)
                 decoded_ref = _decode_sequence(ref_seq_ids, idx_to_token)
 
-                # 2. Remove special tokens
+                # Remove special tokens
                 cleaned_pred_tokens = _remove_special_tokens(decoded_pred,
                                                              special_token_set)
                 cleaned_ref_tokens = _remove_special_tokens(decoded_ref,

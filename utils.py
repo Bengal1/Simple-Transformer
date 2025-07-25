@@ -2,16 +2,16 @@
 This module provides utility functions and classes for machine learning tasks,
 including model checkpoint saving/loading, learning rate scheduling, loss plotting,
 and dataset preprocessing for machine translation.
-    
+
 Modules in this file include:
 - NoamLR: A custom learning rate scheduler based on the Noam scheme as described in the 'Attention is All You Need' paper.
 - save_model: Function for saving model checkpoints.
 - load_checkpoint: Function for loading model checkpoints.
-- shift_trg_right: A function to right-shift the target sequence during training in a transformer model.
-- plot_losses: A function to plot training and validation loss over epochs.
+- save_stats_to_csv: Function for saving training statistics to a CSV file.
+- plot_metrics: A function to plot training/validation loss and BLEU score over epochs.
 - count_parameters: A function to count the number of trainable parameters in a PyTorch model.
 - make_iwslt14_local_file: A function to download and save the IWSLT14 dataset in local files.
-    
+
 This module makes it easier to manage model training, handle checkpoints, visualize losses,
 and preprocess datasets for machine translation tasks.
 """
@@ -24,16 +24,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from typing import Optional
 from datasets import load_dataset
-from data.iwslt14 import IWSLT14Dataset
 from torch.utils.data import DataLoader
 
+
+# ------------------ Learning Rate Schedulers ------------------ #
 
 class NoamLR(torch.optim.lr_scheduler._LRScheduler):
     """
     Implements the Noam learning rate schedule from 'Attention Is All You Need'.
 
-    This scheduler increases the learning rate linearly for the first `warmup_steps` training steps,
-    and then decreases it proportionally to the inverse square root of the step number.
+    This scheduler increases the learning rate linearly for the first `warmup_steps`
+    training steps, and then decreases it proportionally to the inverse square root
+    of the step number.
 
     Learning rate at step t is computed as:
         lr = model_size^{-0.5} * min(t^{-0.5}, t * warmup_steps^{-1.5})
@@ -78,6 +80,48 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         return [lr for _ in self.base_lrs]
 
 
+# --------------------- Logging --------------------- #
+class LogLevel:
+    """Defines standard logging levels using logging module's integer values."""
+    DEBUG    = logging.DEBUG
+    INFO     = logging.INFO
+    WARNING  = logging.WARNING
+    ERROR    = logging.ERROR
+    CRITICAL = logging.CRITICAL
+
+
+def set_logging_level(logging_level: int):
+    """
+        Configures the root logger with a specified integer level and simple format.
+
+        Args:
+            logging_level (int): The desired logging level as an integer
+                                 (e.g., LogLevel.DEBUG, LogLevel.INFO).
+                                 Defaults to WARNING if an unknown integer is provided.
+    """
+    # Remove previously configured logging handlers
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    VALID_LOG_LEVELS = {
+        logging.DEBUG,
+        logging.INFO,
+        logging.WARNING,
+        logging.ERROR,
+        logging.CRITICAL
+    }
+
+    # Validate log level, defaulting to WARNING if invalid.
+    if not isinstance(logging_level, int) or logging_level not in VALID_LOG_LEVELS:
+        valid_log_level = logging.WARNING
+    else:
+        valid_log_level = logging_level
+
+    # Execute the basic configuration
+    logging.basicConfig(level=valid_log_level, format='%(levelname)s - %(message)s')
+
+
+# ------------------ Checkpointing ------------------ #
 def save_model(
         epoch: int,
         model: torch.nn.Module,
@@ -214,8 +258,8 @@ def save_stats_to_csv(
             df = pd.DataFrame(
                 {'epoch': list(range(1, num_epochs + 1)), **available_data})
             df.to_csv(target_path, index=False)
-            logging.info(
-                f"Full training statistics (epochs 1-{num_epochs}) saved to: '{target_path}'")
+            logging.info(f"Full training statistics (epochs 1-{num_epochs}) saved "
+                         f"to: '{target_path}'")
         else:   # Append mode
             new_data = {
                 'epoch': [epoch],
@@ -233,6 +277,8 @@ def save_stats_to_csv(
         logging.error(f"Failed to save training statistics to '{target_path}': {e}")
         raise OSError(f"Could not write to file '{target_path}'.") from e
 
+
+# ------------------ Visualization ------------------ #
 
 def _plot_losses(statistics: dict[str, list[float]]):
     """
@@ -254,7 +300,7 @@ def _plot_losses(statistics: dict[str, list[float]]):
 
     train_loss = statistics['train']
     validation_loss = statistics['validation']
-    epochs = range(1, len(train_loss) + 1)  # Assuming loss is recorded per epoch
+    epochs = range(1, len(train_loss) + 1)
 
     plt.figure(figsize=(10, 5))
     plt.plot(epochs, train_loss, linestyle='-', color='#1f77b4',
@@ -325,6 +371,8 @@ def plot_metrics(records: dict[str, list[float]]):
         _plot_bleu(records['bleu'])
 
 
+# ------------------ Model Utilities ------------------ #
+
 def count_parameters(model: torch.nn.Module) -> int:
     """
     Returns and prints the number of trainable parameters in a PyTorch model.
@@ -340,6 +388,71 @@ def count_parameters(model: torch.nn.Module) -> int:
     return num_params
 
 
+# ------------------ Data Preprocessing ------------------ #
+
+def make_iwslt14_local_file(split: str,
+                            debug: bool = False,
+                            debug_size: int = 1000):
+    """
+    Saves the IWSLT14 dataset as a JSON file.
+
+    Args:
+        split (str): The dataset split to save ("train", "validation", or "test").
+        debug (bool): If True, saves only a small subset for debugging.
+        debug_size (int): Number of samples to keep in debug mode.
+    """
+    if split not in ["train", "validation", "test"]:
+        logging.error(f"Invalid dataset split provided: '{split}'. Must be 'train', "
+                      f"'validation', or 'test'.")
+        raise ValueError(f"Invalid 'split' argument: '{split}'.")
+
+    dataset = load_dataset("ahazeemi/iwslt14-en-fr")[split]
+
+    if debug: # Debug mode
+        if debug_size <= 0:
+            logging.warning(
+                f"Debug size '{debug_size}' is invalid. Using default of 100.")
+            debug_size = 100  # Fallback for invalid debug_size
+        logging.info(f"Debug mode enabled: Selecting {debug_size} samples from "
+                     f"'{split}' split.")
+        actual_debug_size = min(debug_size, len(dataset))
+        dataset = dataset.select(range(actual_debug_size))
+        logging.debug(f"Selected {actual_debug_size} samples for debug mode.")
+
+    logging.debug(
+        f"Dataset loaded. Total samples in '{split}' split: {len(dataset)}")
+
+    # Save dataset under the correct split
+    local_dataset = {
+        split: {
+            "en": dataset["en"],
+            "fr": dataset["fr"]
+        }
+    }
+
+    filename = f"iwslt14_{split}_debug.json" if debug else f"iwslt14_{split}.json"
+
+    output_dir = "data/local_datasets"
+    os.makedirs(output_dir, exist_ok=True)
+
+    full_filepath = os.path.join(output_dir, filename)
+
+    with open(full_filepath, "w", encoding="utf-8") as f:
+        json.dump(local_dataset, f, ensure_ascii=False, indent=4)
+
+    print(f"{split} dataset saved as {filename} ({'debug' if debug else 'full'})")
+
+
+"""
+In order to generate full and debug datasets for train, validation,
+and test splits of IWSLT14 Fr-En, uncomment the code below and run it
+"""
+# for sp in ["train", "validation", "test"]:
+#     make_iwslt14_local_file(split=sp, debug=False)  # Full dataset
+#     make_iwslt14_local_file(split=sp, debug=True)  # Debug datasetstill
+
+
+
 # def make_iwslt14_local_file(split: str,
 #                             debug: bool = False,
 #                             debug_size: int = 1000):
@@ -348,7 +461,7 @@ def count_parameters(model: torch.nn.Module) -> int:
 #
 #     Args:
 #         split (str): The dataset split to save ("train", "validation", or "test").
-#         debug (bool): If True, saves only a small subset (e.g., 100 examples) for debugging.
+#         debug (bool): If True, saves only a small subset for debugging.
 #         debug_size (int): Number of samples to keep in debug mode.
 #
 #     Raises:
@@ -419,65 +532,3 @@ def count_parameters(model: torch.nn.Module) -> int:
 #         logging.error(
 #             f"An unexpected error occurred while saving '{full_filepath}': {e}")
 #         raise
-
-
-def make_iwslt14_local_file(split: str,
-                            debug: bool = False,
-                            debug_size: int = 1000):
-    """
-    Saves the IWSLT14 dataset as a JSON file.
-
-    Args:
-        split (str): The dataset split to save ("train", "validation", or "test").
-        debug (bool): If True, saves only a small subset (e.g., 100 examples) for debugging.
-        debug_size (int): Number of samples to keep in debug mode.
-    """
-    if split not in ["train", "validation", "test"]:
-        logging.error(
-            f"Invalid dataset split provided: '{split}'. Must be 'train', 'validation', or 'test'.")
-        raise ValueError(f"Invalid 'split' argument: '{split}'.")
-
-    dataset = load_dataset("ahazeemi/iwslt14-en-fr")[split]
-
-    if debug: # Debug mode
-        if debug_size <= 0:
-            logging.warning(
-                f"Debug size '{debug_size}' is invalid. Using default of 100.")
-            debug_size = 100  # Fallback for invalid debug_size
-        logging.info(
-            f"Debug mode enabled: Selecting {debug_size} samples from '{split}' split.")
-        actual_debug_size = min(debug_size, len(dataset))
-        dataset = dataset.select(range(actual_debug_size))
-        logging.debug(f"Selected {actual_debug_size} samples for debug mode.")
-
-    logging.debug(
-        f"Dataset loaded. Total samples in '{split}' split: {len(dataset)}")
-
-    # Save dataset under the correct split
-    local_dataset = {
-        split: {
-            "en": dataset["en"],
-            "fr": dataset["fr"]
-        }
-    }
-
-    filename = f"iwslt14_{split}_debug.json" if debug else f"iwslt14_{split}.json"
-
-    output_dir = "data/local_datasets"
-    os.makedirs(output_dir, exist_ok=True)
-
-    full_filepath = os.path.join(output_dir, filename)
-
-    with open(full_filepath, "w", encoding="utf-8") as f:
-        json.dump(local_dataset, f, ensure_ascii=False, indent=4)
-
-    print(f"{split} dataset saved as {filename} ({'debug' if debug else 'full'})")
-
-
-"""
-In order to generate full and debug datasets for train, validation, 
-and test splits of IWSLT14 Fr-En, uncomment the code below and run it
-"""
-# for sp in ["train", "validation", "test"]:
-#     make_iwslt14_local_file(split=sp, debug=False)  # Full dataset
-#     make_iwslt14_local_file(split=sp, debug=True)  # Debug datasetstill
