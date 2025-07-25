@@ -173,20 +173,20 @@ class SimpleTransformer(nn.Module):
         # Source embeddings + positional encoding
         src_embed = self.embedding_encoder(src) * self.scale
         src_pe = self.positional_encoding_encoder(src_embed)
-        src_pe = self.dropout(src_pe)
+        src_pe_drop = self.dropout(src_pe)
 
         # Target embeddings + positional encoding
         trg_embed = self.embedding_decoder(trg) * self.scale
         trg_pe = self.positional_encoding_decoder(trg_embed)
-        trg_pe = self.dropout(trg_pe)
+        trg_pe_drop = self.dropout(trg_pe)
 
         # Pass through stacked Encoders
-        enc_output = src_pe
+        enc_output = src_pe_drop
         for layer in self.encoder_layers:
             enc_output = layer(enc_output, src_padding_mask)
 
         # Pass through stacked Decoders
-        dec_output = trg_pe
+        dec_output = trg_pe_drop
         for layer in self.decoder_layers:
             dec_output = layer(dec_output, enc_output,
                                trg_padding_mask, src_padding_mask)
@@ -200,15 +200,18 @@ class SimpleTransformer(nn.Module):
                   src: torch.Tensor,
                   beam_size: int = 2,
                   max_len: int = None) -> torch.Tensor:
-        """Translates source sequences using beam search decoding with length normalization.
+        """Translates source sequences using beam search decoding with length
+            normalization.
 
         Args:
             src (torch.Tensor): Source tensor of shape (batch_size, src_seq_len).
             beam_size (int): Beam width for beam search.
-            max_len (int): Maximum length of decoded sequences. If None, it's computed dynamically.
+            max_len (int): Maximum length of decoded sequences. If None, it's computed
+                            dynamically.
 
         Returns:
-            torch.Tensor: Tensor of shape (batch_size, decoded_seq_len) with predicted token IDs.
+            torch.Tensor: Tensor of shape (batch_size, decoded_seq_len) with
+                        predicted token IDs.
         """
         if max_len is None or max_len <= 0:
             max_len = int(src.size(1) * 1.6) + 10

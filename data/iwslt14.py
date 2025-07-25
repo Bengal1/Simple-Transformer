@@ -269,10 +269,11 @@ class IWSLT14Dataset:
                             f"French: {actual_id_fr} (expected {expected_id})")
 
                     error_msg = (
-                        f"Critical Error: Special token '{token_str}' found in vocabulary "
-                        f"but has incorrect ID(s): {'; '.join(error_details)}. "
-                        "Its designated position was likely taken by another token. "
-                        "This is an unrecoverable vocabulary setup error."
+                        f"Critical Error: Special token '{token_str}' found in "
+                        f"vocabulary but has incorrect ID(s):"
+                        f" {'; '.join(error_details)}. Its designated position was "
+                        f"likely taken by another token. This is an unrecoverable "
+                        f"vocabulary setup error."
                     )
                     logging.critical(error_msg)
                     raise ValueError(error_msg)
@@ -283,7 +284,8 @@ class IWSLT14Dataset:
                     f"English vocabulary. This token is essential for proper model "
                     f"operation and should have ID {expected_id}. Ensure the "
                     f"vocabulary building process correctly includes all defined "
-                    f"SPECIAL_TOKENS_CONFIG entries. This is an unrecoverable setup error."
+                    f"SPECIAL_TOKENS_CONFIG entries. This is an unrecoverable setup "
+                    f"error."
                 )
                 logging.critical(error_msg)
                 raise ValueError(error_msg)
@@ -303,11 +305,10 @@ class IWSLT14Dataset:
             return
 
         if "train" not in self.tokenized_datasets or \
-                not self.tokenized_datasets["train"].get("en") or \
-                not self.tokenized_datasets["train"].get("fr"):
-            logging.warning(
-                "'train' split not found or its language data is empty. "
-                "Cannot compute max_length.")
+                   not self.tokenized_datasets["train"].get("en") or \
+                   not self.tokenized_datasets["train"].get("fr"):
+            logging.warning("'train' split not found or its language data is empty. "
+                            "Cannot compute max_length.")
             self.max_length = 50  # Set a default fallback length
             return
 
@@ -336,10 +337,8 @@ class IWSLT14Dataset:
         # Add 2 for <bos> and <eos> tokens
         self.max_length = computed_max_len + 2
 
-        logging.info(
-            f"Computed max_length (at {percentile * 100}% percentile) "
-            f"for training data: {self.max_length}"
-        )
+        logging.info(f"Computed max_length (at {percentile * 100}% percentile) for "
+                     f"training data: {self.max_length}")
 
     def add_tokens_to_vocabulary(self, tokens: list[str], target_language: str):
         """
@@ -358,8 +357,8 @@ class IWSLT14Dataset:
         elif target_language == "fr":
             target_vocab = self.fr_vocabulary
         else:
-            raise ValueError(
-                f"Unsupported language code '{target_language}'. Expected 'en' or 'fr'.")
+            raise ValueError(f"Unsupported language code '{target_language}'. "
+                             f"Expected 'en' or 'fr'.")
 
         for token in tokens:
             if token not in target_vocab:

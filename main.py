@@ -24,6 +24,11 @@ from torio.utils.ffmpeg_utils import set_log_level
 from train import train_model
 import logging
 
+"""
+TODO:
+* Consider about adding main().
+* Improve convergence.
+"""
 
 # ----------------------- Hyperparameters & Config ----------------------- #
 # --- Model Architecture ---
@@ -132,16 +137,16 @@ if __name__ == "__main__":
                                trg_vocab_size, device, EPOCHS, MAX_GRAD_CLIP)
 
     # Load the best checkpoint from training
-    utils.load_checkpoint(model, optimizer, scheduler)
+    # utils.load_checkpoint(model, optimizer, scheduler)
 
     # Evaluate model on the test dataset
     test_loss = evaluation.evaluate_model(model, test_loader, criterion, device)
     print(f"\nTest loss: {test_loss:.2f}\n")
 
     # Compute BLEU score
-    bleu_score = evaluation.evaluate_bleu(
-        model, test_loader, trg_vocab,
-        device, iwslt14_data.get_special_tokens_list(), verbose=True)
+    bleu_score = evaluation.evaluate_bleu(model, test_loader, trg_vocab, device,
+                                          iwslt14_data.get_special_tokens_list(),
+                                          verbose=True)
 
     # Plot training and validation losses
     utils.plot_metrics(eval_records)
