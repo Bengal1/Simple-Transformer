@@ -63,7 +63,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         if warmup_steps <= 0:
             raise ValueError("warmup_steps must be a positive integer.")
 
-        self.model_size = model_size
+        self.model_size   = model_size
         self.warmup_steps = warmup_steps
         super().__init__(optimizer, last_epoch)
 
@@ -73,14 +73,15 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         Returns:
             list: A list containing the learning rate for each parameter group.
         """
-        step = max(1, self._step_count)  # Avoid division by zero
+        step  = max(1, self._step_count)  # Avoid division by zero
         scale = self.model_size ** -0.5
         # Calculate the Noam learning rate based on the current step
-        lr = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
+        lr    = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
         return [lr for _ in self.base_lrs]
 
 
 # --------------------- Logging --------------------- #
+
 class LogLevel:
     """Defines standard logging levels using logging module's integer values."""
     DEBUG    = logging.DEBUG
@@ -122,6 +123,7 @@ def set_logging_level(logging_level: int):
 
 
 # ------------------ Checkpointing ------------------ #
+
 def save_model(
         epoch: int,
         model: torch.nn.Module,
@@ -155,11 +157,11 @@ def save_model(
             logging.debug(f"Ensured directory exists: {output_dir}")
 
         torch.save(checkpoint, filepath)
-        logging.info(
-            f"Model checkpoint saved successfully at epoch {epoch} to {filepath}")
+        logging.info(f"Model checkpoint saved successfully at epoch {epoch} "
+                     f"to {filepath}")
     except Exception as e:
-        logging.error(
-            f"Failed to save model checkpoint at epoch {epoch} to {filepath}: {e}")
+        logging.error(f"Failed to save model checkpoint at epoch {epoch} "
+                      f"to {filepath}: {e}")
 
 
 def load_checkpoint(
@@ -184,14 +186,16 @@ def load_checkpoint(
     if os.path.exists(checkpoint_path):
         try:
             logging.info(f"Attempting to load checkpoint from: {checkpoint_path}")
-            checkpoint = torch.load(checkpoint_path, map_location=device)
+            checkpoint = torch.load(checkpoint_path,
+                                    map_location=device,
+                                    weights_only=True)
 
             model.load_state_dict(checkpoint["model_state_dict"])
             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
             scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
 
             start_epoch = checkpoint["epoch"] + 1
-            last_loss = checkpoint.get("loss", "N/A") # Use .get() for optional keys
+            last_loss = checkpoint.get("loss", "N/A")
 
             logging.info(f"Successfully resumed model from epoch {start_epoch}. "
                          f"Last epoch loss: {last_loss}")
@@ -231,14 +235,17 @@ def save_stats_to_csv(
 
     Raises:
         ValueError: If `stats_record` contains no non-empty lists of metrics.
-        OSError: If there's an issue creating the output directory or writing the file.
+        OSError: If there's an issue creating the output directory or writing the
+                 file.
     """
     target_path = file_path if file_path is not None else "training_stats.csv"
 
     available_data = {k: v for k, v in stats_record.items() if v}
     if not available_data:
-        logging.warning("No non-empty stats data provided to save. Aborting save operation.")
-        raise ValueError("Cannot save stats: No non-empty data found in 'stats_record'.")
+        logging.warning("No non-empty stats data provided to save. Aborting save "
+                        "operation.")
+        raise ValueError("Cannot save stats: No non-empty data found in "
+                         "'stats_record'.")
 
     output_dir = os.path.dirname(target_path)
     if output_dir:  # Checks if output_dir is not an empty string
@@ -295,19 +302,21 @@ def _plot_losses(statistics: dict[str, list[float]]):
     - Both train and validation losses are plotted with different colors and markers.
     """
     if "train" not in statistics or "validation" not in statistics:
-        raise ValueError(
-            "Input dictionary must contain 'train' and 'validation' keys.")
-
+        logging.error("Input dictionary must contain 'train' and 'validation' keys "
+                      "for _plot_losses.")
+        raise ValueError("Input dictionary must contain 'train' and 'validation' "
+                         "keys.")
+    # --- Data Extraction ---
     train_loss = statistics['train']
     validation_loss = statistics['validation']
     epochs = range(1, len(train_loss) + 1)
-
+    # --- Plotting Configuration ---
     plt.figure(figsize=(10, 5))
     plt.plot(epochs, train_loss, linestyle='-', color='#1f77b4',
              label='Train Loss', linewidth=2)
     plt.plot(epochs, validation_loss, linestyle='-', color='#d62728',
              label='Validation Loss', linewidth=2)
-
+    # --- Chart Customization ---
     plt.title("Training & Validation Loss Over Epochs",
               fontsize=16, fontweight='bold')
     plt.xticks(epochs) # This ensures that xticks are integers
@@ -315,7 +324,7 @@ def _plot_losses(statistics: dict[str, list[float]]):
     plt.ylabel("Loss", fontsize=12)
     plt.legend()
     plt.grid(True, linestyle='--', alpha=0.6)
-
+    # --- Display Plot ---
     plt.show()
 
 
@@ -336,10 +345,10 @@ def _plot_bleu(bleu_scores: list[float]):
         return
 
     epochs = list(range(1, len(bleu_scores) + 1))
-
+    # --- Plotting Configuration ---
     plt.figure(figsize=(8, 5))
     plt.plot(epochs, bleu_scores, label='BLEU Score', color='green', linewidth=2)
-
+    # --- Chart Customization ---
     plt.title("BLEU Score Over Epochs", fontsize=14, fontweight='bold')
     plt.xlabel("Epoch", fontsize=12)
     plt.ylabel("BLEU Score", fontsize=12)
@@ -347,7 +356,7 @@ def _plot_bleu(bleu_scores: list[float]):
     plt.grid(True, linestyle='--', alpha=0.5)
     plt.legend(fontsize=10)
     plt.tight_layout()
-
+    # --- Display Plot ---
     plt.show()
 
 
@@ -365,27 +374,13 @@ def plot_metrics(records: dict[str, list[float]]):
     - If both 'train' and 'validation' are present and non-empty, it plots losses.
     - If 'bleu' is present and non-empty, it plots BLEU scores.
     """
+    # Plot training and validation losses if data is available
     if records.get('train') and records.get('validation'):
         _plot_losses(records)
+
+    # Plot BLEU scores if data is available
     if records.get('bleu'):
         _plot_bleu(records['bleu'])
-
-
-# ------------------ Model Utilities ------------------ #
-
-def count_parameters(model: torch.nn.Module) -> int:
-    """
-    Returns and prints the number of trainable parameters in a PyTorch model.
-
-    Args:
-        model (torch.nn.Module): The model whose parameters are to be counted.
-
-    Returns:
-        int: The total number of trainable parameters.
-    """
-    num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"Number of trainable parameters: {num_params:,}")
-    return num_params
 
 
 # ------------------ Data Preprocessing ------------------ #

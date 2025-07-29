@@ -10,21 +10,27 @@ class PositionalEncoding(torch.nn.Module):
 
     Attributes:
         d_model (int): The embedding dimension of the model.
-        n (int): The base for the sinusoidal encoding.
+        encoding_scalar (int): The base for the sinusoidal encoding (often 10000).
+        _positional_encoding_matrix (torch.Tensor): Buffer to store the pre-calculated
+                                                    positional encoding matrix.
     """
 
     def __init__(self,
                  d_model: int,
-                 n: int = 10000):
+                 encoding_scalar: int = 10000):
         """Initializes the positional encoding module.
 
         Args:
             d_model (int): The embedding dimension of the model.
-            n (int, optional): The base for the sinusoidal encoding. Default is 10000.
+            encoding_scalar (int, optional): The base for the sinusoidal encoding.
+                                            Default is 10000.
         """
         super().__init__()
         self.d_model = d_model
-        self.n = n
+        self.encoding_scalar = encoding_scalar
+        # Register The Positional Encoding Matrix as a buffer
+        self.register_buffer('_positional_encoding_matrix',
+                             torch.empty(0, d_model))
 
     def _create_positional_encoding(self,
                                     seq_len: int,
@@ -45,8 +51,10 @@ class PositionalEncoding(torch.nn.Module):
         k_pos = torch.arange(seq_len, device=device).unsqueeze(dim=1).float()
         _2i = torch.arange(0, self.d_model, step=2, device=device).float()
 
-        pos_encoding[:, 0::2] = torch.sin(k_pos / self.n ** (_2i / self.d_model))
-        pos_encoding[:, 1::2] = torch.cos(k_pos / self.n ** (_2i / self.d_model))
+        pos_encoding[:, 0::2] = torch.sin(
+            k_pos / self.encoding_scalar ** (_2i / self.d_model))
+        pos_encoding[:, 1::2] = torch.cos(
+            k_pos / self.encoding_scalar ** (_2i / self.d_model))
 
         return pos_encoding
 
@@ -54,13 +62,22 @@ class PositionalEncoding(torch.nn.Module):
         """Adds positional encoding to the input tensor.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model).
+            x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, d_model).
 
         Returns:
             torch.Tensor: Tensor with added positional encoding,
-            of shape (batch_size, seq_len, d_model).
+            of shape (batch_size, sequence_length, d_model).
         """
-        batch_size, seq_len, _ = x.shape
-        pos_encoding = self._create_positional_encoding(seq_len, x.device)
+        batch_size, sequence_length, _ = x.shape
 
-        return x + pos_encoding.unsqueeze(0)  # Broadcast across batch
+        # If PE matrix is shorter than the required sequence_length, re-generate it
+        if sequence_length > self._positional_encoding_matrix.shape[0]:
+            self._positional_encoding_matrix = self._create_positional_encoding(
+                sequence_length, x.device)
+
+        # Slice the PE matrix to the required sequence length
+        current_positional_encoding = self._positional_encoding_matrix[
+                                      :sequence_length, :]
+
+        # Broadcast across batch
+        return x + current_positional_encoding.unsqueeze(0)

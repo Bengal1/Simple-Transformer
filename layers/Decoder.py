@@ -40,21 +40,21 @@ class Decoder(torch.nn.Module):
             dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
         """
         super().__init__()
+        # Attention Layers
         self.attention_masked = MultiHeadAttention(d_model, num_heads, d_k, d_v,
                                                    dropout=dropout, masked_attn=True)
-        # self.norm1 = NormLayer(d_model)
-        self.norm1 = torch.nn.LayerNorm(d_model)
-
-        self.attention_cross = MultiHeadAttention(d_model, num_heads, d_k, d_v,
+        self.attention_cross  = MultiHeadAttention(d_model, num_heads, d_k, d_v,
                                                   dropout=dropout, cross_attn=True)
-        # self.norm2 = NormLayer(d_model)
-        self.norm2 = torch.nn.LayerNorm(d_model)
-
+        # FeedForward Layer
         self.ff = FeedForward(d_model, dropout=dropout)
-        # self.norm3 = NormLayer(d_model)
-        self.norm3 = torch.nn.LayerNorm(d_model)
-
-        self.dropout = torch.nn.Dropout(p=dropout)
+        # Normalization Layers
+        self.norm1            = torch.nn.LayerNorm(d_model)
+        self.norm2            = torch.nn.LayerNorm(d_model)
+        self.norm3            = torch.nn.LayerNorm(d_model)
+        # Dropout
+        self.dropout1         = torch.nn.Dropout(p=dropout)
+        self.dropout2         = torch.nn.Dropout(p=dropout)
+        self.dropout3         = torch.nn.Dropout(p=dropout)
 
     def forward(self,
                 dec_input: torch.Tensor,
@@ -77,18 +77,15 @@ class Decoder(torch.nn.Module):
         """
         # Masked self-attention + residual + norm
         attn_masked = self.attention_masked(dec_input, padding_mask=trg_padding_mask)
-        attn_masked = self.dropout(attn_masked)
-        norm1_out = self.norm1(attn_masked + dec_input)
+        norm1_out   = self.norm1(self.dropout1(attn_masked) + dec_input)
 
         # Cross-attention with encoder output + residual + norm
-        attn_cross = self.attention_cross(norm1_out, enc_output,
+        attn_cross  = self.attention_cross(norm1_out, enc_output,
                                           padding_mask=src_padding_mask)
-        attn_cross = self.dropout(attn_cross)
-        norm2_out = self.norm2(attn_cross + norm1_out)
+        norm2_out   = self.norm2(self.dropout2(attn_cross) + norm1_out)
 
         # Feedforward network + residual + norm
-        ff_out = self.ff(norm2_out)
-        ff_out = self.dropout(ff_out)
-        dec_out = self.norm3(ff_out + norm2_out)
+        ff_out      = self.ff(norm2_out)
+        dec_out     = self.norm3(self.dropout3(ff_out) + norm2_out)
 
         return dec_out

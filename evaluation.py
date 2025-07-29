@@ -1,5 +1,4 @@
 import torch
-# import evaluate as hf_evaluate
 import sacrebleu
 import logging
 
@@ -142,12 +141,12 @@ def evaluate_bleu(model: torch.nn.Module,
                                                     reference_ids_batch):
                 # Decode IDs to token strings
                 decoded_pred = _decode_sequence(predict_seq_ids, idx_to_token)
-                decoded_ref = _decode_sequence(ref_seq_ids, idx_to_token)
+                decoded_ref  = _decode_sequence(ref_seq_ids, idx_to_token)
 
                 # Remove special tokens
                 cleaned_pred_tokens = _remove_special_tokens(decoded_pred,
                                                              special_token_set)
-                cleaned_ref_tokens = _remove_special_tokens(decoded_ref,
+                cleaned_ref_tokens  = _remove_special_tokens(decoded_ref,
                                                             special_token_set)
 
                 if cleaned_pred_tokens and cleaned_ref_tokens:
@@ -156,9 +155,8 @@ def evaluate_bleu(model: torch.nn.Module,
 
     # Handle cases where no valid sequences were generated/found
     if not all_predictions_joined or not all_references_joined:
-        print(
-            "Warning: No valid predictions or references found for BLEU calculation. "
-            "Returning 0.0.")
+        logging.warning("No valid predictions or references found for BLEU "
+                        "calculation. Returning 0.0.")
         return 0.0
 
     bleu_result = sacrebleu.corpus_bleu(all_predictions_joined,

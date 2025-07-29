@@ -59,12 +59,12 @@ class MultiHeadAttention(torch.nn.Module):
         self.masked_attn = masked_attn
 
         # Shared linear layers
-        self.w_q = nn.Linear(d_model, num_heads * d_k)
-        self.w_k = nn.Linear(d_model, num_heads * d_k)
-        self.w_v = nn.Linear(d_model, num_heads * d_v)
+        self.w_q = nn.Linear(d_model, num_heads * d_k, bias=False)
+        self.w_k = nn.Linear(d_model, num_heads * d_k, bias=False)
+        self.w_v = nn.Linear(d_model, num_heads * d_v, bias=False)
 
         # Output projection
-        self.w_out = nn.Linear(num_heads * d_v, d_model)
+        self.w_out = nn.Linear(num_heads * d_v, d_model, bias=False)
 
         # Dropout
         self.dropout = nn.Dropout(dropout)
@@ -86,7 +86,8 @@ class MultiHeadAttention(torch.nn.Module):
             head_dim (int): The dimension size per attention head.
 
         Returns:
-            torch.Tensor: Reshaped tensor of shape (batch_size, num_heads, seq_len, head_dim).
+            torch.Tensor: Reshaped tensor of shape
+                            (batch_size, num_heads, seq_len, head_dim).
         """
         batch_size, seq_len, _ = x.size()
         return x.view(batch_size, seq_len, self.num_heads,

@@ -48,7 +48,7 @@ LEARNING_RATE   = 1e-3      # Initial learning rate
 BETAS           = (0.9, 0.98) # Adam Optimizer beta coefficients
 EPSILON         = 1e-9      # Optimizer's epsilon for numerical stability
 WARMUP          = 50        # Scheduler warmup period (number of steps)
-WEIGHT_DECAY    = 1e-3      # Weight decay parameter (L2 regularization)
+WEIGHT_DECAY    = 1e-5      # Weight decay parameter (L2 regularization)
 # --- Application-Specific Settings ---
 DEBUG_MODE      = True      # Debug mode flag (enables/disables debug features)
 LOGGING_LEVEL   = utils.LogLevel.WARNING # Initial logging verbosity level
@@ -107,7 +107,8 @@ Initialize the Transformer model, loss function, optimizer
 and custom learning rate scheduler.
 """
 # Initialize the SimpleTransformer model.
-model = SimpleTransformer(src_vocab_size, trg_vocab_size, EMBED_DIM,
+model = SimpleTransformer(src_vocab_size, trg_vocab_size,
+                          embed_dim=EMBED_DIM,
                           num_heads=NUM_HEADS,
                           num_layers=NUM_LAYERS,
                           d_k=D_K,
@@ -152,4 +153,4 @@ if __name__ == "__main__":
     utils.plot_metrics(eval_records)
 
     # Optional: count model parameters
-    # utils.count_parameters(model)
+    # model.count_parameters()

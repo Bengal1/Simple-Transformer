@@ -18,7 +18,8 @@ class Encoder(torch.nn.Module):
         attention (MultiHeadAttention): Multi-head self-attention mechanism.
         norm1 (NormLayer): Layer normalization after attention with residual connection.
         ff (FeedForward): Position-wise feedforward network.
-        norm2 (NormLayer): Layer normalization after feedforward network with residual connection.
+        norm2 (NormLayer): Layer normalization after feedforward network with
+                           residual connection.
     """
 
     def __init__(self,
@@ -34,18 +35,21 @@ class Encoder(torch.nn.Module):
             num_heads (int): Number of attention heads.
             d_k (int): Dimensionality of key vectors per head.
             d_v (int): Dimensionality of value vectors per head.
-            dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.0.
+            dropout (float, optional): Dropout rate applied to attention and
+                                       feedforward layers. Defaults to 0.0.
         """
         super().__init__()
+        # Attention Layer
         self.attention = MultiHeadAttention(d_model, num_heads, d_k, d_v,
                                             dropout=dropout)
-        # self.norm1 = NormLayer(d_model)
-        self.norm1 = torch.nn.LayerNorm(d_model)
-        self.ff = FeedForward(d_model, dropout=dropout)
-        # self.norm2 = NormLayer(d_model)
-        self.norm2 = torch.nn.LayerNorm(d_model)
-        self.dropout1 = torch.nn.Dropout(p=dropout)
-        self.dropout2 = torch.nn.Dropout(p=dropout)
+        # FeedForward Layer
+        self.ff        = FeedForward(d_model, dropout=dropout)
+        # Normalization Layers
+        self.norm1     = torch.nn.LayerNorm(d_model)
+        self.norm2     = torch.nn.LayerNorm(d_model)
+        # Dropout
+        self.dropout1  = torch.nn.Dropout(p=dropout)
+        self.dropout2  = torch.nn.Dropout(p=dropout)
 
     def forward(self,
                 enc_input: torch.Tensor,
@@ -60,11 +64,11 @@ class Encoder(torch.nn.Module):
             torch.Tensor: Output tensor of shape (batch_size, seq_len, d_model).
         """
         # Multi-head self-attention + residual + norm
-        attn_out = self.attention(enc_input, padding_mask=src_padding_mask)
+        attn_out  = self.attention(enc_input, padding_mask=src_padding_mask)
         norm1_out = self.norm1(self.dropout1(attn_out) + enc_input)
 
         # Feedforward network + residual + norm
-        ff_out = self.ff(norm1_out)
-        enc_out = self.norm2(self.dropout2(ff_out) + norm1_out)
+        ff_out    = self.ff(norm1_out)
+        enc_out   = self.norm2(self.dropout2(ff_out) + norm1_out)
 
         return enc_out

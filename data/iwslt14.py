@@ -83,7 +83,7 @@ class IWSLT14Dataset:
         self.tokenized_datasets = {}
 
         # Loads spaCy tokenizers for English and French.
-        logging.info("Loading spaCy English and French models.  ")
+        logging.info("Loading spaCy English and French models.")
         # self.en_nlp = spacy.load("en_core_web_sm")
         # self.fr_nlp = spacy.load("fr_core_news_sm")
         try:
@@ -231,8 +231,7 @@ class IWSLT14Dataset:
             target_vocab = self.fr_vocabulary
         else:
             raise ValueError(
-                f"Unsupported language code '{lang_code}'. Expected 'en' or 'fr'."
-            )
+                f"Unsupported language code '{lang_code}'. Expected 'en' or 'fr'.")
         self.add_tokens_to_vocabulary(list(unique_tokens_across_specified_splits),
                                       lang_code)
 
@@ -464,9 +463,9 @@ class IWSLT14Dataset:
         Returns:
             tuple: (train_dataset, validation_dataset, test_dataset)
         """
-        train_dataset = self.get_split_dataset("train")
+        train_dataset      = self.get_split_dataset("train")
         validation_dataset = self.get_split_dataset("validation")
-        test_dataset = self.get_split_dataset("test")
+        test_dataset       = self.get_split_dataset("test")
 
         return train_dataset, validation_dataset, test_dataset
 

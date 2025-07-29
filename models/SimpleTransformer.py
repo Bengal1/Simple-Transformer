@@ -103,7 +103,7 @@ class SimpleTransformer(nn.Module):
         self.pad_token_id = 0
         self.bos_token_id = 1
         self.eos_token_id = 2
-        self.scale = math.sqrt(embed_dim)
+        self.embed_scale = math.sqrt(embed_dim)
 
         # Token embeddings
         self.embedding_encoder = nn.Embedding(src_vocab_size, embed_dim,
@@ -115,8 +115,9 @@ class SimpleTransformer(nn.Module):
         self.positional_encoding_encoder = PositionalEncoding(embed_dim)
         self.positional_encoding_decoder = PositionalEncoding(embed_dim)
 
-        # Dropout layer
-        self.dropout = nn.Dropout(dropout)
+        # Dropout
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
 
         # Encoder and decoder stacks
         self.encoder_layers = nn.ModuleList([
@@ -128,18 +129,17 @@ class SimpleTransformer(nn.Module):
             for _ in range(num_layers)
         ])
 
-        # Output projection
+        # Output projection - W_o
         self.w_o = nn.Linear(embed_dim, trg_vocab_size)
-        # self.softmax = nn.Softmax(dim=-1)
 
         # Xavier initialization - W_o
         init.xavier_uniform_(self.w_o.weight)
 
         # Normal initialization - Embedding
-        init.normal_(self.embedding_encoder.weight, mean=0.0, std=1.0)
+        init.normal_(self.embedding_encoder.weight, mean=0.0, std=0.02)
         self.embedding_encoder.weight.data *= math.sqrt(embed_dim)
 
-        init.normal_(self.embedding_decoder.weight, mean=0.0, std=1.0)
+        init.normal_(self.embedding_decoder.weight, mean=0.0, std=0.02)
         self.embedding_decoder.weight.data *= math.sqrt(embed_dim)
 
     @staticmethod
@@ -171,28 +171,28 @@ class SimpleTransformer(nn.Module):
         trg_padding_mask = self._generate_padding_mask(trg, self.pad_token_id)
 
         # Source embeddings + positional encoding
-        src_embed = self.embedding_encoder(src) * self.scale
-        src_pe = self.positional_encoding_encoder(src_embed)
-        src_pe_drop = self.dropout(src_pe)
+        src_embed        = self.embedding_encoder(src) * self.embed_scale
+        src_pe           = self.positional_encoding_encoder(src_embed)
+        src_pe_drop      = self.dropout1(src_pe)
 
         # Target embeddings + positional encoding
-        trg_embed = self.embedding_decoder(trg) * self.scale
-        trg_pe = self.positional_encoding_decoder(trg_embed)
-        trg_pe_drop = self.dropout(trg_pe)
+        trg_embed        = self.embedding_decoder(trg) * self.embed_scale
+        trg_pe           = self.positional_encoding_decoder(trg_embed)
+        trg_pe_drop      = self.dropout2(trg_pe)
 
         # Pass through stacked Encoders
-        enc_output = src_pe_drop
+        enc_output       = src_pe_drop
         for layer in self.encoder_layers:
-            enc_output = layer(enc_output, src_padding_mask)
+            enc_output   = layer(enc_output, src_padding_mask)
 
         # Pass through stacked Decoders
-        dec_output = trg_pe_drop
+        dec_output       = trg_pe_drop
         for layer in self.decoder_layers:
-            dec_output = layer(dec_output, enc_output,
-                               trg_padding_mask, src_padding_mask)
+            dec_output   = layer(dec_output, enc_output,
+                                 trg_padding_mask, src_padding_mask)
 
         # Output layer (no Softmax; handled by nn.CrossEntropyLoss)
-        output = self.w_o(dec_output)
+        output           = self.w_o(dec_output)
         return output
 
 
@@ -223,8 +223,8 @@ class SimpleTransformer(nn.Module):
 
             # === Encode the input ===
             src_padding_mask = self._generate_padding_mask(src, self.pad_token_id)
-            src_embed = self.dropout(self.positional_encoding_encoder(
-                        self.embedding_encoder(src) * self.scale))
+            src_embed = self.dropout1(self.positional_encoding_encoder(
+                        self.embedding_encoder(src) * self.embed_scale))
             enc_output = src_embed
             for layer in self.encoder_layers:
                 enc_output = layer(enc_output, src_padding_mask)
@@ -254,8 +254,8 @@ class SimpleTransformer(nn.Module):
 
             for _ in range(max_len):
                 # Decoder embedding
-                trg_embed = self.dropout(self.positional_encoding_decoder(
-                            self.embedding_decoder(sequences) * self.scale))
+                trg_embed = self.dropout2(self.positional_encoding_decoder(
+                            self.embedding_decoder(sequences) * self.embed_scale))
                 dec_output = trg_embed
                 for layer in self.decoder_layers:
                     dec_output = layer(dec_output, enc_output,
@@ -320,3 +320,23 @@ class SimpleTransformer(nn.Module):
 
             return torch.nn.utils.rnn.pad_sequence(best_sequences, batch_first=True,
                                                    padding_value=self.pad_token_id)
+
+
+    # --- Model Utilities ---
+    def count_parameters(self, only_trainable: bool = True) -> int:
+        """
+        Counts the total number of learnable parameters in the model.
+
+        Args:
+            only_trainable (bool): If True, only counts parameters that
+                                   require gradients (i.e., are trainable).
+
+        Returns:
+            int: The total number of parameters.
+        """
+        if only_trainable:
+            num_params = sum(p.numel() for p in self.parameters() if p.requires_grad)
+        else:
+            num_params = sum(p.numel() for p in self.parameters())
+        print(f"Number of trainable parameters: {num_params:,}")
+        return num_params

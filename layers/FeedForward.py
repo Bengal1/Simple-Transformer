@@ -14,8 +14,7 @@ class FeedForward(torch.nn.Module):
     Attributes:
         fc1 (nn.Linear): The first linear layer that expands the input dimension to the hidden dimension.
         fc2 (nn.Linear): The second linear layer that projects the hidden representation back to the original dimension.
-        mid_dropout (nn.Dropout): Dropout applied after the ReLU activation.
-        out_dropout (nn.Dropout): Dropout applied after the second linear layer.
+        dropout (nn.Dropout): Dropout applied after the ReLU activation.
     """
 
 
@@ -31,13 +30,13 @@ class FeedForward(torch.nn.Module):
             dropout (float, optional): The dropout probability. Default is 0.1.
         """
         super().__init__()
-        self.fc1 = nn.Linear(d_model, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, d_model)
-        # self.dropout = nn.Dropout(dropout)
+        self.fc1     = nn.Linear(d_model, hidden_dim)
+        self.fc2     = nn.Linear(hidden_dim, d_model)
+        self.dropout = nn.Dropout(dropout)
 
         # Xavier initialization
-        # nn.init.xavier_uniform_(self.fc1.weight)
-        # nn.init.xavier_uniform_(self.fc2.weight)
+        nn.init.xavier_uniform_(self.fc1.weight)
+        nn.init.xavier_uniform_(self.fc2.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Performs a forward pass through the FeedForward network.
@@ -53,7 +52,7 @@ class FeedForward(torch.nn.Module):
         """
         x = self.fc1(x)
         x = F.relu(x)
-        # x = self.dropout(x)
+        x = self.dropout(x)
         x = self.fc2(x)
 
         return x
