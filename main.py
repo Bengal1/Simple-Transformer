@@ -52,7 +52,7 @@ EPSILON         = 1e-9      # Optimizer's epsilon for numerical stability
 WARMUP          = 50        # Scheduler warmup period (number of steps)
 WEIGHT_DECAY    = 1e-5      # Weight decay parameter (L2 regularization)
 # --- Application-Specific Settings ---
-DEBUG_MODE      = True      # Debug mode flag (enables/disables debug features)
+DATA_DEBUG_MODE      = True      # Debug mode flag (enables/disables debug features)
 LOGGING_LEVEL   = utils.LogLevel.WARNING # Initial logging verbosity level
 
 # File paths for debugging (small subset of the dataset).
@@ -79,8 +79,8 @@ utils.set_logging_level(LOGGING_LEVEL)
 # ----------------------------- Data Loading ----------------------------- #
 # Initialize the train, validation and test dataset to data loader
 
-# Select the appropriate dataset paths based on the DEBUG_MODE flag.
-if DEBUG_MODE: # Or based on a dedicated 'data_mode' argument
+# Select the appropriate dataset paths based on the DATA_DEBUG_MODE flag.
+if DATA_DEBUG_MODE: # Or based on a dedicated 'data_mode' argument
     data_paths_to_use = DEBUG_DATA_PATHS
     logging.info("Using DEBUG dataset paths.")
 else:
