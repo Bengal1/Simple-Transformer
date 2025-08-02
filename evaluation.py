@@ -129,7 +129,8 @@ def evaluate_bleu(model: torch.nn.Module,
             src_batch = src_batch.to(device)
             trg_batch = trg_batch.to(device)
 
-            predicted_ids_batch = model.translate(src_batch, beam_size=beam_size,
+            predicted_ids_batch = model.translate(src_batch,
+                                                  beam_size=beam_size,
                                                   max_len=max_len)
 
             # Convert tensors to standard Python lists for easier processing
@@ -163,7 +164,6 @@ def evaluate_bleu(model: torch.nn.Module,
     # print("All predictions: \n", all_predictions_joined)
     # print("All references: \n", all_references_joined)
     # --- END OF DEBUG ---
-
 
     bleu_result = sacrebleu.corpus_bleu(all_predictions_joined,
                                         all_references_joined, tokenize='none')
