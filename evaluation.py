@@ -159,6 +159,12 @@ def evaluate_bleu(model: torch.nn.Module,
                         "calculation. Returning 0.0.")
         return 0.0
 
+    # ------ DEBUG ------
+    # print("All predictions: \n", all_predictions_joined)
+    # print("All references: \n", all_references_joined)
+    # --- END OF DEBUG ---
+
+
     bleu_result = sacrebleu.corpus_bleu(all_predictions_joined,
                                         all_references_joined, tokenize='none')
 

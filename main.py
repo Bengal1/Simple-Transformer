@@ -31,6 +31,8 @@ TODO:
 """
 
 # ----------------------- Hyperparameters & Config ----------------------- #
+# These parameters define the model's architecture, training process,
+# optimizer settings, and general application behavior.
 # --- Model Architecture ---
 EMBED_DIM       = 512       # Embedding dimension
 NUM_HEADS       = 8         # Number of attention heads
@@ -53,32 +55,31 @@ WEIGHT_DECAY    = 1e-5      # Weight decay parameter (L2 regularization)
 DEBUG_MODE      = True      # Debug mode flag (enables/disables debug features)
 LOGGING_LEVEL   = utils.LogLevel.WARNING # Initial logging verbosity level
 
-
-# Paths to debug datasets for training, validation, and testing.
+# File paths for debugging (small subset of the dataset).
 DEBUG_DATA_PATHS = {
     "train":      "data/local_datasets/iwslt14_train_debug.json",
     "validation": "data/local_datasets/iwslt14_validation_debug.json",
     "test":       "data/local_datasets/iwslt14_test_debug.json"
 }
-# Paths to full datasets for training, validation, and testing.
+# File paths for full dataset
 DATA_PATHS = {
     "train":      "data/local_datasets/iwslt14_train.json",
     "validation": "data/local_datasets/iwslt14_validation.json",
     "test":       "data/local_datasets/iwslt14_test.json"
 }
 
-# Set device (GPU/CPU)
+# ------------------------ Device & Logging Setup ------------------------ #
+# Set computation device (GPU/CPU)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using', device, '\n') # DEBUG without logging - Remove!
 
 # Set the logging level.
 utils.set_logging_level(LOGGING_LEVEL)
 
-
 # ----------------------------- Data Loading ----------------------------- #
-"""
-Initialize the train, validation and test dataset to data loader
-"""
+# Initialize the train, validation and test dataset to data loader
+
+# Select the appropriate dataset paths based on the DEBUG_MODE flag.
 if DEBUG_MODE: # Or based on a dedicated 'data_mode' argument
     data_paths_to_use = DEBUG_DATA_PATHS
     logging.info("Using DEBUG dataset paths.")
@@ -100,12 +101,10 @@ src_vocab_size, trg_vocab_size = iwslt14_data.get_vocabularies_sizes()
 src_vocab, trg_vocab           = iwslt14_data.get_vocabularies()
 special_tokens                 = iwslt14_data.get_special_tokens_list()
 
-
 # ----------------------------- Model Setup ------------------------------ #
-"""
-Initialize the Transformer model, loss function, optimizer 
-and custom learning rate scheduler.
-"""
+# Initialize the Transformer model, loss function, optimizer and
+# custom learning rate scheduler.
+
 # Initialize the SimpleTransformer model.
 model = SimpleTransformer(src_vocab_size, trg_vocab_size,
                           embed_dim=EMBED_DIM,
@@ -128,7 +127,6 @@ optimizer = torch.optim.Adam(model.parameters(),
 
 # Initialize the NoamLR learning rate scheduler.
 scheduler = utils.NoamLR(optimizer, model_size=EMBED_DIM, warmup_steps=WARMUP)
-
 
 # ------------------------------ Main Entry ------------------------------ #
 if __name__ == "__main__":

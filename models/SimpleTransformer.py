@@ -103,6 +103,7 @@ class SimpleTransformer(nn.Module):
         self.pad_token_id = 0
         self.bos_token_id = 1
         self.eos_token_id = 2
+        self.unk_token_id = 3
         self.embed_scale = math.sqrt(embed_dim)
 
         # Token embeddings
