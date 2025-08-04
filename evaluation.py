@@ -1,6 +1,8 @@
 import torch
 import sacrebleu
 import logging
+import re
+
 
 def evaluate_model(model: torch.nn.Module,
                    data_loader: torch.utils.data.DataLoader,
@@ -83,6 +85,20 @@ def _remove_special_tokens(tokens: list[str],
     """
     return [tok for tok in tokens if tok not in special_token_set]
 
+def detokenize(tokens: list[str]) -> str:
+    """
+    Combines a list of tokens back into a string, handling punctuation
+    and other special cases.
+    """
+    text = " ".join(tokens)
+    text = re.sub(r' (\'s|n\'t| \'m| \'ve| \'re| \'ll| \'d)', r'\1', text)
+    text = re.sub(r' ([\.\,\?\!\:\;])', r'\1', text)
+    text = re.sub(r' \( ', r' (', text)
+    text = re.sub(r' \) ', r') ', text)
+    text = re.sub(r' \" ', r' "', text)
+    text = re.sub(r'\"', r'"', text)
+    text = re.sub(r' ([\.\,\?\!\:\;])', r'\1', text)
+    return text.strip()
 
 # --- BLEU Evaluation Function ---
 def evaluate_bleu(model: torch.nn.Module,
@@ -116,8 +132,8 @@ def evaluate_bleu(model: torch.nn.Module,
     """
     model.eval()  # Set model to evaluation mode
 
-    all_predictions_joined: list[str] = []
-    all_references_joined: list[list[str]] = []
+    all_predictions: list[str] = []
+    all_references: list[str] = []
 
     # Create inverse mapping for decoding IDs to tokens
     idx_to_token = {idx: tok for tok, idx in trg_vocab.items()}
@@ -151,22 +167,22 @@ def evaluate_bleu(model: torch.nn.Module,
                                                             special_token_set)
 
                 if cleaned_pred_tokens and cleaned_ref_tokens:
-                    all_predictions_joined.append(" ".join(cleaned_pred_tokens))
-                    all_references_joined.append([" ".join(cleaned_ref_tokens)])
+                    all_predictions.append(detokenize(cleaned_pred_tokens))
+                    all_references.append(detokenize(cleaned_ref_tokens))
 
-    # Handle cases where no valid sequences were generated/found
-    if not all_predictions_joined or not all_references_joined:
+    # Handle cases where no valid sequences were found
+    if not all_predictions or not all_references:
         logging.warning("No valid predictions or references found for BLEU "
                         "calculation. Returning 0.0.")
         return 0.0
 
     # ------ DEBUG ------
-    # print("All predictions: \n", all_predictions_joined)
-    # print("All references: \n", all_references_joined)
+    # print("All predictions: \n", all_predictions)
+    # print("All references: \n", all_references)
     # --- END OF DEBUG ---
 
-    bleu_result = sacrebleu.corpus_bleu(all_predictions_joined,
-                                        all_references_joined, tokenize='none')
+    bleu_result = sacrebleu.corpus_bleu(all_predictions,
+                                        [all_references], tokenize='13a')
 
     if verbose:
         print("\n--- BLEU Score Details ---")

@@ -30,7 +30,7 @@ class PositionalEncoding(torch.nn.Module):
         self.encoding_scalar = encoding_scalar
         # Register The Positional Encoding Matrix as a buffer
         self.register_buffer('_positional_encoding_matrix',
-                             torch.empty(0, d_model))
+                             torch.empty(0, d_model), persistent=False)
 
     def _create_positional_encoding(self,
                                     seq_len: int,
@@ -62,11 +62,12 @@ class PositionalEncoding(torch.nn.Module):
         """Adds positional encoding to the input tensor.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, d_model).
+            x (torch.Tensor): Input tensor of shape
+                            (batch_size, sequence_length, d_model).
 
         Returns:
-            torch.Tensor: Tensor with added positional encoding,
-            of shape (batch_size, sequence_length, d_model).
+            torch.Tensor: Tensor with added positional encoding of shape
+                        (batch_size, sequence_length, d_model).
         """
         batch_size, sequence_length, _ = x.shape
 

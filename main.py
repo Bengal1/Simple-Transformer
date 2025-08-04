@@ -52,7 +52,7 @@ EPSILON         = 1e-9      # Optimizer's epsilon for numerical stability
 WARMUP          = 50        # Scheduler warmup period (number of steps)
 WEIGHT_DECAY    = 1e-5      # Weight decay parameter (L2 regularization)
 # --- Application-Specific Settings ---
-DATA_DEBUG_MODE      = True      # Debug mode flag (enables/disables debug features)
+DATA_DEBUG_MODE = True      # Debug mode flag (enables/disables debug features)
 LOGGING_LEVEL   = utils.LogLevel.WARNING # Initial logging verbosity level
 
 # File paths for debugging (small subset of the dataset).
@@ -130,13 +130,13 @@ scheduler = utils.NoamLR(optimizer, model_size=EMBED_DIM, warmup_steps=WARMUP)
 
 # ------------------------------ Main Entry ------------------------------ #
 if __name__ == "__main__":
+    # Load the best checkpoint from training
+    # utils.load_checkpoint(model, optimizer, scheduler)
+
     # Train the model and collect loss history
     eval_records = train_model(model, train_loader, val_loader, optimizer,
                                scheduler, criterion, trg_vocab, special_tokens,
                                trg_vocab_size, device, EPOCHS, MAX_GRAD_CLIP)
-
-    # Load the best checkpoint from training
-    # utils.load_checkpoint(model, optimizer, scheduler)
 
     # Evaluate model on the test dataset
     test_loss = evaluation.evaluate_model(model, test_loader, criterion, device)

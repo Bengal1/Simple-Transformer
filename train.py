@@ -88,7 +88,8 @@ def train_model(model: torch.nn.Module,
                 trg_vocab_size: int,
                 device: torch.device,
                 epochs: int = 10,
-                max_grad_clip: float = 1.0) -> dict[str, list[float]]:
+                max_grad_clip: float = 1.0,
+                start_epoch: int = 1) -> dict[str, list[float]]:
     """
     Trains the model for multiple epochs and evaluates it on the validation set.
 
@@ -105,7 +106,7 @@ def train_model(model: torch.nn.Module,
         device (torch.device): Device to run training on.
         epochs (int): Number of training epochs.
         max_grad_clip (float): Maximum gradient norm for clipping.
-
+        start_epoch (int): The starting epoch for training. (Default is 1).
 
     Returns:
         dict[str, list[float]]: Dictionary with epoch-level training and validation
@@ -116,13 +117,11 @@ def train_model(model: torch.nn.Module,
                 - 'bleu': List of bleu score values.
     """
     stats_record = {'train': [], 'validation': [], 'bleu': []}
-
     best_loss = float('inf')
-    # best_epoch_checkpoint = None
 
     logging.info(f"Starting model training for {epochs} epochs on {device}.")
 
-    for epoch in range(1, epochs + 1):
+    for epoch in range(start_epoch, epochs + 1):
         logging.info(f"--- Epoch {epoch}/{epochs} ---")
         # Train
         train_loss = _train_epoch(model, train_loader, optimizer, scheduler,
@@ -139,10 +138,12 @@ def train_model(model: torch.nn.Module,
                                               special_tokens)
         stats_record['bleu'].append(bleu_score)
 
-        # logging.info(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
-        #              f"Validation Loss: {val_loss:.4f} | BLEU Score: {bleu_score:.4f}")
+        # Printout the epoch's results
         print(f"Epoch {epoch}: Train Loss: {train_loss:.4f} | "
               f"Validation Loss: {val_loss:.4f} | BLEU Score: {bleu_score:.4f}")
+
+        # Save epoch's results to a CSV file
+        save_stats_to_csv(stats_record, epoch=epoch)
 
         if val_loss < best_loss:
             best_loss = val_loss

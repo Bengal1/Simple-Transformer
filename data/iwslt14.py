@@ -22,7 +22,6 @@ Features:
     - Returns split views suitable for use in PyTorch training loops.
 """
 
-
 import json
 import torch
 import spacy
@@ -30,6 +29,7 @@ import math
 import logging
 from datasets import load_dataset
 from typing import Optional
+
 
 class IWSLT14Dataset:
     """
@@ -84,8 +84,6 @@ class IWSLT14Dataset:
 
         # Loads spaCy tokenizers for English and French.
         logging.info("Loading spaCy English and French models.")
-        # self.en_nlp = spacy.load("en_core_web_sm")
-        # self.fr_nlp = spacy.load("fr_core_news_sm")
         try:
             self.en_nlp = spacy.load("en_core_web_sm")
             logging.info("SpaCy English model 'en_core_web_sm' loaded successfully.")
@@ -391,7 +389,7 @@ class IWSLT14Dataset:
         return self.en_vocabulary, self.fr_vocabulary
 
     @classmethod
-    def get_special_tokens_dict(cls) -> dict:
+    def get_special_tokens_dict(cls) -> dict[str, int]:
         """Returns a dictionary of special tokens and their default IDs.
 
         Returns:
@@ -425,7 +423,7 @@ class IWSLT14Dataset:
         """
         return len(self.en_vocabulary), len(self.fr_vocabulary)
 
-    def get_max_length(self):
+    def get_max_length(self) -> int:
         """Returns the maximum sequence length used for padding.
 
         Returns:
@@ -433,7 +431,7 @@ class IWSLT14Dataset:
         """
         return self.max_length
 
-    def get_split_dataset(self, split_name: str):
+    def get_split_dataset(self, split_name: str) -> data.Dataset:
         """Returns a dataset view for a specific split (train/validation/test).
 
         Args:
@@ -457,7 +455,7 @@ class IWSLT14Dataset:
                                        self.unk_idx,
                                        self.max_length)
 
-    def get_datasets(self) -> tuple:
+    def get_datasets(self) -> tuple[data.Dataset, data.Dataset, data.Dataset]:
         """Returns dataset views for all splits (train, validation, test).
 
         Returns:
@@ -502,7 +500,6 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
         self.eos_idx = eos_idx
         self.unk_idx = unk_idx
         self.max_length = max_length
-
 
     def __len__(self) -> int:
         """Returns the number of samples in the dataset.
