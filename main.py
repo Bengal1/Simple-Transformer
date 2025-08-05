@@ -1,3 +1,9 @@
+# ----------------------------------------------------------------------
+# Copyright (c) 2025, [Your Name or Company Name]
+#
+# This source code is licensed under the [Your License Name] license found in the
+# LICENSE file in the root directory of this source tree.
+# ----------------------------------------------------------------------
 """
 main.py
 
@@ -13,6 +19,7 @@ This script performs the following steps:
 - Plots training and validation loss curves
 - Plot BLEU score curve
 """
+__author__="Bengal1"
 
 import torch
 from torch.utils.data import DataLoader
@@ -130,13 +137,26 @@ scheduler = utils.NoamLR(optimizer, model_size=EMBED_DIM, warmup_steps=WARMUP)
 
 # ------------------------------ Main Entry ------------------------------ #
 if __name__ == "__main__":
-    # Load the best checkpoint from training
-    # utils.load_checkpoint(model, optimizer, scheduler)
+    # Optional: Load a pre-trained model or resume training from a checkpoint.
+    start_epoch, _ = utils.load_checkpoint(model=model, optimizer=optimizer,
+                                           scheduler=scheduler, device=device)
 
     # Train the model and collect loss history
-    eval_records = train_model(model, train_loader, val_loader, optimizer,
-                               scheduler, criterion, trg_vocab, special_tokens,
-                               trg_vocab_size, device, EPOCHS, MAX_GRAD_CLIP)
+    eval_records = train_model(
+        model=model,
+        train_loader=train_loader,
+        validation_loader=val_loader,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        criterion=criterion,
+        target_vocabulary=trg_vocab,
+        special_tokens=special_tokens,
+        target_vocabulary_size=trg_vocab_size,
+        device=device,
+        epochs=EPOCHS,
+        max_gradient_clip=MAX_GRAD_CLIP,
+        start_epoch=start_epoch,
+    )
 
     # Evaluate model on the test dataset
     test_loss = evaluation.evaluate_model(model, test_loader, criterion, device)

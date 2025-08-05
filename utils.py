@@ -210,56 +210,6 @@ def load_checkpoint(
         return 1, None
 
 
-# def load_checkpoint(
-#         model: torch.nn.Module,
-#         optimizer: torch.optim.Optimizer,
-#         scheduler: torch.optim.lr_scheduler._LRScheduler,
-#         checkpoint_path: str = "model_checkpoint.pth",
-#         device: torch.device = torch.device("cpu")) -> int:
-#     """
-#     Load model checkpoint.
-#
-#     Args:
-#         model (nn.Module): Model to load weights into
-#         optimizer (torch.optim.Optimizer): Optimizer to load state into
-#         scheduler (torch.optim.lr_scheduler): Scheduler to load state into
-#         checkpoint_path (str): Path to the checkpoint file
-#         device (torch.device): Device to load model onto (default: torch.device("cpu"))
-#
-#     Returns:
-#         int: Start epoch number
-#     """
-#     if os.path.exists(checkpoint_path):
-#         try:
-#             logging.info(f"Attempting to load checkpoint from: {checkpoint_path}")
-#             checkpoint = torch.load(checkpoint_path,
-#                                     map_location=device,
-#                                     weights_only=True)
-#
-#             model.load_state_dict(checkpoint["model_state_dict"])
-#             optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-#             scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
-#
-#             start_epoch = checkpoint["epoch"] + 1
-#             last_loss = checkpoint.get("loss", "N/A")
-#
-#             logging.info(f"Successfully resumed model from epoch {start_epoch}. "
-#                          f"Last epoch loss: {last_loss}")
-#             return start_epoch
-#         except KeyError as e:
-#             logging.error(f"Checkpoint file '{checkpoint_path}' is corrupt or "
-#                           f"missing expected key: {e}. Starting from epoch 1.")
-#             return 1
-#         except Exception as e:
-#             logging.error(f"Failed to load checkpoint from '{checkpoint_path}': "
-#                           f"{e}. Starting from epoch 1.")
-#             return 1
-#     else:
-#         logging.info(f"No checkpoint found at '{checkpoint_path}'. "
-#                      f"Starting training from epoch 1.")
-#         return 1
-
-
 def save_stats_to_csv(
         stats_record: dict[str, list[float]],
         file_path: str = None,
