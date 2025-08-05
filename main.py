@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
-# Copyright (c) 2025, [Your Name or Company Name]
+# Copyright (c) 2025, Bengal1
 #
-# This source code is licensed under the [Your License Name] license found in the
+# This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 # ----------------------------------------------------------------------
 """
