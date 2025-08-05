@@ -12,7 +12,6 @@ The module provides:
 - Integration of dropout for regularization.
 - Support for applying padding masks to attention scores.
 """
-
 import torch
 import torch.nn as nn
 import torch.nn.init as init

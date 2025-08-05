@@ -31,11 +31,6 @@ from torio.utils.ffmpeg_utils import set_log_level
 from train import train_model
 import logging
 
-"""
-TODO:
-* Consider about adding main().
-* Improve convergence.
-"""
 
 # ----------------------- Hyperparameters & Config ----------------------- #
 # These parameters define the model's architecture, training process,

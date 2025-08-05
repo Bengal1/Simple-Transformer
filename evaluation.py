@@ -1,3 +1,18 @@
+"""
+This module provides a suite of utility functions for evaluating the performance of
+machine learning models, with a specific focus on sequence-to-sequence tasks
+like machine translation.
+
+The module includes functions for:
+- Calculating the average loss over a dataset (`evaluate_model`).
+- Post-processing model outputs, including decoding, removing special tokens,
+  and detokenization (`_decode_sequence`, `_remove_special_tokens`, `detokenize`).
+- Computing the BLEU score, a standard metric for machine translation quality,
+  using the `sacrebleu` library (`evaluate_bleu`).
+
+These functions are designed to be used in conjunction with PyTorch models and
+data loaders to streamline the evaluation process during training and testing.
+"""
 import torch
 import sacrebleu
 import logging
