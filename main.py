@@ -21,10 +21,9 @@ This script performs the following steps:
 """
 __author__="Bengal1"
 
-
 import torch
-import logging
 from torch.utils.data import DataLoader
+import logging
 import utils
 import evaluation
 from train import train_model
