@@ -19,6 +19,8 @@ import logging
 import re
 
 
+# ------------------ Loss ------------------ #
+
 def evaluate_model(model: torch.nn.Module,
                    data_loader: torch.utils.data.DataLoader,
                    loss_fn: torch.nn.modules.loss,
@@ -42,8 +44,8 @@ def evaluate_model(model: torch.nn.Module,
     with torch.no_grad():
         for src, trg in data_loader:
             src, trg = src.to(device), trg.to(device)
-
-            output = model(src, trg[:, :-1])  # Forward pass
+            # Forward pass
+            output = model(src, trg[:, :-1])
 
             # Flatten the tensors for loss computation
             logits = output.view(-1, output.size(-1))
@@ -57,6 +59,8 @@ def evaluate_model(model: torch.nn.Module,
 
     return total_loss / num_batches if num_batches > 0 else float('inf')
 
+
+# ------------------ BLEU ------------------ #
 
 def _decode_sequence(seq: list[int],
                      idx_to_token: dict[int, str]) -> list[str]:
@@ -101,9 +105,19 @@ def _remove_special_tokens(tokens: list[str],
     return [tok for tok in tokens if tok not in special_token_set]
 
 def detokenize(tokens: list[str]) -> str:
-    """
-    Combines a list of tokens back into a string, handling punctuation
-    and other special cases.
+    """Reassembles a list of tokens into a single string, reversing
+    the effects of tokenization.
+
+    This function handles common punctuation and contractions that are often
+    separated during tokenization. It ensures that apostrophes in contractions and
+    various punctuation marks (.,?!:;) are correctly attached to the preceding word.
+    It also cleans up spaces around quotation marks and parentheses.
+
+    Args:
+        tokens (list[str]): A list of string tokens to be joined.
+
+    Returns:
+        str: The detokenized string with correct spacing and punctuation.
     """
     text = " ".join(tokens)
     text = re.sub(r' (\'s|n\'t| \'m| \'ve| \'re| \'ll| \'d)', r'\1', text)
@@ -135,7 +149,7 @@ def evaluate_bleu(model: torch.nn.Module,
         trg_vocab (Dict[str, int]): Target vocabulary mapping string tokens to integer IDs.
         device (torch.device): The device (CPU/GPU) to perform computations on.
         special_tokens (List[str]): A list of special token strings to be removed
-                                    from predictions and references before BLEU computation.
+                                from predictions and references before BLEU computation.
         beam_size (int): Beam width for the model's translation (decoding).
         max_len (int): Maximum length for generated sequences. If 0, `model.translate`
                        should handle this dynamically (e.g., based on source length).

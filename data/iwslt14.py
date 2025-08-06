@@ -27,7 +27,6 @@ import spacy
 import math
 import logging
 from datasets import load_dataset
-from typing import Optional
 
 
 class IWSLT14Dataset:
@@ -178,9 +177,9 @@ class IWSLT14Dataset:
     def _update_vocabularies(self):
         """Builds English and French vocabularies from the training split.
 
-        This method processes the tokenized training data to extract all unique tokens
-        in both source (English) and target (French) languages. Assigns unique
-        integer IDs to each token, and stores the resulting mappings.
+        This method processes the tokenized training data to extract all unique
+        tokens in both source (English) and target (French) languages. Assigns
+        unique integer IDs to each token, and stores the resulting mappings.
 
         Additionally, assign special token IDs to class variables and estimates an
         appropriate maximum sequence length for padding and truncation based on the
@@ -215,6 +214,7 @@ class IWSLT14Dataset:
         Raises:
             ValueError: If an unsupported language code is given.
         """
+        # Collect all unique tokens from the specified data splits
         unique_tokens_across_specified_splits = set()
         for split_name in splits_to_consider:
             if (split_name in self.tokenized_datasets and lang_code in
@@ -289,7 +289,8 @@ class IWSLT14Dataset:
         logging.info("Special token indices verification and setup complete.")
 
     def _compute_max_length(self, percentile: float = 0.95):
-        """Computes the padded sequence length using a percentile of training data lengths.
+        """Computes the padded sequence length using a percentile of training
+        data lengths.
 
         Args:
             percentile (float): Percentile of sentence lengths to use (0 < p <= 1.0).
@@ -300,6 +301,7 @@ class IWSLT14Dataset:
         if self.max_length is not None:
             return
 
+        # Validate that the training data split exists
         if "train" not in self.tokenized_datasets or \
                    not self.tokenized_datasets["train"].get("en") or \
                    not self.tokenized_datasets["train"].get("fr"):
@@ -308,9 +310,9 @@ class IWSLT14Dataset:
             self.max_length = 50  # Set a default fallback length
             return
 
+        # Collect all sentence lengths from the English and French training sets.
         all_en_lengths = [len(s) for s in self.tokenized_datasets["train"]["en"]]
         all_fr_lengths = [len(s) for s in self.tokenized_datasets["train"]["fr"]]
-
         all_training_lengths = all_en_lengths + all_fr_lengths
 
         if not all_training_lengths:
@@ -342,8 +344,8 @@ class IWSLT14Dataset:
 
                 Args:
                     tokens (List[str]): A list of token strings to add.
-                    target_language (str): The language code ('en' for English,
-                                'fr' for French) to which the tokens should be added.
+                    target_language (str): The language code ('en' for English, 'fr'
+                                    for French) to which the tokens should be added.
 
                 Raises:
                     ValueError: If an unsupported language code is provided.
@@ -521,20 +523,23 @@ class _IWSLT14SplitDatasetView(torch.utils.data.Dataset):
             tuple[torch.Tensor, torch.Tensor]: Tuple containing padded source and
                                                 target tensors.
         """
+        # Add beginning-of-sequence and end-of-sequence tokens
         en_sentence = ["<bos>"] + self.tokenized_data["en"][idx] + ["<eos>"]
         fr_sentence = ["<bos>"] + self.tokenized_data["fr"][idx] + ["<eos>"]
 
-        # Truncate if sentence is longer than max_length
+        # Pad or truncate the English sentence to a fixed length
         if len(en_sentence) > self.max_length:
-            en_sentence = en_sentence[:self.max_length - 1] + ["<eos>"] # Ensure EOS
+            en_sentence = en_sentence[:self.max_length - 1] + ["<eos>"]
         else:
             en_sentence += ["<pad>"] * (self.max_length - len(en_sentence))
 
+        # Pad or truncate the French sentence to a fixed length
         if len(fr_sentence) > self.max_length:
             fr_sentence = fr_sentence[:self.max_length - 1] + ["<eos>"]
         else:
             fr_sentence += ["<pad>"] * (self.max_length - len(fr_sentence))
 
+        # Convert tokenized sentences to numerical indices using the vocabulary
         en_indices = [self.en_vocabulary.get(token,
                                              self.unk_idx) for token in en_sentence]
         fr_indices = [self.fr_vocabulary.get(token,

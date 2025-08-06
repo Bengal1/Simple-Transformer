@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 
 
 class NormLayer(torch.nn.Module):
@@ -26,8 +25,8 @@ class NormLayer(torch.nn.Module):
                                     numerical stability. Default is 1e-6.
         """
         super().__init__()
-        self.gamma = nn.Parameter(torch.ones(d_model))
-        self.beta = nn.Parameter(torch.zeros(d_model))
+        self.gamma = torch.nn.Parameter(torch.ones(d_model))
+        self.beta = torch.nn.Parameter(torch.zeros(d_model))
         self.epsilon = epsilon
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

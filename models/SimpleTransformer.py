@@ -48,20 +48,16 @@ Usage:
     and output sequences must be provided. A suitable optimizer, loss
     function, and learning rate scheduler should be used for training.
 """
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.nn.init as init
 import math
-from typing import Optional, Tuple
-from layers.PositionalEncoding import PositionalEncoding
+import torch
+import torch.nn.functional as F
+from typing import Optional
 from layers.Encoder import Encoder
 from layers.Decoder import Decoder
-from torch.onnx.symbolic_opset11 import unsqueeze
+from layers.PositionalEncoding import PositionalEncoding
 
 
-class SimpleTransformer(nn.Module):
+class SimpleTransformer(torch.nn.Module):
     """A simplified Transformer model for sequence-to-sequence tasks.
 
     This model consists of a standard Transformer architecture with stacked
@@ -128,9 +124,9 @@ class SimpleTransformer(nn.Module):
         self.embed_scale = math.sqrt(embed_dim)
 
         # Token embeddings for source and target vocabularies
-        self.embedding_encoder = nn.Embedding(
+        self.embedding_encoder = torch.nn.Embedding(
             src_vocab_size, embed_dim, padding_idx=self.pad_token_id)
-        self.embedding_decoder = nn.Embedding(
+        self.embedding_decoder = torch.nn.Embedding(
             trg_vocab_size, embed_dim, padding_idx=self.pad_token_id)
 
         # Positional encoding modules for adding sequence position information
@@ -138,31 +134,31 @@ class SimpleTransformer(nn.Module):
         self.positional_encoding_decoder = PositionalEncoding(embed_dim)
 
         # Dropout layers for encoder and decoder inputs
-        self.dropout_enc = nn.Dropout(dropout)
-        self.dropout_dec = nn.Dropout(dropout)
+        self.dropout_enc = torch.nn.Dropout(dropout)
+        self.dropout_dec = torch.nn.Dropout(dropout)
 
         # Stacked encoder and decoder layers
-        self.encoder_layers = nn.ModuleList([
+        self.encoder_layers = torch.nn.ModuleList([
             Encoder(embed_dim, num_heads, d_k, d_v, dropout)
             for _ in range(num_layers)
         ])
-        self.decoder_layers = nn.ModuleList([
+        self.decoder_layers = torch.nn.ModuleList([
             Decoder(embed_dim, num_heads, d_k, d_v, dropout)
             for _ in range(num_layers)
         ])
 
         # Final projection layer to map model output to vocabulary logits.
-        self.w_o = nn.Linear(embed_dim, trg_vocab_size)
+        self.w_o = torch.nn.Linear(embed_dim, trg_vocab_size)
 
         # --- Weight Initialization ---
         # Initialize final projection layer with Xavier uniform initialization
-        init.xavier_uniform_(self.w_o.weight)
+        torch.nn.init.xavier_uniform_(self.w_o.weight)
 
         # Initialize embedding layers with a scaled normal distribution
-        init.normal_(self.embedding_encoder.weight, mean=0.0, std=0.02)
+        torch.nn.init.normal_(self.embedding_encoder.weight, mean=0.0, std=0.02)
         self.embedding_encoder.weight.data *= self.embed_scale
 
-        init.normal_(self.embedding_decoder.weight, mean=0.0, std=0.02)
+        torch.nn.init.normal_(self.embedding_decoder.weight, mean=0.0, std=0.02)
         self.embedding_decoder.weight.data *= self.embed_scale
 
 
@@ -414,7 +410,7 @@ class SimpleTransformer(nn.Module):
                           log_probs: torch.Tensor,
                           finished: torch.Tensor,
                           beam_size: int,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Updates the beams based on the next token predictions.
 
         This function combines previous beam scores with the log probabilities
@@ -433,7 +429,7 @@ class SimpleTransformer(nn.Module):
             beam_size (int): The number of beams to maintain.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+            tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
                 - new_sequences (torch.Tensor): The updated sequences with the
                   next tokens appended.
                 - new_sequence_scores (torch.Tensor): The scores of the new beams.

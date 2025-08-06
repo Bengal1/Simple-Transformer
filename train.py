@@ -19,8 +19,9 @@ Key functionalities:
 """
 import torch
 import logging
-import evaluation
 import utils
+import evaluation
+
 
 
 def _train_epoch(model: torch.nn.Module,

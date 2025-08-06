@@ -1,6 +1,5 @@
 import torch
 from typing import Optional
-from .NormLayer import NormLayer
 from .FeedForward import FeedForward
 from .MultiHeadAttention import MultiHeadAttention
 
@@ -57,9 +56,12 @@ class Encoder(torch.nn.Module):
         """Applies the encoder block forward pass.
 
         Args:
-            enc_input (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model).
-            src_padding_mask (Optional[torch.Tensor], optional): Padding mask for the encoder input.
-                Shape: (batch_size, seq_len). Positions with 1 are masked (ignored in attention). Default is None.
+            enc_input (torch.Tensor): Input tensor of shape
+                                        (batch_size, seq_len, d_model).
+            src_padding_mask (Optional[torch.Tensor], optional): Padding mask for
+                                                                the encoder input.
+                Shape: (batch_size, seq_len). Positions with 1 are masked
+                                            (ignored in attention). Default is None.
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, seq_len, d_model).
         """

@@ -21,9 +21,7 @@ import torch
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
-from typing import Optional
 from datasets import load_dataset
-from torch.utils.data import DataLoader
 
 
 # ------------------ Learning Rate Schedulers ------------------ #

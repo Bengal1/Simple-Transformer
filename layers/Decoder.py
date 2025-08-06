@@ -1,6 +1,5 @@
 import torch
 from typing import Optional
-from .NormLayer import NormLayer
 from .FeedForward import FeedForward
 from .MultiHeadAttention import MultiHeadAttention
 
@@ -37,7 +36,8 @@ class Decoder(torch.nn.Module):
             num_heads (int): Number of attention heads.
             d_k (int): Dimensionality of key vectors per head.
             d_v (int): Dimensionality of value vectors per head.
-            dropout (float, optional): Dropout rate applied to attention and feedforward layers. Defaults to 0.1.
+            dropout (float, optional): Dropout rate applied to attention and
+                                        feedforward layers. Defaults to 0.1.
         """
         super().__init__()
         # Attention Layers
@@ -65,15 +65,18 @@ class Decoder(torch.nn.Module):
         """Applies the decoder block forward pass.
 
         Args:
-            dec_input (torch.Tensor): Decoder input tensor of shape (batch_size, trg_seq_len, d_model).
-            enc_output (torch.Tensor): Encoder output tensor of shape (batch_size, src_seq_len, d_model).
-            trg_padding_mask (Optional[torch.Tensor], optional): Padding mask for the decoder input.
-                Shape: (batch_size, trg_seq_len). Default is None.
-            src_padding_mask (Optional[torch.Tensor], optional): Padding mask for the encoder output.
-                Shape: (batch_size, src_seq_len). Default is None.
+            dec_input (torch.Tensor): Decoder input tensor of shape
+                                        (batch_size, trg_seq_len, d_model).
+            enc_output (torch.Tensor): Encoder output tensor of shape
+                                        (batch_size, src_seq_len, d_model).
+            trg_padding_mask (Optional[torch.Tensor], optional): Padding mask for
+                the decoder input. Shape: (batch_size, trg_seq_len). Default is None.
+            src_padding_mask (Optional[torch.Tensor], optional): Padding mask for
+                the encoder output. Shape: (batch_size, src_seq_len). Default is None.
 
         Returns:
-            torch.Tensor: Decoder output tensor of shape (batch_size, trg_seq_len, d_model).
+            torch.Tensor: Decoder output tensor of shape
+                            (batch_size, trg_seq_len, d_model).
         """
         # Masked self-attention + residual + norm
         attn_masked = self.attention_masked(dec_input, padding_mask=trg_padding_mask)

@@ -1,6 +1,4 @@
 import torch
-import torch.nn as nn
-import torch.nn.init as init
 import torch.nn.functional as F
 
 
@@ -12,8 +10,10 @@ class FeedForward(torch.nn.Module):
     in between, as used in the original "Attention Is All You Need" paper.
 
     Attributes:
-        fc1 (nn.Linear): The first linear layer that expands the input dimension to the hidden dimension.
-        fc2 (nn.Linear): The second linear layer that projects the hidden representation back to the original dimension.
+        fc1 (torch.nn.Linear): The first linear layer that expands the input
+                                dimension to the hidden dimension.
+        fc2 (torch.nn.Linear): The second linear layer that projects the hidden
+                                representation back to the original dimension.
         dropout (nn.Dropout): Dropout applied after the ReLU activation.
     """
 
@@ -30,19 +30,19 @@ class FeedForward(torch.nn.Module):
             dropout (float, optional): The dropout probability. Default is 0.1.
         """
         super().__init__()
-        self.fc1     = nn.Linear(d_model, hidden_dim)
-        self.fc2     = nn.Linear(hidden_dim, d_model)
-        self.dropout = nn.Dropout(dropout)
+        self.fc1     = torch.nn.Linear(d_model, hidden_dim)
+        self.fc2     = torch.nn.Linear(hidden_dim, d_model)
+        self.dropout = torch.nn.Dropout(dropout)
 
         # Xavier initialization
-        nn.init.xavier_uniform_(self.fc1.weight)
-        nn.init.xavier_uniform_(self.fc2.weight)
+        torch.nn.init.xavier_uniform_(self.fc1.weight)
+        torch.nn.init.xavier_uniform_(self.fc2.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Performs a forward pass through the FeedForward network.
 
-        The input tensor is passed through a linear layer, followed by ReLU activation,
-        dropout, and a final linear layer.
+        The input tensor is passed through a linear layer, followed by ReLU
+        activation, dropout, and a final linear layer.
 
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, seq_len, d_model).

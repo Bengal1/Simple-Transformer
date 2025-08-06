@@ -21,15 +21,15 @@ This script performs the following steps:
 """
 __author__="Bengal1"
 
+
 import torch
-from torch.utils.data import DataLoader
-from models.SimpleTransformer import SimpleTransformer
-from data.iwslt14 import IWSLT14Dataset
-import evaluation
-import utils
-from torio.utils.ffmpeg_utils import set_log_level
-from train import train_model
 import logging
+from torch.utils.data import DataLoader
+import utils
+import evaluation
+from train import train_model
+from data.iwslt14 import IWSLT14Dataset
+from models.SimpleTransformer import SimpleTransformer
 
 
 # ----------------------- Hyperparameters & Config ----------------------- #
@@ -81,8 +81,8 @@ utils.set_logging_level(LOGGING_LEVEL)
 # ----------------------------- Data Loading ----------------------------- #
 # Initialize the train, validation and test dataset to data loader
 
-# Select the appropriate dataset paths based on the DATA_DEBUG_MODE flag.
-if DATA_DEBUG_MODE: # Or based on a dedicated 'data_mode' argument
+# Selects debug/full datasets based on the flag.
+if DATA_DEBUG_MODE:
     data_paths_to_use = DEBUG_DATA_PATHS
     logging.info("Using DEBUG dataset paths.")
 else:
@@ -133,8 +133,8 @@ scheduler = utils.NoamLR(optimizer, model_size=EMBED_DIM, warmup_steps=WARMUP)
 # ------------------------------ Main Entry ------------------------------ #
 if __name__ == "__main__":
     # Optional: Load a pre-trained model or resume training from a checkpoint.
-    start_epoch, _ = utils.load_checkpoint(model=model, optimizer=optimizer,
-                                           scheduler=scheduler, device=device)
+    # start_epoch, _ = utils.load_checkpoint(model=model, optimizer=optimizer,
+    #                                        scheduler=scheduler, device=device)
 
     # Train the model and collect loss history
     eval_records = train_model(

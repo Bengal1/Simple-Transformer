@@ -12,12 +12,10 @@ The module provides:
 - Integration of dropout for regularization.
 - Support for applying padding masks to attention scores.
 """
-import torch
-import torch.nn as nn
-import torch.nn.init as init
-import torch.nn.functional as F
 import math
-from typing import Optional, Tuple, Union
+import torch
+import torch.nn.functional as F
+from typing import Optional
 
 
 class MultiHeadAttention(torch.nn.Module):
@@ -58,23 +56,23 @@ class MultiHeadAttention(torch.nn.Module):
         self.masked_attn = masked_attn
 
         # Shared linear layers
-        self.w_q = nn.Linear(d_model, num_heads * d_k, bias=False)
-        self.w_k = nn.Linear(d_model, num_heads * d_k, bias=False)
-        self.w_v = nn.Linear(d_model, num_heads * d_v, bias=False)
+        self.w_q = torch.nn.Linear(d_model, num_heads * d_k, bias=False)
+        self.w_k = torch.nn.Linear(d_model, num_heads * d_k, bias=False)
+        self.w_v = torch.nn.Linear(d_model, num_heads * d_v, bias=False)
 
         # Output projection
-        self.w_out = nn.Linear(num_heads * d_v, d_model, bias=False)
+        self.w_out = torch.nn.Linear(num_heads * d_v, d_model, bias=False)
 
         # Dropout
-        self.dropout = nn.Dropout(dropout)
+        self.dropout = torch.nn.Dropout(dropout)
 
         self.scale = 1.0 / math.sqrt(d_k)
 
         # Xavier initialization
-        init.xavier_uniform_(self.w_q.weight)
-        init.xavier_uniform_(self.w_k.weight)
-        init.xavier_uniform_(self.w_v.weight)
-        init.xavier_uniform_(self.w_out.weight)
+        torch.nn.init.xavier_uniform_(self.w_q.weight)
+        torch.nn.init.xavier_uniform_(self.w_k.weight)
+        torch.nn.init.xavier_uniform_(self.w_v.weight)
+        torch.nn.init.xavier_uniform_(self.w_out.weight)
 
     def _split_heads(self, x: torch.Tensor, head_dim: int) -> torch.Tensor:
         """Splits the last dimension into (num_heads, head_dim) and
@@ -134,7 +132,7 @@ class MultiHeadAttention(torch.nn.Module):
     def _scaled_dot_product_attention(
         self, Q: torch.Tensor, K: torch.Tensor, V: torch.Tensor,
         mask: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         """Computes scaled dot-product attention.
 
         Args:
@@ -145,7 +143,7 @@ class MultiHeadAttention(torch.nn.Module):
                 where masked positions are set to -inf.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]:
+            tuple[torch.Tensor, torch.Tensor]:
                 - Output tensor of shape (B, H, L_q, D).
                 - Attention weights of shape (B, H, L_q, L_k).
         """
@@ -165,7 +163,7 @@ class MultiHeadAttention(torch.nn.Module):
                 y: Optional[torch.Tensor] = None,
                 padding_mask: Optional[torch.Tensor] = None,
                 return_attn_weights: bool = False
-                ) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
+                ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         """Forward pass for multi-head attention.
 
         Args:
