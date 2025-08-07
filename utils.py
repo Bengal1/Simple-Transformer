@@ -1,19 +1,28 @@
 """
-This module provides utility functions and classes for machine learning tasks,
-including model checkpoint saving/loading, learning rate scheduling, loss plotting,
-and dataset preprocessing for machine translation.
+A collection of utility functions and classes to support the training,
+evaluation, and preprocessing of a Transformer-based machine
+translation model.
 
-Modules in this file include:
-- NoamLR: A custom learning rate scheduler based on the Noam scheme as described in the 'Attention is All You Need' paper.
-- save_model: Function for saving model checkpoints.
-- load_checkpoint: Function for loading model checkpoints.
-- save_stats_to_csv: Function for saving training statistics to a CSV file.
-- plot_metrics: A function to plot training/validation loss and BLEU score over epochs.
-- count_parameters: A function to count the number of trainable parameters in a PyTorch model.
-- make_iwslt14_local_file: A function to download and save the IWSLT14 dataset in local files.
+This module provides reusable components for common deep learning
+tasks, including:
+- **Learning Rate Schedulers**: The `NoamLR` scheduler, an
+  implementation of the schedule from the "Attention Is All You Need"
+  paper.
+- **Device Configuration**: A function for selecting the optimal
+  computation device (CUDA or CPU).
+- **Logging**: Utilities for configuring application-wide logging
+  behavior.
+- **Checkpointing**: Functions for saving and loading model weights,
+  optimizer, and learning rate scheduler states.
+- **Visualization**: Functions to save training statistics to a CSV
+  file and visualize them using Matplotlib.
+- **Data Preprocessing**: A function to download and preprocess the
+  IWSLT14 dataset, creating local JSON files for efficient data loading.
 
-This module makes it easier to manage model training, handle checkpoints, visualize losses,
-and preprocess datasets for machine translation tasks.
+This module provides a suite of utility functions to support the machine
+learning pipeline. While primarily used as a library by the main
+training script, it can also be executed directly from the command line
+to perform data preprocessing tasks.
 """
 import os
 import json
