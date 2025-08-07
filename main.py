@@ -7,17 +7,15 @@
 """
 main.py
 
-Entry point for training and evaluating the SimpleTransformer model on the IWSLT14 dataset.
+Entry point for training and evaluating a SimpleTransformer model on the IWSLT14 dataset.
 
 This script performs the following steps:
-- Loads the debug split of the IWSLT14 dataset
-- Initializes the Transformer model and its components
-- Trains the model, tracks training/validation losses and BLEU score
-- Saves the best checkpoint during training
-- Loads the best model checkpoint
-- Evaluates the final model on the test split (loss and BLEU score)
-- Plots training and validation loss curves
-- Plot BLEU score curve
+- Configures hyperparameters, device, and logging for the training session.
+- Loads the IWSLT14 dataset and creates data loaders for training, validation, and testing.
+- Initializes the SimpleTransformer model, loss function, optimizer, and learning rate scheduler.
+- Executes the training loop, optionally resuming from a checkpoint.
+- Evaluates the final trained model on the test dataset.
+- Plots the training history, including loss and BLEU scores, for visualization.
 """
 __author__="Bengal1"
 
