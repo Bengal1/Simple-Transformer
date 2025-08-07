@@ -23,6 +23,7 @@ import torch
 from torch.utils.data import DataLoader
 import logging
 import utils
+import config
 import evaluation
 from train import train_model
 from data.iwslt14 import IWSLT14Dataset
@@ -124,6 +125,7 @@ optimizer = torch.optim.Adam(model.parameters(),
 
 # Initialize the NoamLR learning rate scheduler.
 scheduler = utils.NoamLR(optimizer, model_size=EMBED_DIM, warmup_steps=WARMUP)
+
 
 # ------------------------------ Main Entry ------------------------------ #
 if __name__ == "__main__":
