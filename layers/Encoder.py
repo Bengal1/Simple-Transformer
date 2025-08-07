@@ -1,3 +1,18 @@
+"""
+This module defines the `Encoder` class, which implements a single block of
+the Transformer's encoder architecture.
+
+The encoder block is a core component for processing input sequences. It
+generates a contextualized representation of the input and is comprised of
+the following key layers:
+- Multi-Head Self-Attention: This layer allows the model to weigh the
+  importance of different tokens in the input sequence.
+- Position-wise Feedforward Network: A simple neural network that helps the
+  model learn complex relationships.
+
+Each of these layers is followed by dropout, residual connections, and
+layer normalization, which are crucial for stable training in deep networks.
+"""
 import torch
 from typing import Optional
 from .FeedForward import FeedForward

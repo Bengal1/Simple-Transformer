@@ -1,16 +1,16 @@
 """
-This module implements the Multi-Head Attention mechanism, a core component
-of the Transformer architecture. It supports both self-attention and
-cross-attention, with an optional causal mask for autoregressive decoding
-in sequence generation tasks.
+This module defines the `MultiHeadAttention` class, a fundamental component
+of the Transformer architecture that implements the multi-head
+attention mechanism.
 
-The module provides:
-- `MultiHeadAttention` class: A PyTorch module for performing multi-head
-  scaled dot-product attention.
-- Helper methods for splitting and combining attention heads, and generating
-  causal masks.
-- Integration of dropout for regularization.
-- Support for applying padding masks to attention scores.
+The module enables both self-attention and cross-attention modes, with
+optional causal masking for autoregressive tasks and padding masks
+to handle variable-length inputs.
+
+This attention mechanism splits the input into multiple 'heads', allowing the
+model to jointly attend to different representation subspaces and capture
+various relationships simultaneously. The combined result forms a richer,
+more contextual output.
 """
 import math
 import torch

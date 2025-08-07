@@ -1,3 +1,12 @@
+"""
+This module defines the `FeedForward` class, which implements the
+position-wise feed-forward network used in Transformer models.
+
+This network is a core component of both the encoder and decoder blocks.
+It applies two linear transformations with a ReLU activation and dropout
+to each position of the input sequence independently, adding non-linear
+complexity to the model's representations.
+"""
 import torch
 import torch.nn.functional as F
 

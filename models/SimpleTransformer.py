@@ -1,52 +1,22 @@
 """
-Simple Transformer Model in PyTorch.
+This module defines the SimpleTransformer class, an implementation of the
+Transformer model architecture based on the paper "Attention Is All You Need".
 
-This module implements a Transformer architecture for sequence-to-sequence
-tasks, particularly for machine translation. The model consists of the
-following core components:
+The model is a sequence-to-sequence architecture with a stacked encoder
+and decoder, and includes the following key components:
+- Encoder-Decoder Architecture: A standard sequence-to-sequence architecture
+  with a stacked encoder and decoder.
+- Embeddings: Dedicated embedding layers for both the source and target
+  vocabularies.
+- Positional Encoding: Positional encoding modules are incorporated
+  to capture sequence order information.
 
-- Encoder: A stack of multi-head attention layers, feed-forward networks, and
-  layer normalization.
-- Decoder: A stack of multi-head attention layers with an additional
-  cross-attention mechanism that attends to the encoder's output.
-- MultiHeadAttention: A custom implementation of multi-head attention,
-  enabling the model to focus on different parts of the input sequence
-  simultaneously.
-- FeedForward: A position-wise feed-forward neural network that applies
-  non-linearity after the attention layers.
-- NormLayer: A layer normalization component to stabilize the training
-  process.
-- SimpleTransformer: The main Transformer model combining the encoder,
-  decoder, and an output linear layer for sequence generation.
-- PositionalEncoding: Adds positional information to the input sequence to
-  help the model learn token order.
-
-The `SimpleTransformer` model can be used for machine translation, text
-generation, or other sequence-to-sequence tasks with appropriate tokenization
-and loss functions. It supports various hyperparameters to control the depth
-of the network, number of attention heads, and dimensionality of the model.
-
-Modules:
-  Encoder: Encodes the input sequence using self-attention and feed-forward
-    networks.
-  Decoder: Autoregressively generates the output sequence while attending to
-    the encoder's output and previous tokens.
-  MultiHeadAttention: Performs attention on the input sequence, allowing the
-    model to focus on different parts in parallel.
-  FeedForward: A feed-forward network that processes each token independently
-    after the attention mechanism.
-  NormLayer: Layer normalization applied at strategic points for training
-    stability.
-  PositionalEncoding: Adds information about the position of tokens in the
-    sequence to the input embeddings.
-  Dropout: Regularization is applied after key components (like attention
-    layers) to reduce overfitting.
-
-Usage:
-    The `SimpleTransformer` class encapsulates the entire Transformer
-    architecture. To train or evaluate the model, input sequences (tokenized)
-    and output sequences must be provided. A suitable optimizer, loss
-    function, and learning rate scheduler should be used for training.
+The model is designed to handle the full training and inference workflow,
+and provides two primary functions for this purpose:
+- `forward`: A training method that returns raw logits without applying a
+  softmax, designed to work with `torch.nn.CrossEntropyLoss`.
+- `translate`: An inference method that generates translations using a
+  length-normalized beam search.
 """
 import math
 import torch

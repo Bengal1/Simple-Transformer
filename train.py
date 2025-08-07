@@ -1,27 +1,19 @@
 """
-This module provides functions for training and evaluating a neural machine
-translation model, specifically a Transformer. It includes utilities for
-performing a single training epoch, managing the training loop across multiple
-epochs, and integrating with evaluation metrics like validation loss and BLEU score.
+This module contains the essential logic for the model's training pipeline.
+It defines the complete multi-epoch training and validation process,
+handling the core training loop, performance metrics, and checkpointing.
 
-The `_train_epoch` function handles the forward and backward passes for one
-training iteration, including loss computation, gradient clipping, and optimizer/
-scheduler steps. The `train_model` orchestrates the entire training process,
-iterating through epochs, calling `_train_epoch`, performing validation,
-and saving the best performing model.
-
-Key functionalities:
-- Training loop management with epoch-wise statistics recording.
-- Integration with PyTorch's DataLoader, Optimizer, and LR Scheduler.
-- Support for gradient clipping to prevent exploding gradients.
-- Logging of training and validation progress.
-- Model checkpointing based on validation loss improvement.
+The module provides two main functions:
+- `_train_epoch`: A private helper function that executes a single training
+  epoch, managing the forward pass, backpropagation, and optimizer steps.
+- `train_model`: The main public function that orchestrates the entire training
+  workflow over multiple epochs. It calls `_train_epoch`, performs validation,
+  calculates metrics (including BLEU score), and saves the model's state.
 """
 import torch
 import logging
 import utils
 import evaluation
-
 
 
 def _train_epoch(model: torch.nn.Module,

@@ -1,3 +1,20 @@
+"""
+This module defines the Decoder class, which implements a single block of
+the Transformer's decoder architecture.
+
+The decoder block is a key component for sequence generation tasks. It
+generates an output sequence from a contextualized input and is comprised
+of the following key layers:
+- Masked Multi-Head Self-Attention: This layer allows the decoder to attend
+  to previous positions in the target sequence.
+- Multi-Head Cross-Attention: This mechanism enables the decoder to
+  incorporate information from the encoder's output.
+- Position-wise Feedforward Network: A simple neural network that helps
+  the model learn complex relationships.
+
+Each of these layers is followed by dropout, residual connections, and layer
+normalization, which are crucial for stable training in deep networks.
+"""
 import torch
 from typing import Optional
 from .FeedForward import FeedForward

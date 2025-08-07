@@ -5,18 +5,18 @@ translation model.
 
 This module provides reusable components for common deep learning
 tasks, including:
-- **Learning Rate Schedulers**: The `NoamLR` scheduler, an
+- Learning Rate Schedulers: The `NoamLR` scheduler, an
   implementation of the schedule from the "Attention Is All You Need"
   paper.
-- **Device Configuration**: A function for selecting the optimal
+- Device Configuration: A function for selecting the optimal
   computation device (CUDA or CPU).
-- **Logging**: Utilities for configuring application-wide logging
+- Logging: Utilities for configuring application-wide logging
   behavior.
-- **Checkpointing**: Functions for saving and loading model weights,
+- Checkpointing: Functions for saving and loading model weights,
   optimizer, and learning rate scheduler states.
-- **Visualization**: Functions to save training statistics to a CSV
+- Visualization: Functions to save training statistics to a CSV
   file and visualize them using Matplotlib.
-- **Data Preprocessing**: A function to download and preprocess the
+- Data Preprocessing: A function to download and preprocess the
   IWSLT14 dataset, creating local JSON files for efficient data loading.
 
 This module provides a suite of utility functions to support the machine

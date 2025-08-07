@@ -1,3 +1,18 @@
+"""
+This module defines the PositionalEncoding class, which is a crucial
+component in Transformer models for adding sequence order information
+to token embeddings.
+
+Positional encoding adds information about the position of each token in
+a sequence so that the Transformer model, which has no inherent sense of
+order, can capture the sequence structure. It does this by generating a
+unique positional vector using a mathematical formula, providing the
+model with a sense of sequence order without a sequential architecture.
+
+The encoding is based on a combination of sine and cosine functions,
+allowing it to represent relative positions effectively and be easily
+generalized to longer sequences.
+"""
 import torch
 
 
