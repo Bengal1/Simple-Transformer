@@ -71,9 +71,7 @@ DATA_PATHS = {
 
 # ------------------------ Device & Logging Setup ------------------------ #
 # Set computation device (GPU/CPU)
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print('Using', device, '\n') # DEBUG without logging - Remove!
-
+device = utils.get_device()
 # Set the logging level.
 utils.set_logging_level(LOGGING_LEVEL)
 
@@ -131,6 +129,9 @@ scheduler = utils.NoamLR(optimizer, model_size=EMBED_DIM, warmup_steps=WARMUP)
 
 # ------------------------------ Main Entry ------------------------------ #
 if __name__ == "__main__":
+    # Set starting epoch for a new training session.
+    start_epoch = 1
+
     # Optional: Load a pre-trained model or resume training from a checkpoint.
     # start_epoch, _ = utils.load_checkpoint(model=model, optimizer=optimizer,
     #                                        scheduler=scheduler, device=device)

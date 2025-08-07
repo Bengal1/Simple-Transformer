@@ -23,6 +23,7 @@ Features:
 """
 import json
 import torch
+from torch.utils.data import Dataset
 import spacy
 import math
 import logging
@@ -432,7 +433,7 @@ class IWSLT14Dataset:
         """
         return self.max_length
 
-    def get_split_dataset(self, split_name: str) -> data.Dataset:
+    def get_split_dataset(self, split_name: str) -> torch.utils.data.Dataset:
         """Returns a dataset view for a specific split (train/validation/test).
 
         Args:
@@ -456,7 +457,7 @@ class IWSLT14Dataset:
                                        self.unk_idx,
                                        self.max_length)
 
-    def get_datasets(self) -> tuple[data.Dataset, data.Dataset, data.Dataset]:
+    def get_datasets(self) -> tuple[Dataset, Dataset, Dataset]:
         """Returns dataset views for all splits (train, validation, test).
 
         Returns:

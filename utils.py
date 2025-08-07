@@ -76,6 +76,31 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         lr    = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
         return [lr for _ in self.base_lrs]
 
+# -------------- Device Configuration --------------- #
+
+def get_device():
+    """
+    Selects and returns the optimal device (GPU or CPU) for computation.
+
+    This function first checks for the availability of a NVIDIA GPU with
+    CUDA support. If a GPU is found, it's chosen as the computation device.
+    Otherwise, it defaults to the CPU. A descriptive message is printed to
+    inform the user which device has been selected. This helps in verifying
+    that the hardware is correctly recognized for accelerated computations.
+
+    Returns:
+        torch.device: The selected device, either 'cuda' or 'cpu'.
+    """
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+        device_name = torch.cuda.get_device_name(device)
+        print(f"Using GPU: {device_name}")
+    else:
+        device = torch.device('cpu')
+        print("Using CPU")
+
+    return device
+
 
 # --------------------- Logging --------------------- #
 
