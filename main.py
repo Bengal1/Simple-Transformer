@@ -23,7 +23,6 @@ import torch
 from torch.utils.data import DataLoader
 import logging
 import utils
-import config
 import evaluation
 from train import train_model
 from data.iwslt14 import IWSLT14Dataset
@@ -46,7 +45,7 @@ MAX_GRAD_CLIP   = 1.0       # Max norm gradient (for gradient clipping)
 DROPOUT         = 0.1       # Dropout probability
 LABEL_SMOOTHING = 0.1       # Label smoothing parameter
 # --- Optimizer Settings (Adam) ---
-LEARNING_RATE   = 1e-3      # Initial learning rate
+LEARNING_RATE   = 1e-5      # Initial learning rate
 BETAS           = (0.9, 0.98) # Adam Optimizer beta coefficients
 EPSILON         = 1e-9      # Optimizer's epsilon for numerical stability
 WARMUP          = 50        # Scheduler warmup period (number of steps)

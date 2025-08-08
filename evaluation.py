@@ -104,6 +104,7 @@ def _remove_special_tokens(tokens: list[str],
     """
     return [tok for tok in tokens if tok not in special_token_set]
 
+
 def detokenize(tokens: list[str]) -> str:
     """Reassembles a list of tokens into a single string, reversing
     the effects of tokenization.
@@ -129,7 +130,9 @@ def detokenize(tokens: list[str]) -> str:
     text = re.sub(r' ([\.\,\?\!\:\;])', r'\1', text)
     return text.strip()
 
+
 # --- BLEU Evaluation Function ---
+
 def evaluate_bleu(model: torch.nn.Module,
                   data_loader: torch.utils.data.DataLoader,
                   trg_vocab: dict[str, int],
@@ -205,17 +208,12 @@ def evaluate_bleu(model: torch.nn.Module,
                         "calculation. Returning 0.0.")
         return 0.0
 
-    # ------ DEBUG ------
-    # print("All predictions: \n", all_predictions)
-    # print("All references: \n", all_references)
-    # --- END OF DEBUG ---
-
     bleu_result = sacrebleu.corpus_bleu(all_predictions,
                                         [all_references], tokenize='13a')
 
     if verbose:
         print("\n--- BLEU Score Details ---")
-        print(f"BLEU score: {bleu_result.score:.2f}")
+        print(f"BLEU score: {bleu_result.score:.3f}")
         print(
             f"Precisions (1-gram, 2-gram, 3-gram, 4-gram): {bleu_result.precisions}")
         print(f"Brevity Penalty: {bleu_result.bp:.4f}")

@@ -205,13 +205,15 @@ def load_checkpoint(
     Loads model checkpoint, ignoring keys that are not present.
     """
     if not os.path.exists(checkpoint_path):
-        logging.info(f"No checkpoint found at '{checkpoint_path}'. "
+        logging.warning(f"No checkpoint found at '{checkpoint_path}'. "
                      f"Starting training from epoch 1.")
         return 1, None
 
     try:
         logging.info(f"Attempting to load checkpoint from: {checkpoint_path}")
-        checkpoint = torch.load(checkpoint_path, map_location=device)
+        checkpoint = torch.load(checkpoint_path,
+                                map_location=device,
+                                weights_only=False)
 
         model.load_state_dict(checkpoint["model_state_dict"], strict=False)
         logging.info("Model state loaded. Positional encoding buffer was skipped "
@@ -269,7 +271,7 @@ def save_stats_to_csv(
 
     available_data = {k: v for k, v in stats_record.items() if v}
     if not available_data:
-        logging.warning("No non-empty stats data provided to save. Aborting save "
+        logging.error("No non-empty stats data provided to save. Aborting save "
                         "operation.")
         raise ValueError("Cannot save stats: No non-empty data found in "
                          "'stats_record'.")

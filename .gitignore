@@ -26,3 +26,6 @@ Thumbs.db
 
 # === Custom ===
 .idea/shelf/
+
+# === Data Files ===
+*.csv

@@ -136,7 +136,7 @@ def train_model(model: torch.nn.Module,
               f"Validation Loss: {val_loss:.4f} | BLEU Score: {bleu_score:.4f}")
 
         # Log training stats to a CSV.
-        save_stats_to_csv(stats_record, epoch=epoch)
+        utils.save_stats_to_csv(stats_record, epoch=epoch)
 
         # Save the model state if validation loss improves.
         if val_loss < best_loss:
