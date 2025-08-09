@@ -69,8 +69,8 @@ def setup_data_loaders(cfg:Config) -> tuple:
     return train_loader, val_loader, test_loader, iwslt14_data
 
 
-def setup_model_and_training(cfg: Config, 
-                             iwslt14_data: IWSLT14Dataset, 
+def setup_model_and_training(cfg: Config,
+                             iwslt14_data: IWSLT14Dataset,
                              device: torch.device) -> tuple:
     """
     Initializes the model, loss function, optimizer, and learning rate scheduler.
