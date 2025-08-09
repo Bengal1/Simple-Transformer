@@ -391,6 +391,21 @@ In beam search (or any sequence decoding), the log-probability of a candidate se
 ```math
 \log P(y_{1:T} \mid x) = \sum_{t=1}^T \log P(y_t \mid y_{1:t-1}, x)
 ```
+where:
+    $`y_{1:T}`$​ is the output sequence of length T.
+    $`x`$ is the input (e.g., source sentence).
+    $`P(y_{t}∣_{y1:t−1},x)`$ is the model’s predicted probability of token ytyt​ given the previous tokens and input.
+
+In beam search with length normalization (like in your project), the score for each beam is:
+
+```math
+\text{score}(y_{1:T}) =
+\frac{\sum_{t=1}^T \log P\left(y_t \mid y_{1:t-1}, x\right)}
+{\text{length\_penalty}(T)}
+```
+
+where the length penalty is as described above.<br/>
+This means beam search ranks sequences by their average (length-adjusted) log-probability rather than just raw probability sums, avoiding the bias toward short outputs.
 
 ### Initialization and Pre-Training
 
