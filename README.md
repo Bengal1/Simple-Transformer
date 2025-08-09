@@ -378,6 +378,7 @@ Given an input: `This is Simple Transformer Guide!` and a target: `Ceci est un g
 Mistake at one step can lead to poor outputs later — exposure bias.
 
 ### Padding Mask
+A padding mask in Transformers is a binary mask used to prevent the model from attending to <pad> tokens that were added to sequences to make them the same length in a batch. Without masking, the attention mechanism would treat these padding positions as valid input, potentially introducing meaningless information into the context. In practice, the padding mask has 0 (or False) where real tokens are and 1 (or True) where padding occurs, and it is applied before the softmax in the attention score computation by adding large negative values (`float('-inf')`) to the padded positions. This ensures the model focuses only on actual tokens when computing attention, improving both training stability and output quality.
 
 ### Beam Search
 Beam Search is a decoding algorithm used to generate the most likely output sequence by keeping multiple hypotheses (beams) at each step, instead of just the best one (like greedy decoding). <br/>
