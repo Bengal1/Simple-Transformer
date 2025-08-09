@@ -52,7 +52,7 @@ def setup_data_loaders(cfg:Config) -> tuple:
                IWSLT14Dataset object.
     """
     # Get dataset paths based on debug mode
-    paths = config.dataset_paths.get(use_debug=config.runtime.data_debug_mode)
+    paths = cfg.dataset_paths.get(use_debug=cfg.runtime.data_debug_mode)
 
     # Load Datasets
     iwslt14_data = IWSLT14Dataset(paths)
@@ -170,10 +170,9 @@ def main(cfg: Config,
         model.count_parameters()
         return
 
-    if start_new:
-        # Set starting epoch for a new training session.
-        start_epoch = 1
-    else:
+    # Set starting epoch
+    start_epoch = 1 # Default
+    if not start_new:
         try:
             # Load a pre-trained model or resume training from a checkpoint.
             start_epoch, _ = utils.load_checkpoint(model, optimizer, scheduler,
@@ -181,9 +180,9 @@ def main(cfg: Config,
                                                    device)
         except FileNotFoundError:
             logging.warning("Checkpoint not found. Starting from scratch.")
-            start_epoch = 1
 
     # Train the model and collect loss history
+    logging.info("Starting training...")
     eval_records = train_model(
         model=model,
         train_loader=train_loader,
