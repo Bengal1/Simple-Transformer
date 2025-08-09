@@ -6,11 +6,11 @@ SimpleTransformer architecture is built according to article "Attention Is All Y
 This Repository is built for learning purposes, it contain theoretical and practical in knowledge and its goal is to help people who would like to start coding transformer executing [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
 
 ## Requirements
-[![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)](https://www.python.org/) <br/>
-[![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/) <br/>
-[![Datasets](https://img.shields.io/badge/HuggingFace-Datasets-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/datasets) <br/>
-[![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) <br/>
-[![sacrebleu](https://img.shields.io/pypi/v/sacrebleu?label=sacrebleu&color=blue&logo=python&logoColor=white&style=flat-square)](https://pypi.org/project/sacrebleu/) <br/>
+- [![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)](https://www.python.org/) <br/>
+- [![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/) <br/>
+- [![Datasets](https://img.shields.io/badge/HuggingFace-Datasets-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/datasets) <br/>
+- [![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) <br/>
+- [![sacrebleu](https://img.shields.io/pypi/v/sacrebleu?label=sacrebleu&color=blue&logo=python&logoColor=white&style=flat-square)](https://pypi.org/project/sacrebleu/) <br/>
 
 
 ## Transformer
