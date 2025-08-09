@@ -193,8 +193,7 @@ class SimpleTransformer(torch.nn.Module):
             # Initialize sequences for all beams with the BOS token.
             sequences = torch.full((batch_size * beam_size, 1), self.bos_token_id,
                                    dtype=torch.long, device=device)
-            # trg_padding_mask_beams = (sequences == self.pad_token_id).unsqueeze(
-            #     1).unsqueeze(2)
+
             # Initialize beam scores (only the first beam active) and finished status.
             sequence_scores = torch.zeros(batch_size, beam_size, device=device)
             sequence_scores[:, 1:] = float('-inf')  # Only the first beam is active.
