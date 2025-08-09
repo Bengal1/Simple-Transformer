@@ -404,7 +404,7 @@ In beam search with length normalization (like in your project), the score for e
 {\text{length\_penalty}(T)}
 ```
 
-where the $`length\_penalty(T)`$ is $`\Big(\frac{(5+L)}{6}\Big)^α`$.<br/>
+where the `length\_penalty(T)` is $`\Big(\frac{(5+L)}{6}\Big)^α`$.<br/>
 This means beam search ranks sequences by their average (length-adjusted) log-probability rather than just raw probability sums, avoiding the bias toward short outputs.
 
 ### Initialization and Pre-Training
