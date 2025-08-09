@@ -409,7 +409,9 @@ This means beam search ranks sequences by their average (length-adjusted) log-pr
 
 ### Initialization and Pre-Training
 
-
+#### Weights Initialization
+In this project all the projection matrices are initialized with *Xavier initialization*. Xavier initialization (also called Glorot initialization) sets neural network weights by sampling from a distribution with variance scaled based on the number of input and output units, typically $`Var(W)=\frac{2}{fan_{in}+fan_{out}}`$​. This helps keep the signal’s variance stable through layers, improving training convergence.<br/>
+the embedding layers are initialized with scaled normal distribution 
 
 ## Evaluation 
 
