@@ -417,12 +417,9 @@ In this project all the projection matrices are initialized with *Xavier initial
 The embedding layers are initialized with scaled normal distribution. Embedding normal distribution initialization means initializing embedding vectors by sampling each element from a normal (Gaussian) distribution with a small standard deviation (e.g., mean 0, std 0.01). This gives embeddings small random values before training begins, ensuring no initial bias toward any specific token. 
 
 ## Evaluation 
+The model performances are evaluated bt two primary metrics *Loss* (training & validation) and *BLEU*.
 
 ### Training & Validation Loss
-
-`<img src="" align="center" width="1000"/>`
-
-### Typical Run
 
 `<img src="" align="center" width="1000"/>`
 
