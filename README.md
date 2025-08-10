@@ -422,9 +422,10 @@ In Optimizations problem, ML training, the Loss is the core signal guiding optim
 
 BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated text by comparing it to reference texts using n-gram overlaps. It combines these overlaps with a brevity penalty to avoid rewarding short outputs. Scores range from 0 to 1 (or 0–100%), with higher scores indicating closer matches, though it only measures exact wording matches.
 
+### Evaluation on Test Dataset
 Test Loss      | BLEU Score
 ---------------|-----------------
-3.70           | 26.60
+0.000          | 00.000
 
 ### Training & Validation Loss
 
