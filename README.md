@@ -417,7 +417,7 @@ In this project all the projection matrices are initialized with *Xavier initial
 The embedding layers are initialized with scaled normal distribution. Embedding normal distribution initialization means initializing embedding vectors by sampling each element from a normal (Gaussian) distribution with a small standard deviation (e.g., mean 0, std 0.01). This gives embeddings small random values before training begins, ensuring no initial bias toward any specific token. 
 
 ## Evaluation 
-The model performances are evaluated bt two primary metrics *Loss* (training & validation) and *BLEU*.<br/>
+The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
 In Optimizations problem, ML training, the Loss is the core signal guiding optimization. it measures how far model's predictions are from the targets, while optimization algorithms adjust model parameters to minimize it. Training loss is computed on the data used to update the model, reflecting how well it’s fitting that set, while validation loss is computed on unseen data to gauge generalization; a growing gap between them often signals overfitting.<br/>
 
 BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated text by comparing it to reference texts using n-gram overlaps. It combines these overlaps with a brevity penalty to avoid rewarding short outputs. Scores range from 0 to 1 (or 0–100%), with higher scores indicating closer matches, though it only measures exact wording matches.
