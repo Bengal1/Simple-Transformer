@@ -134,7 +134,7 @@ class TrainingConfig:
     betas: tuple[float, float] = (0.9, 0.98)  # Adam optimizer betas
     epsilon: float = 1e-9               # Adam optimizer's epsilon (numerical stability)
     warmup_steps: int = 100             # Scheduler warmup period (number of steps)
-    weight_decay: float = 1.0           # Weight decay parameter (L2 regularization)
+    weight_decay: float = 1e-1           # Weight decay parameter (L2 regularization)
 
 
 @dataclass
