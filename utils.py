@@ -103,10 +103,10 @@ def get_device():
     if torch.cuda.is_available():
         device = torch.device('cuda')
         device_name = torch.cuda.get_device_name(device)
-        print(f"Using GPU: {device_name}")
+        print(f"Using GPU: {device_name}\n")
     else:
         device = torch.device('cpu')
-        print("Using CPU")
+        print("Using CPU\n")
 
     return device
 
@@ -340,7 +340,7 @@ def _plot_losses(statistics: dict[str, list[float]]):
     validation_loss = statistics['validation']
     epochs = range(1, len(train_loss) + 1)
     # --- Plotting Configuration ---
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(8, 5))
     plt.plot(epochs, train_loss, linestyle='-', color='#1f77b4',
              label='Train Loss', linewidth=2)
     plt.plot(epochs, validation_loss, linestyle='-', color='#d62728',
