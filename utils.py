@@ -347,7 +347,7 @@ def _plot_losses(statistics: dict[str, list[float]]):
              label='Validation Loss', linewidth=2)
     # --- Chart Customization ---
     plt.title("Training & Validation Loss Over Epochs",
-              fontsize=16, fontweight='bold')
+              fontsize=18, fontweight='bold')
     plt.xticks(epochs) # This ensures that xticks are integers
     plt.xlabel("Epoch", fontsize=12)
     plt.ylabel("Loss", fontsize=12)
@@ -378,7 +378,7 @@ def _plot_bleu(bleu_scores: list[float]):
     plt.figure(figsize=(8, 5))
     plt.plot(epochs, bleu_scores, label='BLEU Score', color='green', linewidth=2)
     # --- Chart Customization ---
-    plt.title("BLEU Score Over Epochs", fontsize=14, fontweight='bold')
+    plt.title("BLEU Score Over Epochs", fontsize=18, fontweight='bold')
     plt.xlabel("Epoch", fontsize=12)
     plt.ylabel("BLEU Score", fontsize=12)
     plt.xticks(epochs)
