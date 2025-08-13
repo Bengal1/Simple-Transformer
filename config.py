@@ -17,23 +17,23 @@ from dataclasses import dataclass, field
 @dataclass
 class RuntimeConfig:
     """
-    Configuration for runtime behavior and debugging options.
+    Runtime execution and debugging settings.
 
     Attributes:
-        data_debug_mode (bool): If True, load smaller debug datasets
-            instead of the full dataset. Useful for quick tests.
-        logging_level (LogLevel): Controls logging verbosity during
-            training and evaluation.
-        count_param_only (bool): If True, only count the total number
-            of model parameters without running training.
+        logging_level (LogLevel): Logging verbosity during execution.
+        count_param_only (bool): If True, only count model parameters and skip training.
+        seed (int): Random seed for reproducibility.
+        num_workers (int): Number of DataLoader workers for parallel data loading.
     """
-    data_debug_mode: bool = True      # If 'True', use debug dataset instead of full
-    logging_level: "LogLevel" = None  # Logging verbosity (default set below)
-    count_param_only: bool = False    # Only count parameters, Skip training
+    logging_level: "LogLevel" = None        # Logging verbosity (default set in __post_init__)
+    count_param_only: bool = False          # Only count parameters, skip training
+    seed: int = 42                          # Random seed for reproducibility
+    num_workers: int = 4                    # DataLoader parallel worker count
 
     def __post_init__(self):
         if self.logging_level is None:
             self.logging_level = LogLevel.WARNING
+
 
 
 @dataclass
