@@ -228,7 +228,6 @@ if __name__ == "__main__":
     # To start a new training session:
     main(config, comp_device, start_new=True)
 
-
     # To resume training from the latest checkpoint:
     # main(config, comp_device, start_new=False)
 
