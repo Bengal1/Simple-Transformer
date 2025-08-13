@@ -138,7 +138,7 @@ def evaluate_bleu(model: torch.nn.Module,
                   trg_vocab: dict[str, int],
                   device: torch.device,
                   special_tokens: list[str],
-                  beam_size: int = 2,
+                  beam_size: int = 4,
                   max_len: int = 0,
                   verbose: bool = False) -> float:
     """

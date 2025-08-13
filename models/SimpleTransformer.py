@@ -159,7 +159,7 @@ class SimpleTransformer(torch.nn.Module):
 
     def translate(self,
                   src: torch.Tensor,
-                  beam_size: int = 2,
+                  beam_size: int = 4,
                   max_len: int = None) -> torch.Tensor:
         """Performs length-normalized beam search decoding to translate source sequences.
 
