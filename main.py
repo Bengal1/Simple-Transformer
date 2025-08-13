@@ -18,9 +18,9 @@ This script performs the following steps:
 6. Plots training/validation metrics after training.
 
 Usage:
-    - Run a full training session:             main(cfg)
-    - Resume from last checkpoint:             main(cfg, start_new=False)
-    - Just count model parameters:             main(cfg, count_param_only=True)
+    - Run a full training session:        main(config, device)
+    - Resume from last checkpoint:        main(config, device, start_new=False)
+    - Just count model parameters:        main(config, device, count_param_only=True)
 """
 __author__="Bengal1"
 
@@ -159,8 +159,8 @@ def main(cfg: Config,
 
     # Setup model and training components
     model, loss_fn, optimizer, scheduler = setup_model_and_training(cfg,
-                                                                      iwslt14_data,
-                                                                      device)
+                                                                    iwslt14_data,
+                                                                    device)
     # Extract datasets parameters for training
     _, trg_vocab_size    = iwslt14_data.get_vocabularies_sizes()
     src_vocab, trg_vocab = iwslt14_data.get_vocabularies()
@@ -226,7 +226,7 @@ if __name__ == "__main__":
 
     # --- Run the main training and evaluation function. ---
     # To start a new training session:
-    main(config, comp_device, start_new=True)
+    main(config, comp_device)
 
     # To resume training from the latest checkpoint:
     # main(config, comp_device, start_new=False)
