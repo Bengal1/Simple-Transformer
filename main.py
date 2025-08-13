@@ -51,8 +51,8 @@ def setup_data_loaders(cfg:Config) -> tuple:
                (train_loader, val_loader, test_loader) and the
                IWSLT14Dataset object.
     """
-    # Get dataset paths based on debug mode
-    paths = cfg.dataset_paths.get(use_debug=True)
+    # Get dataset paths (if 'use_debug=True', it will return debug dataset paths)
+    paths = cfg.dataset_paths.get(use_debug=False)
 
     # Load Datasets
     iwslt14_data = IWSLT14Dataset(paths)
@@ -63,9 +63,11 @@ def setup_data_loaders(cfg:Config) -> tuple:
                               batch_size=cfg.training.batch_size,
                               num_workers=cfg.runtime.num_worker,shuffle=True)
     val_loader   = DataLoader(val_dataset,
-                              batch_size=cfg.training.batch_size, shuffle=False)
+                              batch_size=cfg.training.batch_size,
+                              num_workers=cfg.runtime.num_worker, shuffle=False)
     test_loader  = DataLoader(test_dataset,
-                              batch_size=cfg.training.batch_size, shuffle=False)
+                              batch_size=cfg.training.batch_size,
+                              num_workers=cfg.runtime.num_worker, shuffle=False)
 
     return train_loader, val_loader, test_loader, iwslt14_data
 
