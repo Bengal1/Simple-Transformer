@@ -46,7 +46,7 @@ class RuntimeConfig:
 
         self.logging_level = level
         # Execute the basic configuration
-        logging.basicConfig(level=valid_log_level,
+        logging.basicConfig(level=self.logging_level.name,
                             format='%(levelname)s - %(message)s')
         logging.info(f"Logging level set to {level}")
 

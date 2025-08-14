@@ -28,10 +28,10 @@ import torch
 from torch.utils.data import DataLoader
 import logging
 import utils
-import evaluation
 from config import Config
 from train import train_model
 from data.iwslt14 import IWSLT14Dataset
+from evaluation import evaluate_model, evaluate_bleu
 from models.SimpleTransformer import SimpleTransformer
 
 
@@ -52,7 +52,7 @@ def setup_data_loaders(cfg:Config) -> tuple:
                IWSLT14Dataset object.
     """
     # Get dataset paths (if 'use_debug=True', it will return debug dataset paths)
-    paths = cfg.dataset_paths.get(use_debug=False)
+    paths = cfg.dataset_paths.get(use_debug=True)
 
     # Load Datasets
     iwslt14_data = IWSLT14Dataset(paths)
@@ -61,13 +61,13 @@ def setup_data_loaders(cfg:Config) -> tuple:
     # DataLoaders
     train_loader = DataLoader(train_dataset,
                               batch_size=cfg.training.batch_size,
-                              num_workers=cfg.runtime.num_worker,shuffle=True)
+                              num_workers=cfg.runtime.num_workers,shuffle=True)
     val_loader   = DataLoader(val_dataset,
                               batch_size=cfg.training.batch_size,
-                              num_workers=cfg.runtime.num_worker, shuffle=False)
+                              num_workers=cfg.runtime.num_workers, shuffle=False)
     test_loader  = DataLoader(test_dataset,
                               batch_size=cfg.training.batch_size,
-                              num_workers=cfg.runtime.num_worker, shuffle=False)
+                              num_workers=cfg.runtime.num_workers, shuffle=False)
 
     return train_loader, val_loader, test_loader, iwslt14_data
 
@@ -207,12 +207,12 @@ def main(cfg: Config,
                           cfg.checkpoint.model_path, device)
 
     # Evaluate model on the test dataset
-    test_loss = evaluation.evaluate_model(model, test_loader, loss_fn, device)
+    test_loss = evaluate_model(model, test_loader, loss_fn, device)
 
     # Compute BLEU score
-    bleu_score = evaluation.evaluate_bleu(model, test_loader, trg_vocab, device,
-                                          iwslt14_data.get_special_tokens_list(),
-                                          verbose=True)
+    bleu_score = evaluate_bleu(model, test_loader, trg_vocab, device,
+                               iwslt14_data.get_special_tokens_list(),
+                               verbose=True)
 
     # Output final test loss and BLEU score
     print(f"\nTest loss: {test_loss:.3f} | BLEU Score: {bleu_score:.3f}\n")

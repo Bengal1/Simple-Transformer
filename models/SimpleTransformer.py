@@ -22,10 +22,10 @@ import math
 import torch
 import torch.nn.functional as F
 from typing import Optional
-from layers.Encoder import Encoder
-from layers.Decoder import Decoder
-from layers.PositionalEncoding import PositionalEncoding
-
+from .layers.Encoder import Encoder
+from .layers.Decoder import Decoder
+from .layers.PositionalEncoding import PositionalEncoding
+# from .layers import Encoder, Decoder, MultiHeadAttention, FeedForward
 
 class SimpleTransformer(torch.nn.Module):
     """A simplified Transformer model for sequence-to-sequence tasks.
