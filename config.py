@@ -66,7 +66,7 @@ class ModelConfig:
 class TrainingConfig:
     """Configuration for model training hyperparameters."""
     batch_size: int = 32                # Batch size
-    epochs: int = 10                    # Number of epochs
+    epochs: int = 2                    # Number of epochs
     max_grad_clip: float = 1.0          # Gradient clipping threshold
     label_smoothing: float = 0.1        # Label smoothing parameter
     learning_rate: float = 1e-5         # Initial learning rate

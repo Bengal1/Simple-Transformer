@@ -12,8 +12,8 @@ The module provides two main functions:
 """
 import torch
 import logging
-import utils
-import evaluation
+from utils import save_model, save_stats_to_csv
+from scripts.evaluation import evaluate_model, evaluate_bleu
 
 
 def _train_epoch(model: torch.nn.Module,
@@ -121,12 +121,12 @@ def train_model(model: torch.nn.Module,
         stats_record['train'].append(train_loss)
 
         # Validation
-        val_loss = evaluation.evaluate_model(model, validation_loader, criterion,
+        val_loss = evaluate_model(model, validation_loader, criterion,
                                              device)
         stats_record['validation'].append(val_loss)
 
         # Evaluate BLEU
-        bleu_score = evaluation.evaluate_bleu(model, validation_loader,
+        bleu_score = evaluate_bleu(model, validation_loader,
                                               target_vocabulary, device,
                                               special_tokens)
         stats_record['bleu'].append(bleu_score)
@@ -136,11 +136,11 @@ def train_model(model: torch.nn.Module,
               f"Validation Loss: {val_loss:.4f} | BLEU Score: {bleu_score:.4f}")
 
         # Log training stats to a CSV.
-        utils.save_stats_to_csv(stats_record, epoch=epoch)
+        save_stats_to_csv(stats_record, epoch=epoch)
 
         # Save the model state if validation loss improves.
         if bleu_score > best_bleu:
             best_bleu = bleu_score
-            utils.save_model(epoch, model, optimizer, scheduler, val_loss)
+            save_model(epoch, model, optimizer, scheduler, val_loss)
 
     return stats_record
