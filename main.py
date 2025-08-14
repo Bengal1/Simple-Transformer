@@ -29,10 +29,10 @@ from torch.utils.data import DataLoader
 import logging
 import utils
 from config import Config
-from train import train_model
+from scripts.train import train_model
 from data.iwslt14 import IWSLT14Dataset
-from evaluation import evaluate_model, evaluate_bleu
 from models.SimpleTransformer import SimpleTransformer
+from scripts.evaluation import evaluate_model, evaluate_bleu
 
 
 def setup_data_loaders(cfg:Config) -> tuple:
