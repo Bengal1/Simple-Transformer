@@ -109,7 +109,7 @@ def train_model(model: torch.nn.Module,
                 - 'bleu': List of bleu score values.
     """
     stats_record = {'train': [], 'validation': [], 'bleu': []}
-    best_loss = float('inf')
+    best_bleu = float('-inf')
 
     logging.info(f"Starting model training for {epochs} epochs on {device}.")
 
@@ -139,8 +139,8 @@ def train_model(model: torch.nn.Module,
         utils.save_stats_to_csv(stats_record, epoch=epoch)
 
         # Save the model state if validation loss improves.
-        if val_loss < best_loss:
-            best_loss = val_loss
+        if bleu_score > best_bleu:
+            best_bleu = bleu_score
             utils.save_model(epoch, model, optimizer, scheduler, val_loss)
 
     return stats_record

@@ -202,6 +202,10 @@ def main(cfg: Config,
         start_epoch=start_epoch,
     )
 
+    # Load best model
+    utils.load_checkpoint(model, optimizer, scheduler,
+                          cfg.checkpoint.model_path, device)
+
     # Evaluate model on the test dataset
     test_loss = evaluation.evaluate_model(model, test_loader, loss_fn, device)
 
@@ -218,21 +222,22 @@ def main(cfg: Config,
 
 
 if __name__ == "__main__":
-    # Load configuration settings
+    # --- Load configuration ---
     config = Config()
+    # --- Set seed (for reproducibility) ---
+    utils.set_seed(config.runtime.seed)
+    # --- Configure logging ---
+    config.runtime.set_logging_level(config.runtime.logging_level)
 
-    # Set computation device (GPU/CPU)
+    # --- Set computation device (GPU/CPU) ---
     comp_device = utils.get_device()
 
-    # Set the logging level
-    utils.set_logging_level(config.runtime.logging_level)
-
-    # --- Run the main training and evaluation function. ---
+    # --- Run main function ---
     # To start a new training session:
     main(config, comp_device)
 
-    # To resume training from the latest checkpoint:
+    # Resume training from the latest checkpoint:
     # main(config, comp_device, start_new=False)
 
-    # To count model parameters and exit:
+    # Count model parameters and exit:
     # main(config, comp_device, count_param_only=True)

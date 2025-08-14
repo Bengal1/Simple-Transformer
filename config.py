@@ -27,13 +27,28 @@ class RuntimeConfig:
     """
     logging_level: "LogLevel" = None        # Logging verbosity (default set in __post_init__)
     count_param_only: bool = False          # Only count parameters, skip training
-    seed: int = 42                          # Random seed for reproducibility
+    seed: int = 73                          # Random seed for reproducibility
     num_workers: int = 4                    # DataLoader parallel worker count
 
     def __post_init__(self):
         if self.logging_level is None:
             self.logging_level = LogLevel.WARNING
 
+    def set_logging_level(self, level: "LogLevel" = None):
+        """
+        Set the runtime logging level.
+
+        Args:
+            level (LogLevel): Desired logging verbosity.
+        """
+        if level is None:
+            level = self.logging_level or LogLevel.WARNING
+
+        self.logging_level = level
+        # Execute the basic configuration
+        logging.basicConfig(level=valid_log_level,
+                            format='%(levelname)s - %(message)s')
+        logging.info(f"Logging level set to {level}")
 
 
 @dataclass

@@ -27,7 +27,9 @@ to perform data preprocessing tasks.
 import os
 import json
 import torch
+import random
 import logging
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from datasets import load_dataset
@@ -111,46 +113,27 @@ def get_device():
     return device
 
 
-# --------------------- Logging --------------------- #
-
-class LogLevel:
-    """Defines standard logging levels using logging module's integer values."""
-    DEBUG    = logging.DEBUG
-    INFO     = logging.INFO
-    WARNING  = logging.WARNING
-    ERROR    = logging.ERROR
-    CRITICAL = logging.CRITICAL
-
-
-def set_logging_level(logging_level: int):
+def set_seed(seed_value: int = 73):
     """
-        Configures the root logger with a specified integer level and simple format.
+    Sets the random seed for reproducibility across multiple libraries.
 
-        Args:
-            logging_level (int): The desired logging level as an integer
-                                 (e.g., LogLevel.DEBUG, LogLevel.INFO).
-                                 Defaults to WARNING if an unknown integer is provided.
+    This function ensures that the random number generators in Python's
+    built-in `random` module, NumPy, and PyTorch are all initialized
+    with the same seed. This is crucial for creating reproducible
+    experiments in machine learning, as it guarantees that operations
+    involving randomness (like data shuffling, weight initialization,
+    and dropout) will yield the same results every time the code is run.
+
+    Args:
+        seed_value (int): The integer value to use as the seed. Defaults to 73.
     """
-    # Remove previously configured logging handlers
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
+    random.seed(seed_value)
+    np.random.seed(seed_value)
+    torch.manual_seed(seed_value)
 
-    VALID_LOG_LEVELS = {
-        logging.DEBUG,
-        logging.INFO,
-        logging.WARNING,
-        logging.ERROR,
-        logging.CRITICAL
-    }
-
-    # Validate log level, defaulting to WARNING if invalid.
-    if not isinstance(logging_level, int) or logging_level not in VALID_LOG_LEVELS:
-        valid_log_level = logging.WARNING
-    else:
-        valid_log_level = logging_level
-
-    # Execute the basic configuration
-    logging.basicConfig(level=valid_log_level, format='%(levelname)s - %(message)s')
+    # If a GPU is available, set the seed for all CUDA devices
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed_value)
 
 
 # ------------------ Checkpointing ------------------ #
