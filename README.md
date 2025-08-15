@@ -425,7 +425,7 @@ BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated
 ### Evaluation on Test Dataset
 Test Loss      | BLEU Score
 ---------------|-----------------
-0.000          | 00.000
+3.73          | 25.93
 
 ### Training & Validation Loss
 <img width="2560" height="1335" alt="run1_train validation_loss" src="https://github.com/user-attachments/assets/3b03cce7-b8ad-4485-8d05-f1c734f0706e" />
