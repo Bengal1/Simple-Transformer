@@ -16,6 +16,10 @@ from utils import save_model, save_stats_to_csv
 from scripts.evaluation import evaluate_model, evaluate_bleu
 
 
+# --- Public API ---
+__all__ = ["train_model"]
+
+
 def _train_epoch(model: torch.nn.Module,
                 train_loader: torch.utils.data.DataLoader,
                 optimizer: torch.optim.Optimizer,

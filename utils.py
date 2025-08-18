@@ -33,10 +33,23 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from datasets import load_dataset
+from typing import Sequence
 
+# --- Public API ---
+__all__ = [
+    "NoamLR",
+    "early_stopping",
+    "get_device",
+    "set_seed",
+    "save_model",
+    "load_checkpoint",
+    "save_stats_to_csv",
+    "plot_metrics"
+]
 
-# ------------------ Learning Rate Schedulers ------------------ #
+# --------------- Training Utilities ---------------- #
 
+# --- Learning Rate Schedulers ---
 class NoamLR(torch.optim.lr_scheduler._LRScheduler):
     """
     Implements the Noam learning rate schedule from 'Attention Is All You Need'.
@@ -65,6 +78,9 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
             model_size (int, optional): Dimensionality of the model (default: 512).
             warmup_steps (int, optional): Number of warm-up steps (default: 4000).
             last_epoch (int, optional): The index of last epoch. Default: -1.
+
+        Raises:
+            ValueError: If `model_size` or `warmup_steps` is not a positive integer.
         """
         if model_size <= 0:
             raise ValueError("model_size must be a positive integer.")
@@ -86,6 +102,41 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         # Calculate the Noam learning rate based on the current step
         lr    = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
         return [lr for _ in self.base_lrs]
+
+
+def early_stopping(metric_record: Sequence[float], patience: int = 5) -> tuple:
+    """
+    Checks if a metric has improved in the last `patience` epochs.
+
+    Args:
+        metric_record: List/Sequence of metric values (e.g., BLEU or validation loss).
+        patience: Number of epochs to wait for improvement.
+
+    Returns:
+        should_stop (bool): True if metric did not improve in last `patience` epochs.
+        best_epoch (int | None): Epoch index (1-based) of best metric so far.
+        best_metric (float | None): Best metric value so far.
+
+    Raises:
+        ValueError: If `patience` is not a positive integer.
+    """
+    if patience <= 0:
+        raise ValueError("patience must be a positive integer")
+
+    if len(metric_record) < patience + 1:
+        return False, None, None  # not enough history yet
+
+    # Best so far until "patience" epochs ago
+    best_metric = max(metric_record[:-patience])
+    best_epoch = metric_record.index(best_metric) + 1
+
+    # Check if last `patience` epochs improved
+    recent_metrics = metric_record[-patience:]
+    if max(recent_metrics) <= best_metric:
+        return True, best_epoch, best_metric
+
+    return False, best_epoch, best_metric
+
 
 # -------------- Device Configuration --------------- #
 
@@ -226,6 +277,8 @@ def load_checkpoint(
         return 1, None
 
 
+# ------------------- Statistics -------------------- #
+
 def save_stats_to_csv(
         stats_record: dict[str, list[float]],
         file_path: str = None,
@@ -312,6 +365,9 @@ def _plot_losses(statistics: dict[str, list[float]]):
     - The x-axis represents epochs.
     - The y-axis represents the loss values.
     - Both train and validation losses are plotted with different colors and markers.
+
+    Raises:
+        ValueError: If `statistics` doesn't hold 'train' or 'validation'.
     """
     if "train" not in statistics or "validation" not in statistics:
         logging.error("Input dictionary must contain 'train' and 'validation' keys "
@@ -407,6 +463,9 @@ def make_iwslt14_local_file(split: str,
         split (str): The dataset split to save ("train", "validation", or "test").
         debug (bool): If True, saves only a small subset for debugging.
         debug_size (int): Number of samples to keep in debug mode.
+
+    Raises:
+        ValueError: If `split` is not one of ['train', 'validation', 'test'].
     """
     if split not in ["train", "validation", "test"]:
         logging.error(f"Invalid dataset split provided: '{split}'. Must be 'train', "

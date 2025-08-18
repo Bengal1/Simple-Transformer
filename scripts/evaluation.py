@@ -6,7 +6,7 @@ like machine translation.
 The module includes functions for:
 - Calculating the average loss over a dataset (`evaluate_model`).
 - Post-processing model outputs, including decoding, removing special tokens,
-  and detokenization (`_decode_sequence`, `_remove_special_tokens`, `detokenize`).
+  and detokenization (`_decode_sequence`, `_remove_special_tokens`, `_detokenize`).
 - Computing the BLEU score, a standard metric for machine translation quality,
   using the `sacrebleu` library (`evaluate_bleu`).
 
@@ -17,6 +17,13 @@ import torch
 import sacrebleu
 import logging
 import re
+
+
+# --- Public API ---
+__all__ = [
+    "evaluate_model",
+    "evaluate_bleu"
+]
 
 
 # ------------------ Loss ------------------ #
@@ -105,7 +112,7 @@ def _remove_special_tokens(tokens: list[str],
     return [tok for tok in tokens if tok not in special_token_set]
 
 
-def detokenize(tokens: list[str]) -> str:
+def _detokenize(tokens: list[str]) -> str:
     """Reassembles a list of tokens into a single string, reversing
     the effects of tokenization.
 
@@ -199,8 +206,8 @@ def evaluate_bleu(model: torch.nn.Module,
                                                             special_token_set)
 
                 if cleaned_pred_tokens and cleaned_ref_tokens:
-                    all_predictions.append(detokenize(cleaned_pred_tokens))
-                    all_references.append(detokenize(cleaned_ref_tokens))
+                    all_predictions.append(_detokenize(cleaned_pred_tokens))
+                    all_references.append(_detokenize(cleaned_ref_tokens))
 
     # Handle cases where no valid sequences were found
     if not all_predictions or not all_references:

@@ -27,7 +27,7 @@ __author__="Bengal1"
 import torch
 from torch.utils.data import DataLoader
 import logging
-import utils
+from utils import *
 from config import Config
 from scripts.train import train_model
 from data.iwslt14 import IWSLT14Dataset
@@ -118,9 +118,9 @@ def setup_model_and_training(cfg: Config,
                                  weight_decay=cfg.training.weight_decay)
 
     # Initialize the NoamLR learning rate scheduler.
-    scheduler = utils.NoamLR(optimizer,
-                             model_size=cfg.model.embed_dim,
-                             warmup_steps=cfg.training.warmup_steps)
+    scheduler = NoamLR(optimizer,
+                       model_size=cfg.model.embed_dim,
+                       warmup_steps=cfg.training.warmup_steps)
 
     return model, loss_fn, optimizer, scheduler
 
@@ -178,9 +178,9 @@ def main(cfg: Config,
     if not start_new:
         try:
             # Load a pre-trained model or resume training from a checkpoint.
-            start_epoch, _ = utils.load_checkpoint(model, optimizer, scheduler,
-                                                   cfg.checkpoint.model_path,
-                                                   device)
+            start_epoch, _ = load_checkpoint(model, optimizer, scheduler,
+                                             cfg.checkpoint.model_path,
+                                             device)
         except FileNotFoundError:
             logging.warning("Checkpoint not found. Starting from scratch.")
 
@@ -203,8 +203,8 @@ def main(cfg: Config,
     )
 
     # Load best model
-    utils.load_checkpoint(model, optimizer, scheduler,
-                          cfg.checkpoint.model_path, device)
+    load_checkpoint(model, optimizer, scheduler,
+                    cfg.checkpoint.model_path, device)
 
     # Evaluate model on the test dataset
     test_loss = evaluate_model(model, test_loader, loss_fn, device)
@@ -218,19 +218,19 @@ def main(cfg: Config,
     print(f"\nTest loss: {test_loss:.3f} | BLEU Score: {bleu_score:.3f}\n")
 
     # Plot training and validation losses
-    utils.plot_metrics(eval_records)
+    plot_metrics(eval_records)
 
 
 if __name__ == "__main__":
     # --- Load configuration ---
     config = Config()
     # --- Set seed (for reproducibility) ---
-    utils.set_seed(config.runtime.seed)
+    set_seed(config.runtime.seed)
     # --- Configure logging ---
     config.runtime.set_logging_level(config.runtime.logging_level)
 
     # --- Set computation device (GPU/CPU) ---
-    comp_device = utils.get_device()
+    comp_device = get_device()
 
     # --- Run main function ---
     # To start a new training session:
