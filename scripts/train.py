@@ -12,7 +12,7 @@ The module provides two main functions:
 """
 import torch
 import logging
-from utils import save_model, save_stats_to_csv
+from utils import save_model, save_stats_to_csv, early_stopping
 from scripts.evaluation import evaluate_model, evaluate_bleu
 
 
@@ -147,4 +147,11 @@ def train_model(model: torch.nn.Module,
             best_bleu = bleu_score
             save_model(epoch, model, optimizer, scheduler, val_loss)
 
+        # Monitor BLEU plateau for potential early stopping
+        if early_stopping(stats_record['bleu'], patience=5):
+            logging.info(f"Early stopping triggered at epoch {epoch}")
+            break
+
     return stats_record
+
+

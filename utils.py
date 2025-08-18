@@ -104,7 +104,7 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         return [lr for _ in self.base_lrs]
 
 
-def early_stopping(metric_record: Sequence[float], patience: int = 5) -> tuple:
+def early_stopping(metric_record: Sequence[float], patience: int = 5) -> bool:
     """
     Checks if a metric has improved in the last `patience` epochs.
 
@@ -114,8 +114,6 @@ def early_stopping(metric_record: Sequence[float], patience: int = 5) -> tuple:
 
     Returns:
         should_stop (bool): True if metric did not improve in last `patience` epochs.
-        best_epoch (int | None): Epoch index (1-based) of best metric so far.
-        best_metric (float | None): Best metric value so far.
 
     Raises:
         ValueError: If `patience` is not a positive integer.
@@ -124,18 +122,17 @@ def early_stopping(metric_record: Sequence[float], patience: int = 5) -> tuple:
         raise ValueError("patience must be a positive integer")
 
     if len(metric_record) < patience + 1:
-        return False, None, None  # not enough history yet
+        return False  # not enough history yet
 
     # Best so far until "patience" epochs ago
     best_metric = max(metric_record[:-patience])
-    best_epoch = metric_record.index(best_metric) + 1
 
     # Check if last `patience` epochs improved
     recent_metrics = metric_record[-patience:]
     if max(recent_metrics) <= best_metric:
-        return True, best_epoch, best_metric
+        return True
 
-    return False, best_epoch, best_metric
+    return False
 
 
 # -------------- Device Configuration --------------- #
