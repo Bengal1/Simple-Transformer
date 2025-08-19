@@ -59,21 +59,21 @@ class ModelConfig:
     num_layers: int = 6                 # Number of Encoder/Decoder layers
     d_k: int = 64                       # Dimension for K-space
     d_v: int = 64                       # Dimension for V-space
-    dropout: float = 0.1                # Dropout probability
+    dropout: float = 0.2                # Dropout probability
 
 
 @dataclass
 class TrainingConfig:
     """Configuration for model training hyperparameters."""
     batch_size: int = 32                # Batch size
-    epochs: int = 2                    # Number of epochs
+    epochs: int = 20                    # Number of epochs
     max_grad_clip: float = 1.0          # Gradient clipping threshold
     label_smoothing: float = 0.1        # Label smoothing parameter
     learning_rate: float = 1e-5         # Initial learning rate
     betas: tuple[float, float] = (0.9, 0.98)  # Adam optimizer betas
     epsilon: float = 1e-9               # Adam optimizer's epsilon (numerical stability)
-    warmup_steps: int = 100             # Scheduler warmup period (number of steps)
-    weight_decay: float = 1e-1           # Weight decay parameter (L2 regularization)
+    warmup_steps: int = 5000            # Scheduler warmup period (number of steps)
+    weight_decay: float = 1e-5          # Weight decay parameter (L2 regularization)
 
 
 class LogLevel(Enum):
