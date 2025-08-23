@@ -114,15 +114,14 @@ def early_stopping(
     epochs.
 
     Args:
-        metric_record: Sequence of metric values (e.g., BLEU or validation
-            loss).
+        metric_record: Sequence of metric values (e.g., BLEU or validation loss).
         patience: Number of epochs to wait for improvement.
-        best_is_max: Whether higher metric values are better (e.g., BLEU)
-            or lower (e.g., loss).
+        best_is_max: Whether higher metric values are better (like BLEU)
+            or lower (like loss).
 
     Returns:
         should_stop (bool): True if metric did not improve in the last
-            `patience` epochs.
+                            `patience` epochs.
 
     Raises:
         ValueError: If `patience` is not a positive integer.
