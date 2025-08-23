@@ -104,16 +104,25 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         return [lr for _ in self.base_lrs]
 
 
-def early_stopping(metric_record: Sequence[float], patience: int = 5) -> bool:
+def early_stopping(
+    metric_record: Sequence[float],
+    patience: int = 5,
+    best_is_max: bool = True
+) -> bool:
     """
-    Checks if a metric has improved in the last `patience` epochs.
+    Checks if a metric has failed to improve within the last `patience`
+    epochs.
 
     Args:
-        metric_record: List/Sequence of metric values (e.g., BLEU or validation loss).
+        metric_record: Sequence of metric values (e.g., BLEU or validation
+            loss).
         patience: Number of epochs to wait for improvement.
+        best_is_max: Whether higher metric values are better (e.g., BLEU)
+            or lower (e.g., loss).
 
     Returns:
-        should_stop (bool): True if metric did not improve in last `patience` epochs.
+        should_stop (bool): True if metric did not improve in the last
+            `patience` epochs.
 
     Raises:
         ValueError: If `patience` is not a positive integer.
@@ -121,18 +130,17 @@ def early_stopping(metric_record: Sequence[float], patience: int = 5) -> bool:
     if patience <= 0:
         raise ValueError("patience must be a positive integer")
 
-    if len(metric_record) < patience + 1:
+    if len(metric_record) <= patience:
         return False  # not enough history yet
 
-    # Best so far until "patience" epochs ago
-    best_metric = max(metric_record[:-patience])
-
-    # Check if last `patience` epochs improved
-    recent_metrics = metric_record[-patience:]
-    if max(recent_metrics) <= best_metric:
-        return True
-
-    return False
+    if best_is_max:
+        best_so_far = max(metric_record[:-patience])
+        recent_best = max(metric_record[-patience:])
+        return recent_best <= best_so_far
+    else:
+        best_so_far = min(metric_record[:-patience])
+        recent_best = min(metric_record[-patience:])
+        return recent_best >= best_so_far
 
 
 # -------------- Device Configuration --------------- #
