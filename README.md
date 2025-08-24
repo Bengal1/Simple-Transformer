@@ -419,7 +419,7 @@ By focusing on a smaller dataset, we establish a fair baseline for translation q
 Our model differs from the original Transformer in several key aspects. We train a single-model Transformer on IWSLT14 for ***** epochs on a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). We apply weight decay for regularization and use a batch size of 16 with 16 gradient accumulation steps, resulting in an effective batch size of 256. Also during inference, we apply beam search with a length penalty of 0.6. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, attention heads and Xavier weight initialization remain consistent with the original paper. 
 <br/>
 
-Nodel Variant                   | BLEU Score    | Dataset 
+Model Variant                   | BLEU Score    | Dataset 
 --------------------------------|---------------|-------------------------------------------------
 Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)
 Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)
@@ -434,9 +434,10 @@ In Optimizations problem, ML training, the Loss is the core signal guiding optim
 BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated text by comparing it to reference texts using n-gram overlaps. It combines these overlaps with a brevity penalty to avoid rewarding short outputs. Scores range from 0 to 1 (or 0–100%), with higher scores indicating closer matches, though it only measures exact wording matches.
 
 ### Evaluation on Test Dataset
-Test Loss      | BLEU Score
----------------|-----------------
-3.73          | 25.93
+Model Variant                   | Test Loss     | BLEU Score
+--------------------------------|---------------|-------------------------------------------------
+Simple Transformer 512          |  00.00        |  00.00
+Simple Transformer 1024         |  00.00        |  00.00
 
 ### Training & Validation Loss
 <img width="2560" height="1335" alt="run1_train validation_loss" src="https://github.com/user-attachments/assets/3b03cce7-b8ad-4485-8d05-f1c734f0706e" />
