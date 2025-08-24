@@ -418,6 +418,14 @@ By focusing on a smaller dataset, we establish a fair baseline for translation q
 
 Our model differs from the original Transformer in several key aspects. We train a single-model Transformer on IWSLT14 for ***** epochs on a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). We apply weight decay for regularization and use a batch size of 16 with 16 gradient accumulation steps, resulting in an effective batch size of 256. Also during inference, we apply beam search with a length penalty of 0.6. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, attention heads and Xavier weight initialization remain consistent with the original paper.
 
+Nodel Variant                   | BLEU Score    | Dataset 
+--------------------------------|---------------|-------------------------------------------------
+Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)
+Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)
+Simple Transformer 512          |  00.00        |  IWSLT14 En-Fr (~180K samples)
+Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)
+
+
 ## Evaluation 
 The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
 In Optimizations problem, ML training, the Loss is the core signal guiding optimization. it measures how far model's predictions are from the targets, while optimization algorithms adjust model parameters to minimize it. Training loss is computed on the data used to update the model, reflecting how well it’s fitting that set, while validation loss is computed on unseen data to gauge generalization; a growing gap between them often signals overfitting.<br/>
