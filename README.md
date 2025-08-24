@@ -409,9 +409,6 @@ In beam search with length normalization (like in your project), the score for e
 where the $`\text{length\_penalty}(T)`$ is $`\Big(\frac{(5+L)}{6}\Big)^α`$, as described above.<br/>
 This means beam search ranks sequences by their average (length-adjusted) log-probability rather than just raw probability sums, avoiding the bias toward short outputs.
 
-### Weights Initialization
-In this project all the projection matrices are initialized with *Xavier initialization*. Xavier initialization (also called Glorot initialization) sets neural network weights by sampling from a distribution with variance scaled based on the number of input and output units, typically $`Var(W)=\frac{2}{fan_{in}+fan_{out}}`$​. This helps keep the signal’s variance stable through layers, improving training convergence.<br/>
-
 The embedding layers are initialized with scaled normal distribution. Embedding normal distribution initialization means initializing embedding vectors by sampling each element from a normal (Gaussian) distribution with a small standard deviation (e.g., mean 0, std 0.01). This gives embeddings small random values before training begins, ensuring no initial bias toward any specific token. 
 
 ## Comparison with Original Transformer
@@ -419,7 +416,7 @@ In our experiments, we focus on a single-model comparison using the IWSLT14 data
 For reference, the original Transformer models reported by Vaswani et al. (2017) were trained on the WMT 2014 dataset, which includes roughly 36 million sentence pairs, with a test set of about 3,000 sentences. In that setup, the Base model achieved a BLEU score of 38.1 and the Big model reached 41.0. While the paper also reports a Big Ensemble model achieving 41.8, ensembles are not within the scope of our comparison. <br/>
 By focusing on a smaller dataset, we establish a fair baseline for translation quality under data-limited conditions, highlighting the impact of training scale rather than architectural differences.
 
-Our model differs from the original Transformer in several key aspects. We train a single-model Transformer on IWSLT14 for ***** epochs on a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). We apply weight decay for regularization and use a batch size of 16 with 16 gradient accumulation steps, resulting in an effective batch size of 256. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, and attention heads, remain consistent with the original paper.
+Our model differs from the original Transformer in several key aspects. We train a single-model Transformer on IWSLT14 for ***** epochs on a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). We apply weight decay for regularization and use a batch size of 16 with 16 gradient accumulation steps, resulting in an effective batch size of 256. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, attention heads and Xavier weight initialization remain consistent with the original paper.
 
 ## Evaluation 
 The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
