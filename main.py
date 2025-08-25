@@ -200,6 +200,7 @@ def main(
         target_vocabulary_size=trg_vocab_size,
         device=device,
         epochs=cfg.training.epochs,
+        patience=cfg.training.patience,
         max_gradient_clip=cfg.training.max_grad_clip,
         start_epoch=start_epoch,
     )

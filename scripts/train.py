@@ -32,6 +32,7 @@ def train_model(
         target_vocabulary_size: int,
         device: torch.device,
         epochs: int = 10,
+        patience: int = 5,
         max_gradient_clip: float = 1.0,
         start_epoch: int = 1) -> dict[str, list[float]]:
     """
@@ -49,6 +50,7 @@ def train_model(
         target_vocabulary_size (int): Size of the target vocabulary.
         device (torch.device): Device to run training on.
         epochs (int): Number of training epochs.
+        patience (int, optional): Number of epochs to wait for improvement. Default is 5.
         max_gradient_clip (float): Maximum gradient norm for clipping.
         start_epoch (int): The starting epoch for training. (Default is 1).
 
@@ -96,7 +98,7 @@ def train_model(
             save_model(epoch, model, optimizer, scheduler, val_loss)
 
         # Monitor BLEU plateau for potential early stopping
-        if early_stopping(stats_record['bleu'], patience=5):
+        if early_stopping(stats_record['bleu'], patience=patience):
             logging.info(f"Early stopping triggered at epoch {epoch}")
             break
 

@@ -66,7 +66,7 @@ class ModelConfig:
 class TrainingConfig:
     """Configuration for model training hyperparameters."""
     batch_size: int = 32                # Batch size
-    epochs: int = 20                    # Number of epochs
+    epochs: int = 40                    # Number of epochs
     max_grad_clip: float = 1.0          # Gradient clipping threshold
     label_smoothing: float = 0.1        # Label smoothing parameter
     learning_rate: float = 1e-5         # Initial learning rate
@@ -74,6 +74,7 @@ class TrainingConfig:
     epsilon: float = 1e-9               # Adam optimizer's epsilon (numerical stability)
     warmup_steps: int = 5000            # Scheduler warmup period (number of steps)
     weight_decay: float = 1e-5          # Weight decay parameter (L2 regularization)
+    patience: int = 5                   # Early stopping patience (epochs)
 
 
 class LogLevel(Enum):
