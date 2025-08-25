@@ -423,7 +423,7 @@ Model Variant                   | BLEU Score    | Dataset
 --------------------------------|---------------|-------------------------------------------------
 Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)
 Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)
-Simple Transformer 512          |  00.00        |  IWSLT14 En-Fr (~180K samples)
+Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)
 Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)
 
 
@@ -436,7 +436,7 @@ BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated
 ### Evaluation on Test Dataset
 Model Variant                   | Test Loss     | BLEU Score
 --------------------------------|---------------|-------------------------------------------------
-Simple Transformer 512          |  00.00        |  00.00
+Simple Transformer 512          |  3.312        |  35.561
 Simple Transformer 1024         |  00.00        |  00.00
 
 ### Training & Validation Loss
