@@ -409,12 +409,23 @@ In beam search with length normalization (like in your project), the score for e
 where the $`\text{length\_penalty}(T)`$ is $`\Big(\frac{(5+L)}{6}\Big)^α`$, as described above.<br/>
 This means beam search ranks sequences by their average (length-adjusted) log-probability rather than just raw probability sums, avoiding the bias toward short outputs.
 
-### Initialization and Pre-Training
-
-#### Weights Initialization
-In this project all the projection matrices are initialized with *Xavier initialization*. Xavier initialization (also called Glorot initialization) sets neural network weights by sampling from a distribution with variance scaled based on the number of input and output units, typically $`Var(W)=\frac{2}{fan_{in}+fan_{out}}`$​. This helps keep the signal’s variance stable through layers, improving training convergence.<br/>
-
 The embedding layers are initialized with scaled normal distribution. Embedding normal distribution initialization means initializing embedding vectors by sampling each element from a normal (Gaussian) distribution with a small standard deviation (e.g., mean 0, std 0.01). This gives embeddings small random values before training begins, ensuring no initial bias toward any specific token. 
+
+## Comparison with Original Transformer
+In our experiments, we focus on a single-model comparison using the IWSLT14 dataset, which contains approximately 180,000 sentence pairs, to evaluate how well the Transformer architecture performs under resource-constrained conditions. <br>
+For reference, the original Transformer models reported by Vaswani et al. (2017) were trained on the WMT 2014 dataset, which includes roughly 36 million sentence pairs, with a test set of about 3,000 sentences. In that setup, the Base model achieved a BLEU score of 38.1 and the Big model reached 41.0. While the paper also reports a Big Ensemble model achieving 41.8, ensembles are not within the scope of our comparison. <br/>
+By focusing on a smaller dataset, we establish a fair baseline for translation quality under data-limited conditions, highlighting the impact of training scale rather than architectural differences.
+
+Our model differs from the original Transformer in several key aspects. We train a single-model Transformer on IWSLT14 for ***** epochs on a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). We apply weight decay for regularization and use a batch size of 16 with 16 gradient accumulation steps, resulting in an effective batch size of 256. Also during inference, we apply beam search with a length penalty of 0.6. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, attention heads and Xavier weight initialization remain consistent with the original paper. 
+<br/>
+
+Model Variant                   | BLEU Score    | Dataset 
+--------------------------------|---------------|-------------------------------------------------
+Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)
+Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)
+Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)
+Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)
+
 
 ## Evaluation 
 The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
@@ -423,15 +434,16 @@ In Optimizations problem, ML training, the Loss is the core signal guiding optim
 BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated text by comparing it to reference texts using n-gram overlaps. It combines these overlaps with a brevity penalty to avoid rewarding short outputs. Scores range from 0 to 1 (or 0–100%), with higher scores indicating closer matches, though it only measures exact wording matches.
 
 ### Evaluation on Test Dataset
-Test Loss      | BLEU Score
----------------|-----------------
-3.73          | 25.93
+Model Variant                   | Test Loss     | BLEU Score
+--------------------------------|---------------|-------------------------------------------------
+Simple Transformer 512          |  3.312        |  35.561
+Simple Transformer 1024         |  00.00        |  00.00
 
 ### Training & Validation Loss
-<img width="2560" height="1335" alt="run1_train validation_loss" src="https://github.com/user-attachments/assets/3b03cce7-b8ad-4485-8d05-f1c734f0706e" />
+<img width="2560" height="1335" alt="run6_loss" src="https://github.com/user-attachments/assets/505c99ff-f60a-4425-9cf5-7c6946eba783" />
 
 ### Bilingual Evaluation Understudy (BLEU)
-<img width="2560" height="1335" alt="run1_bleu" src="https://github.com/user-attachments/assets/616e710f-8795-4fdc-859c-e051b7ede2b1" />
+<img width="2560" height="1335" alt="run6_bleu" src="https://github.com/user-attachments/assets/9d1fdd9b-8c64-4914-99c2-01afcc4927f7" />
 
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
