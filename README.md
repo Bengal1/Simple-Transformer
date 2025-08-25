@@ -440,10 +440,10 @@ Simple Transformer 512          |  3.312        |  35.561
 Simple Transformer 1024         |  00.00        |  00.00
 
 ### Training & Validation Loss
-<img width="2560" height="1335" alt="run1_train validation_loss" src="https://github.com/user-attachments/assets/3b03cce7-b8ad-4485-8d05-f1c734f0706e" />
+<img width="2560" height="1335" alt="run6_loss" src="https://github.com/user-attachments/assets/505c99ff-f60a-4425-9cf5-7c6946eba783" />
 
 ### Bilingual Evaluation Understudy (BLEU)
-<img width="2560" height="1335" alt="run1_bleu" src="https://github.com/user-attachments/assets/616e710f-8795-4fdc-859c-e051b7ede2b1" />
+<img width="2560" height="1335" alt="run6_bleu" src="https://github.com/user-attachments/assets/9d1fdd9b-8c64-4914-99c2-01afcc4927f7" />
 
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
