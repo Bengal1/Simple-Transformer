@@ -417,7 +417,7 @@ Model Variant                   | BLEU Score    | Dataset                       
 --------------------------------|---------------|----------------------------------|--------------------------
 Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)   | 65M parameters
 Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)   | 213M parameters
-Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)   | 147,814,551 parameters
+Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
 Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | parameters
 
 
