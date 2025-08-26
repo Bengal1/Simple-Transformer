@@ -413,12 +413,12 @@ By focusing on a smaller dataset, we establish a fair baseline for translation q
 Our model differs from the original Transformer in several key aspects. We train a single-model Transformer on IWSLT14 for ***** epochs on a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). We apply weight decay for regularization and use a batch size of 16 with 16 gradient accumulation steps, resulting in an effective batch size of 256. Also during inference, we apply beam search with a length penalty of 0.6. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, attention heads and Xavier weight initialization remain consistent with the original paper. 
 <br/>
 
-Model Variant                   | BLEU Score    | Dataset 
---------------------------------|---------------|-------------------------------------------------
-Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)
-Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)
-Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)
-Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)
+Model Variant                   | BLEU Score    | Dataset                          | Trainable Parameters
+--------------------------------|---------------|----------------------------------|--------------------------
+Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)   | 65M parameters
+Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)   | 213M parameters
+Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)   | 147,814,551 parameters
+Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | parameters
 
 
 ## Evaluation 
