@@ -109,7 +109,7 @@ Masked-Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} + Mask \Bigg)·
 <br/>
 
 ### Multihead-Attention
-<img align="right" width="220" alt="multihead_attention" src="https://github.com/user-attachments/assets/9b1e63f4-a200-4f94-9a02-5deccfea3b92" />
+<img align="right" width="240" alt="multihead_attention" src="https://github.com/user-attachments/assets/9b1e63f4-a200-4f94-9a02-5deccfea3b92" />
 
 Multi-head attention is an extension of the attention mechanism that allows the model to focus on different parts of the input sequence simultaneously, using multiple attention heads. Each head computes attention independently, and the results are combined to form a more comprehensive representation.<br/>
 Instead of performing a single attention operation, multi-head attention runs multiple attention operations in parallel (with different parameterized projections) and then concatenates the results. Each head learns a different representation by attending to different parts of the input sequence. This allows the model to capture various kinds of dependencies in the input sequence simultaneously.
