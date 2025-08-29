@@ -15,7 +15,7 @@ In this project, we implement a SimpleTransformer following the original paper�
 
 ## Transformer
 
-<img align="right" width="400" alt="Transformer_model_architecture_macro" src="https://github.com/user-attachments/assets/e7299d83-da62-4294-b402-6a39e481ef91" />
+<img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/053d0e3d-c818-4ca9-a95b-5c01794953db" />
 
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The model is composed of an encoder and a decoder, each built from layers containing multi-head self-attention, feed-forward networks, residual connections, and layer normalization. The encoder processes the input sequence using self-attention and feed-forward layers to create context-aware representations. The decoder generates the output sequence using masked self-attention, attends to the encoder's output, and predicts the next token step by step. *Attention* is the core of the Transformer. It's what allows the model to weigh the importance of different words in a sequence—both in the input (via self-attention) and between input and output (via cross-attention). This mechanism replaces recurrence and convolution, making the model more efficient and better at capturing long-range dependencies. <br/>
 This repository follow the original transformer from the paper with 6 encoder and 6 decoder layers and 8 heads for each multi-head attention, the rest can be noticed in the transformer architecture figure to th right, totaling `46,839,610` learnable parameters.
@@ -24,7 +24,7 @@ This repository follow the original transformer from the paper with 6 encoder an
 The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
 In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$.
 
-<img align="right" width="400" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/d65e2da9-aa2b-4e87-9cd9-82895f9efd54" />
+<img align="right" width="400" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/1926cf27-ef25-465d-8c21-e3c9f6325d99" />
 
 Given: &nbsp; $`W_{Q}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{K}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{V}∈ℝ^{E×d_v}`$  and Input &nbsp; $`X∈ℝ^{M×E}`$:
 
@@ -98,7 +98,7 @@ $$
 
 
 ### Masked-Attention
-<img align="right" width="380" src="https://github.com/user-attachments/assets/b5d33ce5-2e29-4cb3-8da3-e572e716e447">
+<img align="right" width="380" alt="masked self-attention" src="https://github.com/user-attachments/assets/51063c3b-7be3-4297-b6ba-7aded1303e31" />
 
 Masked attention is a variant of self-attention where certain positions in the attention matrix are masked (set to -∞ before softmax, Since $`e^{−∞}=0`$, so softmax turns the masked positions into zero attention) to prevent the model from attending to specific tokens. In Transformer decoders, causal masking is used to ensure that a token can only attend to previous tokens (not future ones), enabling autoregressive generation.
 <br/><br/>
@@ -109,7 +109,7 @@ Masked-Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} + Mask \Bigg)·
 <br/>
 
 ### Multihead-Attention
-<img align="right" width="220" src="https://github.com/user-attachments/assets/a0e99d43-2f85-4a85-980f-deba698aedfc">
+<img align="right" width="220" alt="multihead_attention" src="https://github.com/user-attachments/assets/9b1e63f4-a200-4f94-9a02-5deccfea3b92" />
 
 Multi-head attention is an extension of the attention mechanism that allows the model to focus on different parts of the input sequence simultaneously, using multiple attention heads. Each head computes attention independently, and the results are combined to form a more comprehensive representation.<br/>
 Instead of performing a single attention operation, multi-head attention runs multiple attention operations in parallel (with different parameterized projections) and then concatenates the results. Each head learns a different representation by attending to different parts of the input sequence. This allows the model to capture various kinds of dependencies in the input sequence simultaneously.
@@ -130,7 +130,7 @@ For more information on Transformer and Attention there is a video series [3Blue
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### FeedForward Network
-<img align="right" width="400"  src="https://github.com/user-attachments/assets/484983aa-a374-4d71-bca1-f94467502650">
+<img align="right" width="400" alt="feedforward" src="https://github.com/user-attachments/assets/8e22c051-6c90-4ac2-b0ae-f46ccc59970f" />
 
 A [*FeedForward Neural Network (FNN)*](https://en.wikipedia.org/wiki/Feedforward_neural_network) is a type of artificial neural network where connections between the nodes do not form cycles. The network consists of an input layer, one or more hidden layers, and an output layer. Information flows in one direction—from input to output—hence the name "feedforward."<br/>
 The Layers of the *FeedForward Network* consist of Dense layer, also called the fully-connected layer, and is used for abstract representations of input data. In this layer, neurons connect to every neuron in the preceding layer. In *Multilayer Perceptron* networks, these layers are stacked together. <br/> 
@@ -375,7 +375,7 @@ Mistake at one step can lead to poor outputs later — exposure bias.
 A padding mask in Transformers is a binary mask used to prevent the model from attending to <pad> tokens that were added to sequences to make them the same length in a batch. Without masking, the attention mechanism would treat these padding positions as valid input, potentially introducing meaningless information into the context. In practice, the padding mask has 0 (or False) where real tokens are and 1 (or True) where padding occurs, and it is applied before the softmax in the attention score computation by adding large negative values (`float('-inf')`) to the padded positions. This ensures the model focuses only on actual tokens when computing attention, improving both training stability and output quality.
 
 ### Beam Search
-<img align="right" width="470" alt="search_beam_low_res" src="https://github.com/user-attachments/assets/06b2bfb8-2ede-4d0b-b5ad-0852716225a7" />
+<img align="right" width="470" alt="search_beam_low_res_" src="https://github.com/user-attachments/assets/98e6142e-6135-4377-ab07-e688d6ecccd1" />
 
 Beam Search is a decoding algorithm used to generate the most likely output sequence by keeping multiple hypotheses (beams) at each step, instead of just the best one (like greedy decoding). <br/>
 This decoding strategy balances exploration and exploitation by keeping track of the top-k most likely partial sequences (beams) at each decoding step, rather than committing to the single most likely token as in greedy decoding. In greedy decoding, you pick the highest-probability token at each step, which is fast but can lead to suboptimal results because early mistakes cannot be corrected. Beam search instead expands all possible next tokens for each current beam, scores them (often using log-probabilities), and keeps only the best k sequences, allowing it to explore multiple promising paths in parallel. This often produces higher-quality translations or generations than greedy decoding, especially in Transformers, where the self-attention mechanism captures long-range dependencies that beam search can exploit to avoid short, repetitive, or incoherent outputs. However, beam search is slower than greedy decoding and can sometimes favor overly safe, generic sequences unless combined with techniques like length normalization or diverse beam search.
