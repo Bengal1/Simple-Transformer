@@ -417,8 +417,8 @@ Model Variant                   | BLEU Score    | Dataset                       
 --------------------------------|---------------|----------------------------------|--------------------------
 Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)   | 65M parameters
 Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)   | 213M parameters
-Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
-Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | parameters
+Simple Transformer 512          |  35.35        |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
+Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | 383.6M parameters
 
 In comparing our model to both the Base and Big configurations of the original Transformer, we consider not only architectural scale (d_model, d_ff, num_heads) but also differences in parameter count and overall complexity. The Base model uses `d_model=512`, `d_ff=2048`, and `num_heads=8`, while the Big model doubles these values with `d_model=1024`, `d_ff=4096`, and `num_heads=16`. This scaling increases capacity and computational cost, but yields higher translation quality when sufficient data is available.
 
@@ -437,7 +437,7 @@ BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated
 ### Evaluation on Test Dataset
 Model Variant                   | Test Loss     | BLEU Score
 --------------------------------|---------------|-------------------------------------------------
-Simple Transformer 512          |  3.312        |  35.561
+Simple Transformer 512          |  3.29         |  35.347
 Simple Transformer 1024         |  00.00        |  00.00
 
 ### Training & Validation Loss
