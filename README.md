@@ -260,7 +260,7 @@ sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Embedding
-<img align="right" width="400"  src="https://github.com/user-attachments/assets/2cde7e51-70ed-4c5e-9575-33e8e0590083">
+<img align="right" width="400" alt="word_embed" src="https://github.com/user-attachments/assets/ff0b15d4-1092-414e-973c-aac3c4c2d70f" />
 
 Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. <br/>
 Word embedding is a technique used in Natural Language Processing (NLP) to represent words as dense numerical vectors. These vectors capture semantic relationships between words based on their context in large text corpora. <br/>
@@ -268,8 +268,7 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 
 
 #### Intuitive understanding of Embedding
-
-<img align="right" width="500"  src="https://github.com/user-attachments/assets/edf0a13e-fa50-4dbd-a040-940fcf3c0d76">
+<img align="right" width="500" alt="embed_space" src="https://github.com/user-attachments/assets/7808669b-756d-4ab6-a8a1-079cdea49ea8" />
 
 This explanation is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
 Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would expect, for good embedding, the next mathematical semantic connection:
