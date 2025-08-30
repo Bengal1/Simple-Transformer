@@ -72,9 +72,10 @@ class TrainingConfig:
     learning_rate: float = 1e-5         # Initial learning rate
     betas: tuple[float, float] = (0.9, 0.98)  # Adam optimizer betas
     epsilon: float = 1e-9               # Adam optimizer's epsilon (numerical stability)
-    warmup_steps: int = 5000            # Scheduler warmup period (number of steps)
+    warmup_steps: int = 1000            # Scheduler warmup period (number of steps)
     weight_decay: float = 1e-5          # Weight decay parameter (L2 regularization)
     patience: int = 5                   # Early stopping patience (epochs)
+    accumulation_steps: int = 32        # Gradient accumulation steps
 
 
 class LogLevel(Enum):

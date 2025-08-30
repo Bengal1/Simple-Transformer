@@ -33,6 +33,7 @@ def train_model(
         device: torch.device,
         epochs: int = 10,
         patience: int = 5,
+        accumulation_steps: int = 1,
         max_gradient_clip: float = 1.0,
         start_epoch: int = 1) -> dict[str, list[float]]:
     """
@@ -51,6 +52,8 @@ def train_model(
         device (torch.device): Device to run training on.
         epochs (int): Number of training epochs.
         patience (int, optional): Number of epochs to wait for improvement. Default is 5.
+        accumulation_steps(int, optional): Steps to accumulate gradients before
+                                        optimizer update. Default is 1.
         max_gradient_clip (float): Maximum gradient norm for clipping.
         start_epoch (int): The starting epoch for training. (Default is 1).
 
@@ -70,19 +73,19 @@ def train_model(
     for epoch in range(start_epoch, epochs + 1):
         logging.info(f"--- Epoch {epoch}/{epochs} ---")
         # Train
-        train_loss = _train_epoch(model, train_loader, optimizer, scheduler, criterion, 
-                                  device, max_gradient_clip, target_vocabulary_size)
+        train_loss = _train_epoch(
+            model, train_loader, optimizer, scheduler, criterion, device,
+            max_gradient_clip, target_vocabulary_size, accumulation_steps
+        )
         stats_record['train'].append(train_loss)
 
         # Validation
-        val_loss = evaluate_model(model, validation_loader, criterion,
-                                             device)
+        val_loss = evaluate_model(model, validation_loader, criterion, device)
         stats_record['validation'].append(val_loss)
 
         # Evaluate BLEU
-        bleu_score = evaluate_bleu(model, validation_loader,
-                                              target_vocabulary, device,
-                                              special_tokens)
+        bleu_score = evaluate_bleu(model, validation_loader, target_vocabulary,
+                                   device, special_tokens)
         stats_record['bleu'].append(bleu_score)
 
         # Display epoch training and validation metrics.
@@ -128,11 +131,12 @@ def _train_epoch(
         train_loader (DataLoader): DataLoader for the training dataset.
         optimizer (Optimizer): Optimizer used for updating model parameters.
         scheduler (_LRScheduler): Learning rate scheduler.
-        criterion (_Loss): Loss function.
+        criterion (nn.modules.loss): Loss function.
         device (torch.device): Device to run the training on.
         max_gradient_clip (float): Maximum gradient norm for clipping.
         target_vocab_size (int): Size of the target vocabulary (for reshaping logits).
-        accumulation_steps (int): Number of batches to accumulate gradients over before updating.
+        accumulation_steps(int, optional): Steps to accumulate gradients before
+                                            optimizer update. Default is 1.
 
     Returns:
         float: Average training loss over the epoch (per batch, not per accumulated step).
@@ -166,7 +170,7 @@ def _train_epoch(
             # Clip gradients to avoid exploding gradients
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_gradient_clip)
 
-            # Update parameters
+            # Update parameters and learning rate
             optimizer.step()
             scheduler.step()
 
@@ -182,3 +186,5 @@ def _train_epoch(
 
     # Return average batch loss over the epoch
     return running_loss / len(train_loader)
+
+

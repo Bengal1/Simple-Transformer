@@ -201,6 +201,7 @@ def main(
         device=device,
         epochs=cfg.training.epochs,
         patience=cfg.training.patience,
+        accumulation_steps=cfg.training.accumulation_steps,
         max_gradient_clip=cfg.training.max_grad_clip,
         start_epoch=start_epoch,
     )
