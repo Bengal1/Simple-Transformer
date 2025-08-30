@@ -419,8 +419,16 @@ Model Variant                   | BLEU Score    | Dataset                       
 Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)   | 65M parameters
 Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)   | 213M parameters
 Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
-Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | 295.5M parameters
+Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | parameters
 
+Draft: <br/>
+Double d_model (512 → 1024)
+Double d_ff (2048 → 4096)
+Double n_heads (8 → 16)
+
+The Original Trnsformer: <br/>
+* Weight Tying: Source embeddings (encoder input), Target embeddings (decoder input), Output softmax projection
+* vocabulary size: in the paper - ~37K vocabulary (joint), here separate - src:~56K ; trg:~73K
 
 ## Evaluation 
 The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
