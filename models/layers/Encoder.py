@@ -41,6 +41,7 @@ class Encoder(torch.nn.Module):
                  num_heads: int,
                  d_k: int,
                  d_v: int,
+                 d_ff: int = 2048,
                  dropout: float = 0.1):
         """Initializes the Encoder block.
 
@@ -49,6 +50,8 @@ class Encoder(torch.nn.Module):
             num_heads (int): Number of attention heads.
             d_k (int): Dimensionality of key vectors per head.
             d_v (int): Dimensionality of value vectors per head.
+            d_ff (int): The hidden layer dimension of the feed-forward networks.
+                        Default is 2048.
             dropout (float, optional): Dropout rate applied to attention and
                                        feedforward layers. Defaults to 0.0.
         """
@@ -57,7 +60,7 @@ class Encoder(torch.nn.Module):
         self.attention = MultiHeadAttention(d_model, num_heads, d_k, d_v,
                                             dropout=dropout)
         # FeedForward Layer
-        self.ff        = FeedForward(d_model, dropout=dropout)
+        self.ff        = FeedForward(d_model, d_ff, dropout=dropout)
         # Normalization Layers
         self.norm1     = torch.nn.LayerNorm(d_model)
         self.norm2     = torch.nn.LayerNorm(d_model)

@@ -104,6 +104,7 @@ def setup_model_and_training(
                               num_layers=cfg.model.num_layers,
                               d_k=cfg.model.d_k,
                               d_v=cfg.model.d_v,
+                              d_ff=cfg.model.d_ff,
                               dropout=cfg.model.dropout).to(device)
 
     # Initialize the CrossEntropyLoss loss_fn.

@@ -59,6 +59,7 @@ class ModelConfig:
     num_layers: int = 6                 # Number of Encoder/Decoder layers
     d_k: int = 64                       # Dimension for K-space
     d_v: int = 64                       # Dimension for V-space
+    d_ff: int = 2048                    # Feed-forward hidden dimension
     dropout: float = 0.1                # Dropout probability
 
 

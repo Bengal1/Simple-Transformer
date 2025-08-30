@@ -65,6 +65,7 @@ class SimpleTransformer(torch.nn.Module):
             num_layers: int = 6,
             d_k: int = 64,
             d_v: int = 64,
+            d_ff: int =2048,
             dropout: float = 0.1):
         """Initializes the SimpleTransformer model's layers and parameters.
 
@@ -81,6 +82,7 @@ class SimpleTransformer(torch.nn.Module):
             num_layers (int): The number of identical encoder and decoder layers to stack.
             d_k (int): The dimensionality of key vectors in the attention mechanism.
             d_v (int): The dimensionality of value vectors in the attention mechanism.
+            d_ff (int): The hidden layer dimension of the feed-forward networks.
             dropout (float): The dropout rate to apply to both the encoder and
                              decoder inputs.
         """
@@ -109,11 +111,11 @@ class SimpleTransformer(torch.nn.Module):
 
         # Stacked encoder and decoder layers
         self.encoder_layers = torch.nn.ModuleList([
-            Encoder(embed_dim, num_heads, d_k, d_v, dropout)
+            Encoder(embed_dim, num_heads, d_k, d_v, d_ff, dropout)
             for _ in range(num_layers)
         ])
         self.decoder_layers = torch.nn.ModuleList([
-            Decoder(embed_dim, num_heads, d_k, d_v, dropout)
+            Decoder(embed_dim, num_heads, d_k, d_v, d_ff, dropout)
             for _ in range(num_layers)
         ])
 
