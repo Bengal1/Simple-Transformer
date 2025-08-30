@@ -426,6 +426,7 @@ In comparing our model to both the Base and Big configurations of the original T
 As you can see in the table above, our implementation also differs in parameter count for two main reasons:
 * *Weight tying*: The original Transformer shares parameters between source embeddings, target embeddings, and the output projection. We keep them separate, increasing the parameter count but allowing distinct representations for each component.
 * *Vocabulary size*: The original uses a joint ~37K vocabulary, while we use separate vocabularies (~56K source, ~73K target), which increases the size of embedding and output layers but captures each language more precisely.
+As a result, even when configured like Transformer-Base, our model contains more parameters, reflecting design choices that emphasize richer vocabulary coverage under data-limited conditions.
 
 ## Evaluation 
 The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
