@@ -421,14 +421,11 @@ Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)
 Simple Transformer 512          |  35.561       |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
 Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | parameters
 
-**Draft:** <br/>
-Double d_model (512 → 1024)
-Double d_ff (2048 → 4096)
-Double n_heads (8 → 16)
+In comparing our model to both the Base and Big configurations of the original Transformer, we consider not only architectural scale (d_model, d_ff, num_heads) but also differences in parameter count and overall complexity. The Base model uses `d_model=512`, `d_ff=2048`, and `num_heads=8`, while the Big model doubles these values with `d_model=1024`, `d_ff=4096`, and `num_heads=16`. This scaling increases capacity and computational cost, but yields higher translation quality when sufficient data is available.
 
-The Original Trnsformer: <br/>
-* Weight Tying: Source embeddings (encoder input), Target embeddings (decoder input), Output softmax projection
-* vocabulary size: in the paper - ~37K vocabulary (joint), here separate - src:~56K ; trg:~73K
+As you can see in the table above, our implementation also differs in parameter count for two main reasons:
+* *Weight tying*: The original Transformer shares parameters between source embeddings, target embeddings, and the output projection. We keep them separate, increasing the parameter count but allowing distinct representations for each component.
+* *Vocabulary size*: The original uses a joint ~37K vocabulary, while we use separate vocabularies (~56K source, ~73K target), which increases the size of embedding and output layers but captures each language more precisely.
 
 ## Evaluation 
 The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
