@@ -155,12 +155,12 @@ class DatasetPaths:
             "test":       f"{self.base_path}/{self.dataset_name}_test{suffix}.json"
         }
 
-    def get(self, use_debug: bool) -> dict[str, str]:
+    def get(self, use_debug: bool = False) -> dict[str, str]:
         """
         Retrieve dataset paths depending on debug mode.
 
         Args:
-            use_debug: If True, returns debug dataset paths.
+            use_debug: If True, returns debug dataset paths. Default is False.
 
         Returns:
             dict: Selected dataset paths.

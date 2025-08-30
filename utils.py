@@ -48,7 +48,6 @@ __all__ = [
 ]
 
 # --------------- Training Utilities ---------------- #
-
 # --- Learning Rate Schedulers ---
 class NoamLR(torch.optim.lr_scheduler._LRScheduler):
     """
@@ -151,9 +150,7 @@ def early_stopping(
         return recent_best >= best_so_far + delta
 
 
-
 # -------------- Device Configuration --------------- #
-
 def get_device():
     """
     Selects and returns the optimal device (GPU or CPU) for computation.
@@ -202,7 +199,6 @@ def set_seed(seed_value: int = 1747219200):
 
 
 # ------------------ Checkpointing ------------------ #
-
 def save_model(
         epoch: int,
         model: torch.nn.Module,
@@ -292,7 +288,6 @@ def load_checkpoint(
 
 
 # ------------------- Statistics -------------------- #
-
 def save_stats_to_csv(
         stats_record: dict[str, list[float]],
         file_path: str = None,
@@ -365,7 +360,6 @@ def save_stats_to_csv(
 
 
 # ------------------ Visualization ------------------ #
-
 def _plot_losses(statistics: dict[str, list[float]]):
     """
     Plots the training and validation loss on the same graph for direct comparison.
@@ -466,7 +460,6 @@ def plot_metrics(records: dict[str, list[float]]):
 
 
 # ------------------ Data Preprocessing ------------------ #
-
 def make_iwslt14_local_file(split: str,
                             debug: bool = False,
                             debug_size: int = 1000):

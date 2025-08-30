@@ -3,7 +3,7 @@ This module defines the `Encoder` class, which implements a single block of
 the Transformer's encoder architecture.
 
 The encoder block is a core component for processing input sequences. It
-generates a contextualized representation of the input and is comprised of
+generates a contextualized representation of the input and is comprises of
 the following key layers:
 - Multi-Head Self-Attention: This layer allows the model to weigh the
   importance of different tokens in the input sequence.

@@ -27,7 +27,6 @@ __all__ = [
 
 
 # ------------------ Loss ------------------ #
-
 def evaluate_model(model: torch.nn.Module,
                    data_loader: torch.utils.data.DataLoader,
                    loss_fn: torch.nn.modules.loss,
@@ -68,7 +67,6 @@ def evaluate_model(model: torch.nn.Module,
 
 
 # ------------------ BLEU ------------------ #
-
 def _decode_sequence(seq: list[int],
                      idx_to_token: dict[int, str]) -> list[str]:
     """

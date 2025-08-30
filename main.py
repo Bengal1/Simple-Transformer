@@ -29,10 +29,10 @@ from torch.utils.data import DataLoader
 import logging
 from utils import *
 from config import Config
+from scripts.evaluation import *
 from scripts.train import train_model
 from data.iwslt14 import IWSLT14Dataset
 from models.SimpleTransformer import SimpleTransformer
-from scripts.evaluation import evaluate_model, evaluate_bleu
 
 
 def setup_data_loaders(cfg:Config) -> tuple:
@@ -52,7 +52,7 @@ def setup_data_loaders(cfg:Config) -> tuple:
                IWSLT14Dataset object.
     """
     # Get dataset paths (if 'use_debug=True', it will return debug dataset paths)
-    paths = cfg.dataset_paths.get(use_debug=True)
+    paths = cfg.dataset_paths.get()
 
     # Load Datasets
     iwslt14_data = IWSLT14Dataset(paths)
@@ -126,8 +126,7 @@ def setup_model_and_training(
     return model, loss_fn, optimizer, scheduler
 
 
-# -------------------------------- Main ---------------------------------- #
-
+# --- Main ---
 def main(
         cfg: Config,
         device: torch.device,
@@ -225,6 +224,7 @@ def main(
     plot_metrics(eval_records)
 
 
+# --- Entry Point ---
 if __name__ == "__main__":
     # --- Load configuration ---
     config = Config()
