@@ -183,13 +183,13 @@ for position $k$ is defined as:
 
 $$
 PE(k) = \Big[
-\sin\!\Big(\tfrac{k}{10000^{0/d}}\Big), \;
-\cos\!\Big(\tfrac{k}{10000^{0/d}}\Big), \;
-\sin\!\Big(\tfrac{k}{10000^{2/d}}\Big), \;
-\cos\!\Big(\tfrac{k}{10000^{2/d}}\Big), \;
-\ldots, \;
-\sin\!\Big(\tfrac{k}{10000^{(d-2)/d}}\Big), \;
-\cos\!\Big(\tfrac{k}{10000^{(d-2)/d}}\Big)
+\sin\Big(\tfrac{k}{10000^{0/d}}\Big),
+\cos\Big(\tfrac{k}{10000^{0/d}}\Big),
+\sin\Big(\tfrac{k}{10000^{2/d}}\Big),
+\cos\Big(\tfrac{k}{10000^{2/d}}\Big),
+\ldots,
+\sin\Big(\tfrac{k}{10000^{(d-2)/d}}\Big),
+\cos\Big(\tfrac{k}{10000^{(d-2)/d}}\Big)
 \Big]
 $$
 
