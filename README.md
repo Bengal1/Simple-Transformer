@@ -424,7 +424,7 @@ This means beam search ranks sequences by their average (length-adjusted) log-pr
 
 The embedding layers are initialized with scaled normal distribution. Embedding normal distribution initialization means initializing embedding vectors by sampling each element from a normal (Gaussian) distribution with a small standard deviation (e.g., mean 0, std 0.01). This gives embeddings small random values before training begins, ensuring no initial bias toward any specific token. 
 
-## Comparison with Original Transformer
+## Comparison with The Original Transformer
 In my experiments, I focus on a single-model comparison using the IWSLT14 dataset, which contains approximately 180,000 sentence pairs, to evaluate how well the Transformer architecture performs under resource-constrained conditions. <be/>
 For reference, the original Transformer models reported by Vaswani et al. (2017) were trained on the WMT 2014 dataset, which includes roughly 36 million sentence pairs, with a test set of about 3,000 sentences. In that setup, the Base model achieved a BLEU score of 38.1 and the Big model reached 41.0. While the paper also reports a Big Ensemble model achieving 41.8, ensembles are not within the scope of my comparison.<br/>
 By focusing on a smaller dataset, I establish a fair baseline for translation quality under data-limited conditions, highlighting the impact of training scale rather than architectural differences.
