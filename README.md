@@ -195,36 +195,16 @@ $$
 
 
 $$
-PE(k) =
-\Big[
-\sin\Big(\frac{k}{10000^{2 \cdot 0 / d}}\Big),
-\cos\Big(\frac{k}{10000^{2 \cdot 0 / d}}\Big),
-\sin\Big(\frac{k}{10000^{2 \cdot 1 / d}}\Big),
-\cos\Big(\frac{k}{10000^{2 \cdot 1 / d}}\Big),
-\ldots,
-\sin\Big(\frac{k}{10000^{2 \cdot (d/2-1) / d}}\Big),
-\cos\Big(\frac{k}{10000^{2 \cdot (d/2-1) / d}}\Big)
-\Big]
-$$
-
-$$
 PE =
 \begin{bmatrix}
-PE(0) \\
-PE(1) \\
-PE(2) \\
-\vdots \\
-PE(M-1)
-\end{bmatrix}
-=
-\begin{bmatrix}
-\sin\frac{0}{10000^{2 \cdot 0 / d}} & \cos\frac{0}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{0}{10000^{2 \cdot (d/2-1) / d}} \\
-\sin\frac{1}{10000^{2 \cdot 0 / d}} & \cos\frac{1}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{1}{10000^{2 \cdot (d/2-1) / d}} \\
-\sin\frac{2}{10000^{2 \cdot 0 / d}} & \cos\frac{2}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{2}{10000^{2 \cdot (d/2-1) / d}} \\
+\sin\frac{0}{10000^{2\cdot 0/d}} & \cos\frac{0}{10000^{2\cdot 0/d}} & \cdots & \cos\frac{0}{10000^{2\cdot (d/2-1)/d}} \\
+\sin\frac{1}{10000^{2\cdot 0/d}} & \cos\frac{1}{10000^{2\cdot 0/d}} & \cdots & \cos\frac{1}{10000^{2\cdot (d/2-1)/d}} \\
+\sin\frac{2}{10000^{2\cdot 0/d}} & \cos\frac{2}{10000^{2\cdot 0/d}} & \cdots & \cos\frac{2}{10000^{2\cdot (d/2-1)/d}} \\
 \vdots & \vdots & \ddots & \vdots \\
-\sin\frac{M-1}{10000^{2 \cdot 0 / d}} & \cos\frac{M-1}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{M-1}{10000^{2 \cdot (d/2-1) / d}}
+\sin\frac{M-1}{10000^{2\cdot 0/d}} & \cos\frac{M-1}{10000^{2\cdot 0/d}} & \cdots & \cos\frac{M-1}{10000^{2\cdot (d/2-1)/d}}
 \end{bmatrix}
 $$
+
 
 
 
