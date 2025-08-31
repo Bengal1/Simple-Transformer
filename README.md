@@ -193,6 +193,7 @@ PE(k) = \Big[
 \Big]
 $$
 
+
 $$
 PE =
 \begin{bmatrix}
@@ -211,6 +212,7 @@ PE(M-1)
 \sin\!\Big(\tfrac{M-1}{10000^{0/d}}\Big) & \cos\!\Big(\tfrac{M-1}{10000^{0/d}}\Big) & \cdots & \cos\!\Big(\tfrac{M-1}{10000^{(d-2)/d}}\Big)
 \end{bmatrix}
 $$
+
 
 $`PE(k=0) = \Bigg[sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)\Bigg]`$<br/>
 $`PE(k=1) = \Bigg[sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg)\Bigg]`$<br/>
