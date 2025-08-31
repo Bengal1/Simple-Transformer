@@ -178,40 +178,19 @@ $$
 `PE(k,j)` - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 <br/>
 **Example**:<br/>
-Lets us note sequence length as *M* (*M* objects/tokens).
+Lets us note sequence length as *M* (*M* objects/tokens).For sequence length $M$ and model dimension $d$, the positional encoding vector
+for position $k$ is defined as:
 
 $$
-\begin{aligned}
-PE(0) &= \Big[
-\sin\Big(\tfrac{0}{10000^{0/d}}\Big), \;
-\cos\Big(\tfrac{0}{10000^{0/d}}\Big), \;
-\sin\Big(\tfrac{0}{10000^{2/d}}\Big), \;
-\cos\Big(\tfrac{0}{10000^{2/d}}\Big), \;
-\ldots
-\Big] \[6pt]
-PE(1) &= \Big[
-\sin\!\Big(\tfrac{1}{10000^{0/d}}\Big), \;
-\cos\!\Big(\tfrac{1}{10000^{0/d}}\Big), \;
-\sin\!\Big(\tfrac{1}{10000^{2/d}}\Big), \;
-\cos\!\Big(\tfrac{1}{10000^{2/d}}\Big), \;
-\ldots
-\Big] \\[6pt]
-PE(2) &= \Big[
-\sin\!\Big(\tfrac{2}{10000^{0/d}}\Big), \;
-\cos\!\Big(\tfrac{2}{10000^{0/d}}\Big), \;
-\sin\!\Big(\tfrac{2}{10000^{2/d}}\Big), \;
-\cos\!\Big(\tfrac{2}{10000^{2/d}}\Big), \;
-\ldots
-\Big] \\[6pt]
-&\;\;\vdots \\[6pt]
-PE(M-1) &= \Big[
-\sin\!\Big(\tfrac{M-1}{10000^{0/d}}\Big), \;
-\cos\!\Big(\tfrac{M-1}{10000^{0/d}}\Big), \;
-\sin\!\Big(\tfrac{M-1}{10000^{2/d}}\Big), \;
-\cos\!\Big(\tfrac{M-1}{10000^{2/d}}\Big), \;
-\ldots
+PE(k) = \Big[
+\sin\!\Big(\tfrac{k}{10000^{0/d}}\Big), \;
+\cos\!\Big(\tfrac{k}{10000^{0/d}}\Big), \;
+\sin\!\Big(\tfrac{k}{10000^{2/d}}\Big), \;
+\cos\!\Big(\tfrac{k}{10000^{2/d}}\Big), \;
+\ldots, \;
+\sin\!\Big(\tfrac{k}{10000^{(d-2)/d}}\Big), \;
+\cos\!\Big(\tfrac{k}{10000^{(d-2)/d}}\Big)
 \Big]
-\end{aligned}
 $$
 
 $`PE(k=0) = \Bigg[sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)\Bigg]`$<br/>
