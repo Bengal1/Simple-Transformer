@@ -180,16 +180,15 @@ $$
 **Example**:<br/>
 Lets us note sequence length as *M* (*M* objects/tokens).
 
-
 $$
 \begin{aligned}
 PE(0) &= \Big[
-\sin\!\Big(\tfrac{0}{10000^{0/d}}\Big), \;
-\cos\!\Big(\tfrac{0}{10000^{0/d}}\Big), \;
-\sin\!\Big(\tfrac{0}{10000^{2/d}}\Big), \;
-\cos\!\Big(\tfrac{0}{10000^{2/d}}\Big), \;
+\sin\Big(\tfrac{0}{10000^{0/d}}\Big), \;
+\cos\Big(\tfrac{0}{10000^{0/d}}\Big), \;
+\sin\Big(\tfrac{0}{10000^{2/d}}\Big), \;
+\cos\Big(\tfrac{0}{10000^{2/d}}\Big), \;
 \ldots
-\Big] \\[6pt]
+\Big] \[6pt]
 PE(1) &= \Big[
 \sin\!\Big(\tfrac{1}{10000^{0/d}}\Big), \;
 \cos\!\Big(\tfrac{1}{10000^{0/d}}\Big), \;
