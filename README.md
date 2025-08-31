@@ -193,6 +193,8 @@ PE(k) = \Big[
 \Big]
 $$
 
+Stacking the vectors $PE(k)$ for every position $k = 0, \dots, M-1$ forms the full positional encoding matrix used in the model:
+
 $$
 PE =
 \begin{bmatrix}
@@ -203,17 +205,6 @@ PE =
 \sin\frac{M-1}{10000^{0/d}} & \cos\frac{M-1}{10000^{0/d}} & \sin\frac{M-1}{10000^{2/d}} & \cos\frac{M-1}{10000^{2/d}} & \cdots & \sin\frac{M-1}{10000^{(d-2)/d}} & \cos\frac{M-1}{10000^{(d-2)/d}}
 \end{bmatrix}
 $$
-
-
-
-
-
-$`PE(k=0) = \Bigg[sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)\Bigg]`$<br/>
-$`PE(k=1) = \Bigg[sin \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{1}{10,000^{\frac{d-2}{d}}} \Bigg)\Bigg]`$<br/>
-.<br/>
-.<br/>
-.<br/>
-$`PE(k=M-1) = \Bigg[sin \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{M-1}{10,000^{\frac{d-2}{d}}} \Bigg)\Bigg]`$<br/>
 
 After calculating the positional encoding vectors, $`[p_0, p_1, p_2,..., p_{M-1}]`$, we add them to the embedding vectors, $`[e_0, e_1, e_2,..., e_{M-1}]`$ :<br/> 
 
