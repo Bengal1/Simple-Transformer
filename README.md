@@ -193,7 +193,6 @@ PE(k) = \Big[
 \Big]
 $$
 
-
 $$
 PE =
 \begin{bmatrix}
@@ -205,11 +204,11 @@ PE(M-1)
 \end{bmatrix}
 =
 \begin{bmatrix}
-\sin\!\Big(\tfrac{0}{10000^{0/d}}\Big) & \cos\!\Big(\tfrac{0}{10000^{0/d}}\Big) & \cdots & \cos\!\Big(\tfrac{0}{10000^{(d-2)/d}}\Big) \\
-\sin\!\Big(\tfrac{1}{10000^{0/d}}\Big) & \cos\!\Big(\tfrac{1}{10000^{0/d}}\Big) & \cdots & \cos\!\Big(\tfrac{1}{10000^{(d-2)/d}}\Big) \\
-\sin\!\Big(\tfrac{2}{10000^{0/d}}\Big) & \cos\!\Big(\tfrac{2}{10000^{0/d}}\Big) & \cdots & \cos\!\Big(\tfrac{2}{10000^{(d-2)/d}}\Big) \\
+\sin\frac{0}{10000^{2 \cdot 0 / d}} & \cos\frac{0}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{0}{10000^{2 \cdot (d/2-1) / d}} \\
+\sin\frac{1}{10000^{2 \cdot 0 / d}} & \cos\frac{1}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{1}{10000^{2 \cdot (d/2-1) / d}} \\
+\sin\frac{2}{10000^{2 \cdot 0 / d}} & \cos\frac{2}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{2}{10000^{2 \cdot (d/2-1) / d}} \\
 \vdots & \vdots & \ddots & \vdots \\
-\sin\!\Big(\tfrac{M-1}{10000^{0/d}}\Big) & \cos\!\Big(\tfrac{M-1}{10000^{0/d}}\Big) & \cdots & \cos\!\Big(\tfrac{M-1}{10000^{(d-2)/d}}\Big)
+\sin\frac{M-1}{10000^{2 \cdot 0 / d}} & \cos\frac{M-1}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{M-1}{10000^{2 \cdot (d/2-1) / d}}
 \end{bmatrix}
 $$
 
