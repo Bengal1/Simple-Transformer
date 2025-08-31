@@ -193,6 +193,20 @@ PE(k) = \Big[
 \Big]
 $$
 
+
+$$
+PE(k) =
+\Big[
+\sin\Big(\frac{k}{10000^{2 \cdot 0 / d}}\Big),
+\cos\Big(\frac{k}{10000^{2 \cdot 0 / d}}\Big),
+\sin\Big(\frac{k}{10000^{2 \cdot 1 / d}}\Big),
+\cos\Big(\frac{k}{10000^{2 \cdot 1 / d}}\Big),
+\ldots,
+\sin\Big(\frac{k}{10000^{2 \cdot (d/2-1) / d}}\Big),
+\cos\Big(\frac{k}{10000^{2 \cdot (d/2-1) / d}}\Big)
+\Big]
+$$
+
 $$
 PE =
 \begin{bmatrix}
@@ -211,6 +225,7 @@ PE(M-1)
 \sin\frac{M-1}{10000^{2 \cdot 0 / d}} & \cos\frac{M-1}{10000^{2 \cdot 0 / d}} & \cdots & \cos\frac{M-1}{10000^{2 \cdot (d/2-1) / d}}
 \end{bmatrix}
 $$
+
 
 
 $`PE(k=0) = \Bigg[sin \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{0}{d}}} \Bigg), sin \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{2}{d}}} \Bigg),..., sin \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg), cos \Bigg(\frac{0}{10,000^{\frac{d-2}{d}}} \Bigg)\Bigg]`$<br/>
