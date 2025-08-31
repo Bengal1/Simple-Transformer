@@ -154,9 +154,9 @@ The activation function introduces non-linearity into the network, allowing it t
 Common activation functions:
 
 * $ReLU$ (Rectified Linear Unit): $`f(x) = max(0,x)`$.
-* Sigmoid: $`f(x) = {1 \over {1+e^{-x}}}`$.
-* Tanh: $`f(x)=tanh(x)`$.
-* GELU (Gaussian Error Linear Unit): $`f(x) = x \cdot \frac{1}{2} \big[  1 + \text{erf}\left(\frac{x}{\sqrt{2}}\right) \big]`$
+* $Sigmoid$: $`f(x) = {1 \over {1+e^{-x}}}`$.
+* $Tanh$: $`f(x)=tanh(x)`$.
+* $GELU$ (Gaussian Error Linear Unit): $`f(x) = x \cdot \frac{1}{2} \big[  1 + \text{erf}\left(\frac{x}{\sqrt{2}}\right) \big]`$
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
