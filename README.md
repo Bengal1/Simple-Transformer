@@ -178,7 +178,7 @@ $$
 `PE(k,j)` - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 <br/>
 **Example**:<br/>
-Lets us note sequence length as *M* (*M* objects/tokens).For sequence length $M$ and model dimension $d$, the positional encoding vector
+Lets us note sequence length as $M$ ($M$ objects/tokens). For sequence length $M$ and model dimension $d$, the positional encoding vector
 for position $k$ is defined as:
 
 $$
