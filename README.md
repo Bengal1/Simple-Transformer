@@ -13,7 +13,7 @@ In this project, we implement a SimpleTransformer following the original paperâ€
 - [![sacrebleu](https://img.shields.io/pypi/v/sacrebleu?label=sacrebleu&color=blue&logo=python&logoColor=white&style=flat-square)](https://pypi.org/project/sacrebleu/) <br/>
 
 
-## Transformer
+## The Transformer
 
 <img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/053d0e3d-c818-4ca9-a95b-5c01794953db" />
 
