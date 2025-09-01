@@ -69,25 +69,27 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
                  optimizer: torch.optim.Optimizer,
                  model_size: int = 512,
                  warmup_steps: int = 4000,
+                 factor: float = 1.0,
                  last_epoch: int = -1):
         """Initializes the NoamLR scheduler.
 
         Args:
             optimizer (Optimizer): Wrapped optimizer.
-            model_size (int, optional): Dimensionality of the model (default: 512).
-            warmup_steps (int, optional): Number of warm-up steps (default: 4000).
+            model_size (int, optional): Dimensionality of the model. Default is 512.
+            warmup_steps (int, optional): Number of warm-up steps. Default is 4000.
+            factor (float, optional):Scales the learning rate. Default is 1.0.
             last_epoch (int, optional): The index of last epoch. Default: -1.
-
-        Raises:
-            ValueError: If `model_size` or `warmup_steps` is not a positive integer.
         """
         if model_size <= 0:
             raise ValueError("model_size must be a positive integer.")
         if warmup_steps <= 0:
             raise ValueError("warmup_steps must be a positive integer.")
+        if factor <= 0:
+            raise ValueError("factor must be a positive float.")
 
-        self.model_size   = model_size
+        self.model_size = model_size
         self.warmup_steps = warmup_steps
+        self.factor = factor
         super().__init__(optimizer, last_epoch)
 
     def get_lr(self) -> list[float]:
@@ -96,10 +98,10 @@ class NoamLR(torch.optim.lr_scheduler._LRScheduler):
         Returns:
             list: A list containing the learning rate for each parameter group.
         """
-        step  = max(1, self._step_count)  # Avoid division by zero
-        scale = self.model_size ** -0.5
+        step = max(1, self._step_count)  # Avoid division by zero
+        scale = self.factor * self.model_size ** -0.5
         # Calculate the Noam learning rate based on the current step
-        lr    = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
+        lr = scale * min(step ** -0.5, step * (self.warmup_steps ** -1.5))
         return [lr for _ in self.base_lrs]
 
 
