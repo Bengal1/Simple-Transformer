@@ -262,12 +262,12 @@ Before embedding, we would like to structure the data in such a way that it is e
 
 In order to give the model contextual sign and mange the data better, we use special tokens
 ```
-special_tokens = ['<unk>', '<pad>', '<bos>', '<eos>']
+special_tokens = ['<pad>', '<bos>', '<eos>', '<unk>']
 
-<unk> - unknown words.
 <pad> - use for padding.
 <bos> - beginning of sentence.
 <eos> - end of sentence.
+<unk> - unknown words.
 
 We sets <unk> as the default. 
 ```
@@ -276,6 +276,7 @@ The unknown word token ,`<unk>`, use for words that are not in the vocabulary an
 ```ruby
 sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
 ⇨ sentence_for_embedding[max_length] = ['<bos>','This', 'is', 'Simple', 'Transformer', 'Guide', '!', '<eos>', '<pad>',..., '<pad>']
+⇨ tokenIDs_for_embedding[max_length] = [1, 73, 4, 871, 1082, 2374, 91, 2, 0,..., 0]
 ```
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
