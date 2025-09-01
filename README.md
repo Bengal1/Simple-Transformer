@@ -152,10 +152,10 @@ For a single Network 'layer', the output is calculated as:
 y = f(W_{1}·x+b_{1})·W_{2} + b_{2}
 ```
 Where:
-* ***$`x`$*** is the input vector.
-* ***$`W_i`$*** is the weight matrix of layer *i*.
-* ***$`b_i`$*** is the bias vector of layer *i*.
-* ***$`f`$*** is the activation function - ReLU.
+* ***$x$*** is the input vector.
+* ***$W_i$*** is the weight matrix of layer *i*.
+* ***$b_i$*** is the bias vector of layer *i*.
+* ***$f$*** is the activation function - ReLU.
 
 The Dropout applies after the activation function.
 
