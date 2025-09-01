@@ -255,7 +255,7 @@ Finally, these IDs are transformed into dense vectors through a process called e
 ```ruby
 sentence = "This is Simple Transformer Guide!"
 ⇨ tokenized_sentence = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
-⇨ sentence_of _tokenIDs = [73, 4, 871, 1082, 2374, 91]
+⇨ sentence_of_tokenIDs = [73, 4, 871, 1082, 2374, 91]
 ```
 Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences (input sequence) `max_length`, and then we pad sentence that are shorter (This is the method in use here).
 * *Alternative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 5% will be truncated according to size (the percentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
