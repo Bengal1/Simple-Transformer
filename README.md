@@ -321,12 +321,39 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
 #### Adam Algorithm:
-- $\theta_t$ : parameters at time step t  
-- $\beta_1, \beta_2$ : exponential decay rates for moment estimates  
-- $\alpha$ : learning rate  
-- $\epsilon$ : small constant to prevent division by zero  
-- $\lambda$ : weight decay coefficient
-<br/>
+- $\theta_t$ : parameters at time step t.  
+- $\beta_1, \beta_2$ : exponential decay rates for moment estimates.  
+- $\alpha$ : learning rate.
+- $\epsilon$ : small constant to prevent division by zero.  
+- $\lambda$ : weight decay coefficient. <br/>
+
+
+1. Compute gradients:
+   <div align="center">
+   $$g_t = \nabla_\theta J(\theta_t)$$
+   </div>
+
+2. Update moment estimates:
+   <div align="center">
+   $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$  
+   $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+   </div>
+   
+4. Bias correction: 
+   <div align="center">
+   $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
+   </div>
+   
+5. Parameter update: 
+   <div align="center">
+   $$\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$$
+   </div>
+   
+* In our model *Weight decay* is applied:  
+   <div align="center">
+   $$\theta_{t+1} = \theta_t - \alpha \cdot \Bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \Bigg)$$
+   </div>
+   
 1. Compute gradients:
 
 $$
