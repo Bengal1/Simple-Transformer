@@ -339,12 +339,12 @@ The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extensio
    $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
    </div>
    
-4. Bias correction: 
+3. Bias correction: 
    <div align="center">
    $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
    </div>
    
-5. Parameter update: 
+4. Parameter update: 
    <div align="center">
    $$\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$$
    </div>
@@ -354,35 +354,7 @@ The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extensio
    $$\theta_{t+1} = \theta_t - \alpha \cdot \Bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \Bigg)$$
    </div>
    
-1. Compute gradients:
 
-$$
-g_t = \nabla_{\theta} J(\theta_t)
-$$
-
-2. Update first & second moments estimate:
-
-$$
-m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t \quad ; \quad v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2
-$$
-
-3. Bias correction:
-
-$$
-\hat{m}_t = \frac{m_t}{1 - \beta_1^t} \quad ; \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}
-$$
-
-4. Update parameters:
-
-$$
-\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
-$$
-
-* In our model *Weight decay* is applied:
-
-$$
-\theta_{t+1} = \theta_t - \alpha \cdot \Bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \Bigg)
-$$
 
 ### Noam Learning Rate
 *NoamLR* scheduler was introduced in the original Transformer paper "Attention Is All You Need". Schedulers in deep learning are used to adjust the learning rate during training to improve convergence and performance. It sets the learning rate to increase linearly for a set number of warm-up steps and then decay proportionally to the inverse square root of the training step: 
