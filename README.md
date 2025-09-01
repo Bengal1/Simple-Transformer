@@ -442,8 +442,8 @@ Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)
 In comparing my model to both the Base and Big configurations of the original Transformer, I consider not only architectural scale (d_model, d_ff, num_heads) but also differences in parameter count and overall complexity. The Base model uses `d_model=512`, `d_ff=2048`, and `num_heads=8`, while the Big model doubles these values with `d_model=1024`, `d_ff=4096`, and `num_heads=16`. This scaling increases capacity and computational cost, but yields higher translation quality when sufficient data is available.
 
 As shown in the table above, my implementation also differs in parameter count for two main reasons:
-* Weight tying: The original Transformer shares parameters between source embeddings, target embeddings, and the output projection. I keep them separate, increasing the parameter count but allowing distinct representations for each component.
-* Vocabulary size: The original uses a joint ~37K vocabulary, while I use separate vocabularies (~56K source, ~73K target), which increases the size of embedding and output layers but captures each language more precisely.
+* **Weight tying**: The original Transformer shares parameters between source embeddings, target embeddings, and the output projection. I keep them separate, increasing the parameter count but allowing distinct representations for each component.
+* **Vocabulary size**: The original uses a joint ~37K vocabulary, while I use separate vocabularies (~56K source, ~73K target), which increases the size of embedding and output layers but captures each language more precisely.
 
 As a result, even when configured like Transformer-Base, my model contains more parameters, reflecting design choices that emphasize richer vocabulary coverage under data-limited conditions.
 
