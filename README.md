@@ -41,6 +41,8 @@ $$
 X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
 $$
 
+When $E$ is the model/embedding dimension, $d_k$ is the dimension of the key and query vectors that control how similarities are computed, and $d_v$ is the dimension of the value vectors whose weighted sum forms the output.
+
 Each token in the input sequence is represented using three matrices: <br/>
 ***Query (Q)***: Represents the word we are currently processing and is used to find relevant words in the input. <br/>
 ***Key (K)***: Represents all words in the input sequence and is used to compare with the query to determine relevance. <br/>
