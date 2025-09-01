@@ -3,7 +3,7 @@ This repository is a guide and showcase for building a [*Transformer*](https://e
 
 The Transformer is a deep learning architecture introduced in the 2017 paper “Attention Is All You Need”<sup>[<a href="#ref1">1</a>]</sup>, based on the multi-head self-attention mechanism. [Large Language Models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model), such as GPT, are direct descendants of this architecture. By scaling parameters, data, and compute, they have revolutionized NLP and enabled breakthroughs from machine translation to conversational AI.
 
-In this project, I have implement a SimpleTransformer following the original paper’s design, and applied it to [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation). This repository is built for learning purposes, combining theoretical background with practical implementation, to help those who want to start coding Transformers for [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
+In this project, I have implemented *SimpleTransformer* following the original paper’s design, and applied it to [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation). This repository is built for learning purposes, combining theoretical background with practical implementation, to help those who want to start coding Transformers for [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
 
 ## Requirements
 - [![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python&logoColor=white)](https://www.python.org/) <br/>
