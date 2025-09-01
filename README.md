@@ -303,19 +303,19 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 #### Intuitive understanding of Embedding
 <img align="right" width="500" alt="embed_space" src="https://github.com/user-attachments/assets/7808669b-756d-4ab6-a8a1-079cdea49ea8" />
 
-This explanation is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would expect, for good embedding, the next mathematical semantic connection:
+This explanation is for intuitive understanding of Embedding. To best understand it, you will need a very basic vector analysis knowledge.<br/>
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$. So for example we would expect a good embedding, the next mathematical semantic connection:
 ```math
 e_{king} - e_{queen} = e_{man} - e_{woman}
 ```
-
-And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is a direction of gender, the more manly attributes the token has the further the vector will go in that direction and the same for womanly attributes in the opposite direction. 
+From the tokens 'king' and 'queen' we can assume royalty and gender of every token. from the tokens 'man' and 'woman' we can assume only gender. So if we subtract 'man' and 'woman' we get a gender difference vector, as well with 'king' and 'queen', because when we subtract them the will subtract the royalty direction (vector) of each other. 
+We can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is a direction of gender, the more manly attributes the token has the further the vector will go in that direction and the same for womanly attributes in the opposite direction. 
 We can also look at this mathematical semantic connection: 
 ```math
 e_{king} - e_{man} = e_{queen} - e_{woman}
 ```
 We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen, meaning a royal direction.<br/>
-And also it expected to get from the king vector to the queen vector we will do: 
+It also expected to get from the king vector to the queen vector we will use vector claculation and do: 
 &emsp;&emsp;&emsp;&emsp; $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
 <br/>
 #### How Can $`ℝ^{E}`$ Holds Rich Language Semantics?
