@@ -30,10 +30,10 @@ Its architecture enables rich, context-aware representations and dramatically im
 These capabilities set the stage for exploring its attention mechanism and core components, which are at the heart of its success.
 
 ### Attention
+<img align="right" width="400" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/1926cf27-ef25-465d-8c21-e3c9f6325d99" />
+
 The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
 In this method the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, which creates $`Q, K, V`$.
-
-<img align="right" width="400" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/1926cf27-ef25-465d-8c21-e3c9f6325d99" />
 
 Given: &nbsp; $`W_{Q}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{K}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{V}∈ℝ^{E×d_v}`$  and Input &nbsp; $`X∈ℝ^{M×E}`$:
 
