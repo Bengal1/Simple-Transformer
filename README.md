@@ -17,8 +17,27 @@ In this project, I have implemented *SimpleTransformer* following the original p
 
 <img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/053d0e3d-c818-4ca9-a95b-5c01794953db" />
 
+The Transformer is a deep learning architecture introduced by Google researchers in the 2017 paper “Attention Is All You Need.”
+This paper not only proposed the Transformer architecture but also established the attention mechanism as a powerful alternative to recurrence and convolution for sequence modeling.
+The model is built around multi-head attention, enabling it to efficiently capture complex relationships and long-range dependencies in sequences.
+
+The Transformer consists of an encoder and a decoder, each composed of stacked layers that include multi-head attention, feed-forward networks, residual connections, and layer normalization.
+The encoder encodes the input sequence into context-aware representations, while the decoder generates the output sequence step by step,
+using masked self-attention to preserve autoregressive decoding and applying cross-attention over the encoder’s context representations.
+
+The Transformer revolutionized sequence modeling by replacing recurrence and convolution with attention, allowing models to capture long-range dependencies more effectively and process sequences in parallel.
+Its architecture enables rich, context-aware representations and dramatically improves performance across tasks like translation, summarization, and language understanding.
+These capabilities set the stage for exploring its attention mechanism and core components, which are at the heart of its success.
+
+
+
+The Transformer is a deep learning architecture introduced by Google researchers in the 2017 paper “Attention Is All You Need.” This paper not only proposed the Transformer architecture but also established the attention mechanism as a powerful alternative to recurrence and convolution for sequence modeling. The model is built around multi-head attention, enabling it to efficiently capture complex relationships and long-range dependencies in sequences. It consists of an encoder and a decoder, each composed of stacked layers that include multi-head attention, feed-forward networks, residual connections, and layer normalization. The encoder encodes the input sequence into context-aware representations, while the decoder generates the output sequence step by step, using masked self-attention to preserve autoregressive decoding and applying cross-attention over the encoder’s context representations.
+This repository implements the original configuration for a single model described in the paper, with the Base variant configuration of 6 encoder layers, 6 decoder layers, and 8 attention heads in each multi-head attention module.
+
 *The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The model is composed of an encoder and a decoder, each built from layers containing multi-head self-attention, feed-forward networks, residual connections, and layer normalization. The encoder processes the input sequence using self-attention and feed-forward layers to create context-aware representations. The decoder generates the output sequence using masked self-attention, attends to the encoder's output, and predicts the next token step by step. *Attention* is the core of the Transformer. It's what allows the model to weigh the importance of different words in a sequence—both in the input (via self-attention) and between input and output (via cross-attention). This mechanism replaces recurrence and convolution, making the model more efficient and better at capturing long-range dependencies. <br/>
-This repository follow the original transformer from the paper with 6 encoder and 6 decoder layers and 8 heads for each multi-head attention, the rest can be noticed in the transformer architecture figure to th right, totaling `46,839,610` learnable parameters.
+This repository follow the original transformer from the paper with 6 encoder and 6 decoder layers and 8 heads for each multi-head attention.
+
+
 
 ### Attention
 The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
