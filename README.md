@@ -46,7 +46,7 @@ Each token in the input sequence is represented using three matrices: <br/>
 ***Key (K)***: Represents all words in the input sequence and is used to compare with the query to determine relevance. <br/>
 ***Value (V)***: Holds the actual word representations, which are combined based on attention scores to form the final output. <br/>
 
-To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values, we scale the scores:  
+To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values we scale it, this is called the 'Attention Score':  
 ```math
 \frac{Q·K^{T}}{\sqrt{d}}
 ```
