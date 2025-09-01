@@ -326,7 +326,7 @@ The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extensio
 - $\alpha$ : learning rate  
 - $\epsilon$ : small constant to prevent division by zero  
 - $\lambda$ : weight decay coefficient
-
+<br/>
 1. Compute gradients:
 
 $$
