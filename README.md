@@ -321,11 +321,11 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
 #### Adam Algorithm:
-- $`\theta_t`$​ : parameters at time step *t*.
-- $`\beta_1,\beta_2​`$: exponential decay rates for moments estimation.
-- $`\alpha`$ : learning rate.
-- $`\epsilon`$ : small constant to prevent division by zero.
-- $`\lambda`$ : weight decay coefficient. <br/>
+- $\theta_t$ : parameters at time step t  
+- $\beta_1, \beta_2$ : exponential decay rates for moment estimates  
+- $\alpha$ : learning rate  
+- $\epsilon$ : small constant to prevent division by zero  
+- $\lambda$ : weight decay coefficient
 
 1. Compute gradients:
 
