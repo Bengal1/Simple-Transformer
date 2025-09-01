@@ -247,16 +247,15 @@ Dataset size:
 This dataset consists of 56K unique english tokens (vocabulary) and 73K unique french tokens. <br/>
 
 ### Tokenization
-In order to prepare the data for training, we need tokenization — converting words or sentences into tokens. The computer doesn't know what to do with words. When you feed it the sentence "This Simple Transformer Guide!", it doesn't understand the meaning of the words or the relationships between them.<br/>
-So what do computers understand? They understand numbers. At the core, computers deal with binary values (V<sub>low</sub> and V<sub>high</sub>), but at higher levels, they work with numbers and tensors (vectors, matrices, 3D tensors, and beyond) and the mathematical relationships between them. To make text workable, we first split the sentence into tokens and then map each token to a unique numerical ID from the vocabulary. These token IDs are what the model actually processes. Finally, these IDs are transformed into dense vectors through a process called embedding, which allows the model to learn semantic and syntactic relationships between tokens during training.
-
-In order to prepare the data for training we need tokenization - convert words/sentences to tokens. The computer doesn't know what to do with words. when you feed it the sentence "This Simple Transformer Guide!" it doesn't understand the meaning of the words and the relations between them.<br/>
-So what do computer understand? they understand numbers. in the core of computer it understands binary values ($`V_{low}`$ and $`V_{high}`$), but on higher levels it understand number and tensors (vectors, matrices, 3D matrices,...) and mathematical relation between them.
-In order to provide the computer workable data we decompose the sentence into tokens and covert every token to a dense vector (process called *Embedding*).
+In order to prepare the data for training, we need tokenization converting words or sentences into tokens. The computer doesn't know what to do with words. When you feed it the sentence "This Simple Transformer Guide!", it doesn't understand the meaning of the words or the relationships between them.<br/>
+So what do computers understand? They understand numbers. At the core, computers deal with binary values (V<sub>low</sub> and V<sub>high</sub>), but at higher levels, they work with numbers and tensors (vectors, matrices, 3D tensors, and beyond) and the mathematical relationships between them. 
+To make text workable, we first split the sentence into tokens and then map each token to a unique numerical ID from the vocabulary. These token IDs are what the model actually processes. 
+Finally, these IDs are transformed into dense vectors through a process called embedding, which allows the model to learn semantic and syntactic relationships between tokens during training.
 
 ```ruby
 sentence = "This is Simple Transformer Guide!"
-⇨ sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
+⇨ tokenized_sentence = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
+⇨ sentence_of _tokenIDs = [73, 4, 871, 1082, 2374, 91]
 ```
 Before embedding, we would like to structure the data in such a way that it is easy for the transformer to receive it, so we will define a fixed length to sentences (input sequence) `max_length`, and then we pad sentence that are shorter (This is the method in use here).
 * *Alternative method*: use max length 95% of the data. meaning 95% of the data will fit with no problem and 5% will be truncated according to size (the percentage can be changed, for example 90%). This approach allows you to handle the majority of the data, while avoiding excessively long sequences. Sacrificing 10% of data integrity to make the model smaller and more efficient.
