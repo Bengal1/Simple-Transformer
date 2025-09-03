@@ -106,9 +106,9 @@ class MultiHeadAttention(torch.nn.Module):
 
     @staticmethod
     def _generate_causal_mask(
-                              L_q: int,
-                              L_k: int,
-                              device: torch.device) -> torch.Tensor:
+            L_q: int,
+            L_k: int,
+            device: torch.device) -> torch.Tensor:
         """
         Generates a causal (upper triangular) attention mask for autoregressive decoding.
 

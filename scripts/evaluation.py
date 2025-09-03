@@ -27,10 +27,12 @@ __all__ = [
 
 
 # ------------------ Loss ------------------ #
-def evaluate_model(model: torch.nn.Module,
-                   data_loader: torch.utils.data.DataLoader,
-                   loss_fn: torch.nn.modules.loss,
-                   device: torch.device) -> float:
+def evaluate_model(
+        model: torch.nn.Module,
+        data_loader: torch.utils.data.DataLoader,
+        loss_fn: torch.nn.modules.loss,
+        device: torch.device
+) -> float:
     """Evaluates the model on a given dataset using a loss function.
 
     Args:
@@ -138,14 +140,16 @@ def _detokenize(tokens: list[str]) -> str:
 
 # --- BLEU Evaluation Function ---
 
-def evaluate_bleu(model: torch.nn.Module,
-                  data_loader: torch.utils.data.DataLoader,
-                  trg_vocab: dict[str, int],
-                  device: torch.device,
-                  special_tokens: list[str],
-                  beam_size: int = 4,
-                  max_len: int = 0,
-                  verbose: bool = False) -> float:
+def evaluate_bleu(
+        model: torch.nn.Module,
+        data_loader: torch.utils.data.DataLoader,
+        trg_vocab: dict[str, int],
+        device: torch.device,
+        special_tokens: list[str],
+        beam_size: int = 4,
+        max_len: int = 0,
+        verbose: bool = False
+) -> float:
     """
     Evaluates the model's translation performance using the BLEU metric via sacrebleu.
 

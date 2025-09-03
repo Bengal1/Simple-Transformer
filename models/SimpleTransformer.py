@@ -242,8 +242,9 @@ class SimpleTransformer(torch.nn.Module):
 
     # --- Private Helper Methods ---
     @staticmethod
-    def _generate_padding_mask(seq: torch.Tensor,
-                               pad_token_id: int) -> torch.Tensor:
+    def _generate_padding_mask(
+            seq: torch.Tensor,
+            pad_token_id: int) -> torch.Tensor:
         """Generates a boolean padding mask for a given sequence.
 
         This function creates a boolean tensor that indicates which elements

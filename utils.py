@@ -246,7 +246,8 @@ def load_checkpoint(
     optimizer: torch.optim.Optimizer,
     scheduler: torch.optim.lr_scheduler._LRScheduler,
     checkpoint_path: str = "model_checkpoint.pth",
-    device: torch.device = torch.device("cpu")) -> tuple[int, float | None]:
+    device: torch.device = torch.device("cpu")
+) -> tuple[int, float | None]:
     """
     Loads model checkpoint, ignoring keys that are not present.
     """

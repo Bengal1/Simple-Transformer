@@ -35,7 +35,8 @@ def train_model(
         patience: int = 5,
         accumulation_steps: int = 1,
         max_gradient_clip: float = 1.0,
-        start_epoch: int = 1) -> dict[str, list[float]]:
+        start_epoch: int = 1
+) -> dict[str, list[float]]:
     """
     Trains the model for multiple epochs and evaluates it on the validation set.
 
@@ -66,7 +67,7 @@ def train_model(
                 - 'bleu': List of bleu score values.
     """
     stats_record = {'train': [], 'validation': [], 'bleu': []}
-    best_bleu = float('-inf')
+    best_loss = float('inf')
 
     logging.info(f"Starting model training for {epochs} epochs on {device}.")
 
@@ -96,12 +97,12 @@ def train_model(
         save_stats_to_csv(stats_record, epoch=epoch)
 
         # Save the model state if validation loss improves.
-        if bleu_score > best_bleu:
-            best_bleu = bleu_score
+        if val_loss < best_loss:
+            best_loss = val_loss
             save_model(epoch, model, optimizer, scheduler, val_loss)
 
         # Monitor BLEU plateau for potential early stopping
-        if early_stopping(stats_record['bleu'], patience=patience):
+        if early_stopping(stats_record['validation'], patience=patience):
             logging.info(f"Early stopping triggered at epoch {epoch}")
             break
 
