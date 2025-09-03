@@ -224,7 +224,7 @@ $$
 $$
 
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 ### Normalization
 <img align="right" width="250"  src="https://github.com/user-attachments/assets/a1434118-a1d7-4a40-a35e-14b922ee0db4">
@@ -290,7 +290,7 @@ sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
 ⇨ tokenIDs_for_embedding[max_length] = [1, 73, 4, 871, 1082, 2374, 91, 2, 0,..., 0]
 ```
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 ### Embedding
 <img align="right" width="400" alt="word_embed" src="https://github.com/user-attachments/assets/ff0b15d4-1092-414e-973c-aac3c4c2d70f" />
