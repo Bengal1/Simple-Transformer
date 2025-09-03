@@ -138,7 +138,7 @@ Where $`W_{Q_{i}}, W_{K_{i}}, W_{V_{i}}`$ and $`W_{out}`$ are learnable weight m
 For more information on Transformer and Attention there is a video series [3Blue 1Brown](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) 
 
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 ### FeedForward Network
 <img align="right" width="400" alt="feedforward" src="https://github.com/user-attachments/assets/8e22c051-6c90-4ac2-b0ae-f46ccc59970f" />
@@ -169,7 +169,7 @@ Common activation functions:
 * $Tanh$: $`f(x)=tanh(x)`$.
 * $GELU$ (Gaussian Error Linear Unit): $`f(x) = x \cdot \frac{1}{2} \big[  1 + \text{erf}\left(\frac{x}{\sqrt{2}}\right) \big]`$
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 ### Positional Encoding
 <img align="right" width="370"  src="https://github.com/user-attachments/assets/a69cfc70-d388-4411-be8a-86445603f879">
