@@ -17,14 +17,23 @@ In this project, I have implemented *SimpleTransformer* following the original p
 
 <img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/053d0e3d-c818-4ca9-a95b-5c01794953db" />
 
-*The Transformer* is a deep learning architecture that was developed by researchers at Google and is based on the multi-head attention mechanism, which was proposed in the 2017 paper "Attention Is All You Need". The model is composed of an encoder and a decoder, each built from layers containing multi-head self-attention, feed-forward networks, residual connections, and layer normalization. The encoder processes the input sequence using self-attention and feed-forward layers to create context-aware representations. The decoder generates the output sequence using masked self-attention, attends to the encoder's output, and predicts the next token step by step. *Attention* is the core of the Transformer. It's what allows the model to weigh the importance of different words in a sequence—both in the input (via self-attention) and between input and output (via cross-attention). This mechanism replaces recurrence and convolution, making the model more efficient and better at capturing long-range dependencies. <br/>
-This repository follow the original transformer from the paper with 6 encoder and 6 decoder layers and 8 heads for each multi-head attention, the rest can be noticed in the transformer architecture figure to th right, totaling `46,839,610` learnable parameters.
+The Transformer is a deep learning architecture introduced by Google researchers in the 2017 paper “Attention Is All You Need.”
+This paper not only proposed the Transformer architecture but also established the attention mechanism as a powerful alternative to recurrence and convolution for sequence modeling.
+The model is built around multi-head attention, enabling it to efficiently capture complex relationships and long-range dependencies in sequences.
+
+The Transformer consists of an encoder and a decoder, each composed of stacked layers that include multi-head attention, feed-forward networks, residual connections, and layer normalization.
+The encoder encodes the input sequence into context-aware representations, while the decoder generates the output sequence step by step,
+using masked self-attention to preserve autoregressive decoding and applying cross-attention over the encoder’s context representations.
+
+The Transformer revolutionized sequence modeling by replacing recurrence and convolution with attention, allowing models to capture long-range dependencies more effectively and process sequences in parallel.
+Its architecture enables rich, context-aware representations and dramatically improves performance across tasks like translation, summarization, and language understanding.
+These capabilities set the stage for exploring its attention mechanism and core components, which are at the heart of its success.
 
 ### Attention
-The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
-In this method we use the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, create $`Q, K, V`$.
-
 <img align="right" width="400" alt="Transformer_Encoder-Decoder" src="https://github.com/user-attachments/assets/1926cf27-ef25-465d-8c21-e3c9f6325d99" />
+
+The [*Attention*](https://en.wikipedia.org/wiki/Attention_(machine_learning)) (Scaled Dot-Product Attention) mechanism is the heart of the *Transformer* and, it is a machine learning method that determines the relative importance of each component in a sequence relative to the other components in that sequence. 
+In this method the learnable (trainable) parameters are the weights: $`W_{Q}, W_{K}, W_{V}, W_{out}(optional)`$, which creates $`Q, K, V`$.
 
 Given: &nbsp; $`W_{Q}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{K}∈ℝ^{E×d_k}`$ , &nbsp; $`W_{V}∈ℝ^{E×d_v}`$  and Input &nbsp; $`X∈ℝ^{M×E}`$:
 
@@ -32,18 +41,20 @@ $$
 X·W_{Q} = Q &ensp; ; &ensp; X·W_{K} = K &ensp; ; &ensp; X·W_{V} = V
 $$
 
+When $E$ is the model/embedding dimension, $d_k$ is the dimension of the key and query vectors that control how similarities are computed, and $d_v$ is the dimension of the value vectors whose weighted sum forms the output.
+
 Each token in the input sequence is represented using three matrices: <br/>
 ***Query (Q)***: Represents the word we are currently processing and is used to find relevant words in the input. <br/>
 ***Key (K)***: Represents all words in the input sequence and is used to compare with the query to determine relevance. <br/>
 ***Value (V)***: Holds the actual word representations, which are combined based on attention scores to form the final output. <br/>
 
-To determine which words are most relevant to the current query, we compute a dot product between *Q* and *K*, and in order to prevent extreme values, we scale the scores:  
+To determine which words are most relevant to the current query, we compute a dot product between $Q$ and $K$, and in order to prevent extreme values we scale it, this is called the *Attention Score*:  
 ```math
 \frac{Q·K^{T}}{\sqrt{d}}
 ```
 <br/>
 
-To execute the attention we apply *Softmax* and multiply with *V* :
+To execute the attention we apply $Softmax$ and multiply with $V$ and get the *Attention Weights*:
 
 ```math
 Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
@@ -292,24 +303,27 @@ In our case we get a tokenized sequence (sentence, `M=max_length`) and we conver
 #### Intuitive understanding of Embedding
 <img align="right" width="500" alt="embed_space" src="https://github.com/user-attachments/assets/7808669b-756d-4ab6-a8a1-079cdea49ea8" />
 
-This explanation is for intuitive understanding of Embedding, you will need basic vector analysis to best understand it.<br/>
-Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$, So for example we would expect, for good embedding, the next mathematical semantic connection:
-```math
-e_{king} - e_{queen} = e_{man} - e_{woman}
-```
+This explanation is for intuitive understanding of Embedding. To best understand it, you will need a very basic vector analysis knowledge.<br/>
+Lets assume we have the tokens `{'king', 'queen', 'man', 'woman'}` and we convert them to embedding vectors: $`\Big\{ e_{king}, e_{queen}, e_{man}, e_{woman} \Big\}`$. So for example we would expect a good embedding, the next mathematical semantic connection:
 
-And we can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is a direction of gender, the more manly attributes the token has the further the vector will go in that direction and the same for womanly attributes in the opposite direction. 
+$$e_{king} - e_{queen} = e_{man} - e_{woman}$$
+
+From the tokens 'king' and 'queen' we can assume royalty and gender of every token. from the tokens 'man' and 'woman' we can assume only gender. So if we subtract 'man' and 'woman' we get a gender difference vector, as well with 'king' and 'queen', because when we subtract them the will subtract the royalty direction (vector) of each other. 
+We can interpret it as the gender difference between the vectors, meaning in the $`ℝ^{E}`$ embedding space (Lets assume E is big), there is a direction of gender, the more manly attributes the token has the further the vector will go in that direction and the same for womanly attributes in the opposite direction. 
 We can also look at this mathematical semantic connection: 
-```math
-e_{king} - e_{man} = e_{queen} - e_{woman}
-```
+
+$$e_{king} - e_{man} = e_{queen} - e_{woman}$$
+
 We can interpret it as if we strip the king from his gender then the vector that we get is the status/Royal vector as well as for the queen, meaning a royal direction.<br/>
-And also it expected to get from the king vector to the queen vector we will do: 
-&emsp;&emsp;&emsp;&emsp; $`e_{king} - e_{man} + e_{woman} = e_{queen}`$
-<br/>
+It also expected to get from the king vector to the queen vector we will use vector calculus and do: 
+
+$$e_{king} - e_{man} + e_{woman} = e_{queen}$$
+
 #### How Can $`ℝ^{E}`$ Holds Rich Language Semantics?
 
-In Reality that is not what exactly happening. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. We can interpret that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, so that an object in this space when getting shifted in the 'Royal' direction it would not be shifted in unrelated direction like 'Size', 'Metallic', 'Temperature' and much more. Meaning larger the embedding space the more semantics it can hold. However, a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in large vocabulary).
+In Reality that is not what exactly happening. There is no equality in the mathematical connection, probably because there is more for king part to gender and royalty, but a rough axis direction can be noticed. 
+We can interpret, that for a some large vocabulary and $`ℝ^{E}`$, large embedding space, there will be semantic direction in this space. We expect them to be orthogonal, so that an object in this space when getting shifted in the 'Royal' would do it with adding the 'Royal' vector (with scalar multiplication), and it would not be shifted in unrelated direction like 'Size', 'Metallic', 'Temperature' etc. <br/>
+Meaning larger the embedding space the more semantics it can hold. However, a $`ℝ^{E}`$ can hold only *E* orthogonal directions (vectors) and there are a lot of semantic in a language (in a large vocabulary).
 <br/>
 We would like the embedding space to hold relevant semantics as much as it can, however increasing E will result in space and computing cost. Nevertheless, we can see that not so large embedding spaces supply the semantics demand, and there is a hypothesis that tries to explain this phenomenon.<br/>
 According to [*Johnson–Lindenstrauss lemma*](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) if we "cram" more vectors in the space and ease the rigid demand of [*Orthogonality*](https://en.wikipedia.org/wiki/Orthogonality) a little bit and allow a slight deviation, $`0<ε<1`$. Meaning we can arrange the vectors, not in exactly 90° between each other, but in a range of $`90°-ε \le ∡e_{i}e_{j} \le 90°+ε`$ between them, each vector will have an angle of $`[90°-ε , 90°+ε]`$ with all other vectors. Then the *lemma* tells us we can arrange D vectors in $`ℝ^{E}`$, when *D ≈* *****O*****$`\big( exp(E·ε^2) \big)`$.<br/>
@@ -321,41 +335,40 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
 #### Adam Algorithm:
-- $`\theta_t`$​ : parameters at time step *t*.
-- $`\beta_1,\beta_2​`$: exponential decay rates for moments estimation.
-- $`\alpha`$ : learning rate.
-- $`\epsilon`$ : small constant to prevent division by zero.
-- $`\lambda`$ : weight decay coefficient. <br/>
+- $\theta_t$ : parameters at time step t.  
+- $\beta_1, \beta_2$ : exponential decay rates for moment estimates.  
+- $\alpha$ : learning rate.
+- $\epsilon$ : small constant to prevent division by zero.  
+- $\lambda$ : weight decay coefficient. <br/>
+
 
 1. Compute gradients:
+   <div align="center">
+   $$g_t = \nabla_\theta J(\theta_t)$$
+   </div>
 
-$$
-g_t = \nabla_{\theta} J(\theta_t)
-$$
+2. Update moment estimates:
+   <div align="center">
+   $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$  
+   $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+   </div>
+   
+3. Bias correction: 
+   <div align="center">
+   $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
+   </div>
+   
+4. Parameter update: 
+   <div align="center">
+   $$\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$$
+   </div>
+   
+* In our model *Weight decay* is applied:  
+   <div align="center">
+   $$\theta_{t+1} = \theta_t - \alpha \cdot \Bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \Bigg)$$
+   </div>
+   
 
-2. Update first & second moments estimate:
-
-$$
-m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t \quad ; \quad v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2
-$$
-
-3. Bias correction:
-
-$$
-\hat{m}_t = \frac{m_t}{1 - \beta_1^t} \quad ; \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}
-$$
-
-4. Update parameters:
-
-$$
-\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
-$$
-
-* In our model *Weight decay* is applied:
-
-$$
-\theta_{t+1} = \theta_t - \alpha \cdot \Bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \Bigg)
-$$
 
 ### Noam Learning Rate
 *NoamLR* scheduler was introduced in the original Transformer paper "Attention Is All You Need". Schedulers in deep learning are used to adjust the learning rate during training to improve convergence and performance. It sets the learning rate to increase linearly for a set number of warm-up steps and then decay proportionally to the inverse square root of the training step: 
@@ -397,7 +410,7 @@ Mistake at one step can lead to poor outputs later — exposure bias.
 A padding mask in Transformers is a binary mask used to prevent the model from attending to <pad> tokens that were added to sequences to make them the same length in a batch. Without masking, the attention mechanism would treat these padding positions as valid input, potentially introducing meaningless information into the context. In practice, the padding mask has 0 (or False) where real tokens are and 1 (or True) where padding occurs, and it is applied before the softmax in the attention score computation by adding large negative values (`float('-inf')`) to the padded positions. This ensures the model focuses only on actual tokens when computing attention, improving both training stability and output quality.
 
 ### Beam Search
-<img align="right" width="470" alt="search_beam_low_res_" src="https://github.com/user-attachments/assets/98e6142e-6135-4377-ab07-e688d6ecccd1" />
+<img align="right" width="470" alt="beam_search_low_res" src="https://github.com/user-attachments/assets/0447e0fc-522c-41ca-bdc2-83fb6d997d51" />
 
 Beam Search is a decoding algorithm used to generate the most likely output sequence by keeping multiple hypotheses (beams) at each step, instead of just the best one (like greedy decoding). <br/>
 This decoding strategy balances exploration and exploitation by keeping track of the top-k most likely partial sequences (beams) at each decoding step, rather than committing to the single most likely token as in greedy decoding. In greedy decoding, you pick the highest-probability token at each step, which is fast but can lead to suboptimal results because early mistakes cannot be corrected. Beam search instead expands all possible next tokens for each current beam, scores them (often using log-probabilities), and keeps only the best k sequences, allowing it to explore multiple promising paths in parallel. This often produces higher-quality translations or generations than greedy decoding, especially in Transformers, where the self-attention mechanism captures long-range dependencies that beam search can exploit to avoid short, repetitive, or incoherent outputs. However, beam search is slower than greedy decoding and can sometimes favor overly safe, generic sequences unless combined with techniques like length normalization or diverse beam search.
