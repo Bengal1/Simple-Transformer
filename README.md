@@ -15,7 +15,7 @@ In this project, I have implemented *SimpleTransformer* following the original p
 
 ## The Transformer
 
-<img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/053d0e3d-c818-4ca9-a95b-5c01794953db" />
+<img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/248bb023-240a-443b-a971-c0f16c74fdfe" />
 
 The Transformer is a deep learning architecture introduced by Google researchers in the 2017 paper “Attention Is All You Need.”
 This paper not only proposed the Transformer architecture but also established the attention mechanism as a powerful alternative to recurrence and convolution for sequence modeling.
