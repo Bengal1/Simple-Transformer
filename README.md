@@ -141,7 +141,7 @@ For more information on Transformer and Attention there is a video series [3Blue
 ---
 
 ### FeedForward Network
-<img align="right" width="400" alt="feedforward" src="https://github.com/user-attachments/assets/8e22c051-6c90-4ac2-b0ae-f46ccc59970f" />
+<img align="right" width="420" alt="feedforward" src="https://github.com/user-attachments/assets/8e22c051-6c90-4ac2-b0ae-f46ccc59970f" />
 
 A [*FeedForward Neural Network (FNN)*](https://en.wikipedia.org/wiki/Feedforward_neural_network) is a type of artificial neural network where connections between the nodes do not form cycles. The network consists of an input layer, one or more hidden layers, and an output layer. Information flows in one direction—from input to output—hence the name "feedforward."<br/>
 The Layers of the *FeedForward Network* consist of Dense layer, also called the fully-connected layer, and is used for abstract representations of input data. In this layer, neurons connect to every neuron in the preceding layer. In *Multilayer Perceptron* networks, these layers are stacked together. <br/> 
