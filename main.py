@@ -35,7 +35,14 @@ from data.iwslt14 import IWSLT14Dataset
 from models.SimpleTransformer import SimpleTransformer
 
 
-def setup_data_loaders(cfg:Config) -> tuple:
+def setup_data_loaders(
+        cfg:Config
+) -> tuple[
+    DataLoader,
+    DataLoader,
+    DataLoader,
+    IWSLT14Dataset
+]:
     """
     Sets up the IWSLT14 datasets and PyTorch DataLoaders.
 
@@ -47,12 +54,15 @@ def setup_data_loaders(cfg:Config) -> tuple:
         cfg (Config): A configuration object with dataset paths and training settings.
 
     Returns:
-        tuple: A tuple containing the initialized data loaders
-               (train_loader, val_loader, test_loader) and the
-               IWSLT14Dataset object.
+        tuple: A tuple containing:
+            - train_loader (DataLoader): DataLoader for the training set.
+            - val_loader (DataLoader): DataLoader for the validation set.
+            - test_loader (DataLoader): DataLoader for the test set.
+            - dataset (IWSLT14Dataset): The dataset object containing tokenized data
+              and vocabulary information.
     """
     # Get dataset paths (if 'use_debug=True', it will return debug dataset paths)
-    paths = cfg.dataset_paths.get()
+    paths = cfg.dataset_paths.get(use_debug=True)
 
     # Load Datasets
     iwslt14_data = IWSLT14Dataset(paths)
@@ -75,7 +85,13 @@ def setup_data_loaders(cfg:Config) -> tuple:
 def setup_model_and_training(
         cfg: Config,
         iwslt14_data: IWSLT14Dataset,
-        device: torch.device) -> tuple:
+        device: torch.device
+) -> tuple[
+        torch.nn.Module,
+        torch.nn.modules.loss,
+        torch.optim.Optimizer,
+        torch.optim.lr_scheduler
+]:
     """
     Initializes the model, loss function, optimizer, and learning rate scheduler.
 
@@ -85,15 +101,24 @@ def setup_model_and_training(
     and a custom NoamLR scheduler.
 
     Args:
-        cfg (Config): A configuration object containing model and training hyperparameters.
-        iwslt14_data (IWSLT14Dataset): The dataset object, used to get vocabulary sizes
-                                       and padding index.
+        cfg (Config): A configuration object containing model and training
+                      hyperparameters.
+        iwslt14_data (IWSLT14Dataset): The dataset object, used to get vocabulary
+                                       sizes and padding index.
         device (torch.device): The device (CPU or GPU) where the model will be placed.
 
     Returns:
-        tuple: A tuple containing the initialized model, criterion, optimizer,
-               and scheduler.
+        tuple: A tuple containing:
+            - model (torch.nn.Module): The initialized SimpleTransformer model
+              on the given device.
+            - criterion (torch.nn.modules.loss._Loss): The loss function
+              (CrossEntropyLoss).
+            - optimizer (torch.optim.Optimizer): The optimizer (Adam) for training
+              the model.
+            - scheduler (torch.optim.lr_scheduler._LRScheduler): The learning rate
+              scheduler (NoamLR).
     """
+
     # Extract datasets parameters for model
     src_vocab_size, trg_vocab_size = iwslt14_data.get_vocabularies_sizes()
 
