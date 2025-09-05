@@ -184,7 +184,7 @@ $$
 
 `k` - Position of an object in the input sequence, $`0 \le k <M-1`$ (M=sequence length).<br/>
 `n` - User defined scalar. Set to 10,000 in the article "Attention Is All You Need".<br/>
-`d` - Dimension of the model (output or output embedding space).<br/>
+`d` - Dimension of the model (usually embedding dimension).<br/>
 `i` - Used for mapping column's/object's indices,  $`0 \le i < \frac{2}{d}`$.<br/>
 `PE(k,j)` - Positional encoding of thr j-th index in the k-th object in the input sequence.<br/>
 <br/>
