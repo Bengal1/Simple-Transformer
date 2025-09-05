@@ -78,7 +78,7 @@ Purpose          | Captures dependencies within the same sequence            | L
 Example          | Text summarization, sentiment analysis, language modeling | Machine translation, text-to-text generation, question answering
 
 
-Given an ***Input***: $`X∈ℝ^{M×E}`$ and a ***Conditional Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and $L$ is the conditional input sequence length. We compute the matrices of the attention: $Q$, $K$ and $V$: <br/>
+Given an ***Input***: $`X∈ℝ^{M×E}`$ and a ***Conditional Input***: $`C∈ℝ^{L×E}`$, when $M$ is `max_length` of the input, $E$ is `embedding_dimension` and $L$ is the conditional input sequence length. We compute the matrices of the attention: $Q$, $K$ and $V$: <br/>
 
 ***Self-Attention:*** &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ***Cross-Attention:*** <br/>
 &emsp;$`X·W_{q} = Q∈ℝ^{M×d_k}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
