@@ -64,8 +64,8 @@ Attention(Q,K,V) = Softmax \Bigg(\frac{Q K^{T}}{\sqrt{d}} \Bigg)·V
 
 ### Self-Attention vs. Cross-Attention
 
-*Self-Attention* is the simplest way of attention. we use the input sequence and the weights to create the query matrix, *Q*, the key matrix, *K*, and the value matrix, *V*, and then execute the attention. This will tell us the affinity between vectors(tokens/words). <br/>
-In *Cross-Attention*, Q comes from the decoder's input (e.g., previously generated tokens or a prompt), while K and V come from the encoder's output, allowing the decoder to focus on relevant information from the input sequence. This means self-attention captures dependencies within a sequence, while cross-attention links information between two different sequences.
+*Self-Attention* is the simplest way of attention. we use the input sequence and the weights to create the query matrix, $Q$, the key matrix, $K$, and the value matrix, $V$, and then execute the attention. This will tell us the affinity between vectors(tokens/words). <br/>
+In *Cross-Attention*, $Q$ comes from the decoder's input (e.g., previously generated tokens or a prompt), while $K$ and $V$ come from the encoder's output, allowing the decoder to focus on relevant information from the input sequence. This means self-attention captures dependencies within a sequence, while cross-attention links information between two different sequences.
 <br/>
 
 
@@ -78,7 +78,7 @@ Purpose          | Captures dependencies within the same sequence            | L
 Example          | Text summarization, sentiment analysis, language modeling | Machine translation, text-to-text generation, question answering
 
 
-Given an ***Input***: $`X∈ℝ^{M×E}`$ and a ***Conditional Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and `L` is the conditional input sequence length. We compute the matrices of the attention: *Q*, *K* and *V*: <br/>
+Given an ***Input***: $`X∈ℝ^{M×E}`$ and a ***Conditional Input***: $`C∈ℝ^{L×E}`$, when `M=max_length`, `E=embedding_dimension` and $L$ is the conditional input sequence length. We compute the matrices of the attention: $Q$, $K$ and $V$: <br/>
 
 ***Self-Attention:*** &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; ***Cross-Attention:*** <br/>
 &emsp;$`X·W_{q} = Q∈ℝ^{M×d_k}`$ &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; $`X·W_q = Q∈ℝ^{M×d_k}`$ <br/>
