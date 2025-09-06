@@ -62,7 +62,7 @@ def setup_data_loaders(
               and vocabulary information.
     """
     # Get dataset paths (if 'use_debug=True', it will return debug dataset paths)
-    paths = cfg.dataset_paths.get(use_debug=True)
+    paths = cfg.dataset_paths.get()
 
     # Load Datasets
     iwslt14_data = IWSLT14Dataset(paths)
