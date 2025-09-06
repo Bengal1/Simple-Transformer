@@ -384,17 +384,14 @@ Where:
 
 This approach helps stabilize training in the early stages and allows the model to learn efficiently by avoiding large or unstable updates initially, while gradually reducing the learning rate to fine-tune the model later in training.
 
-### Cross-Entropy Loss Function
-This criterion computes the cross entropy loss between input logits and target. Loss function is a function that maps an event or values of one or more variables onto a real number intuitively representing some "loss" associated with the event. The Cross Enthropy Loss function is commonly used in classification tasks both in traditional ML and deep learning. It compares the predicted probability distribution over classes (logits) with the true class labels and penalizes incorrect or uncertain predictions.
+### Cross Entropy Loss Function
+[**Cross Entropy Loss**](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html) is widely used for classification tasks, as it measures the difference between the predicted probability distribution and the true distribution. Given a predicted probability vector **$p$** and a one-hot encoded target vector **$y$**, the loss for a single example is defined as:
 
 $$
-Loss = - \sum_{i=1}^{C} y_i \log(\hat{y}_i)
+\mathcal{L}_{CE} = - \sum_{i} y_i \log \hat{y}_i
 $$
 
-Where:
-* $`C`$  is the number of classes.
-* $`y_i`$​  is the true probability for class *i* (usually 1 for the correct class and 0 for others).
-* $`\hat{y}_i`$  is the predicted probability for class *i*.
+This loss penalizes confident incorrect predictions more heavily than less certain ones, encouraging the model to assign higher probabilities to the correct classes. Minimizing cross-entropy effectively maximizes the likelihood of the correct labels under the model’s predicted distribution.
 
 ### Teacher forcing
 <img align="right" width="500" src="https://github.com/user-attachments/assets/eb3cf86c-ea30-4f15-bf59-83a22261a3d7" />
