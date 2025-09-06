@@ -349,13 +349,12 @@ The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extensio
 
 2. Update moment estimates:
    <div align="center">
-   $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$$  
-   $$v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
+   $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t \quad;\quad v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
    </div>
    
 3. Bias correction: 
    <div align="center">
-   $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
+   $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t} \quad;\quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
    </div>
    
 4. Parameter update: 
