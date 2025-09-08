@@ -448,7 +448,7 @@ Model Variant                   | BLEU Score    | Dataset                       
 Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)   | 65M parameters
 Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)   | 213M parameters
 Simple Transformer 512          |  35.35        |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
-Simple Transformer 1024         |  00.00        |  IWSLT14 En-Fr (~180K samples)   | 383.6M parameters
+Simple Transformer 1024         |  35.785       |  IWSLT14 En-Fr (~180K samples)   | 383.6M parameters
 
 In comparing my model to both the Base and Big configurations of the original Transformer, I consider not only architectural scale (d_model, d_ff, num_heads) but also differences in parameter count and overall complexity. The Base model uses `d_model=512`, `d_ff=2048`, and `num_heads=8`, while the Big model doubles these values with `d_model=1024`, `d_ff=4096`, and `num_heads=16`. This scaling increases capacity and computational cost, but yields higher translation quality when sufficient data is available.
 
@@ -466,15 +466,15 @@ BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated
 
 ### Evaluation on Test Dataset
 Model Variant                   | Test Loss     | BLEU Score
---------------------------------|---------------|-------------------------------------------------
+--------------------------------|---------------|--------------
 Simple Transformer 512          |  3.29         |  35.347
-Simple Transformer 1024         |  00.00        |  00.00
+Simple Transformer 1024         |  3.377        |  35.785
 
 ### Training & Validation Loss
-<img width="2560" height="1335" alt="run6_loss" src="https://github.com/user-attachments/assets/505c99ff-f60a-4425-9cf5-7c6946eba783" />
+<img width="2560" height="1335" alt="loss_plot" src="https://github.com/user-attachments/assets/ec32215a-0afc-4801-8552-16334e1e7dd2" />
 
 ### Bilingual Evaluation Understudy (BLEU)
-<img width="2560" height="1335" alt="run6_bleu" src="https://github.com/user-attachments/assets/9d1fdd9b-8c64-4914-99c2-01afcc4927f7" />
+<img width="2560" height="1335" alt="bleu_plot" src="https://github.com/user-attachments/assets/6c7fc809-104b-4fd4-9270-8dbf04365461" />
 
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
