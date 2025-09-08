@@ -15,10 +15,8 @@ import logging
 from utils import save_model, save_stats_to_csv, early_stopping
 from scripts.evaluation import evaluate_model, evaluate_bleu
 
-
 # --- Public API ---
 __all__ = ["train_model"]
-
 
 def train_model(
         model: torch.nn.Module,

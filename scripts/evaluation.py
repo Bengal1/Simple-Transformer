@@ -18,13 +18,11 @@ import sacrebleu
 import logging
 import re
 
-
 # --- Public API ---
 __all__ = [
     "evaluate_model",
     "evaluate_bleu"
 ]
-
 
 # ------------------ Loss ------------------ #
 def evaluate_model(
