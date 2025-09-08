@@ -296,7 +296,7 @@ sentence_tokenized = ['This', 'is', 'Simple', 'Transformer', 'Guide', '!']
 <img align="right" width="400" alt="word_embed" src="https://github.com/user-attachments/assets/ff0b15d4-1092-414e-973c-aac3c4c2d70f" />
 
 Embeddings are representations of values or objects like text, images, and audio that are designed to be consumed by machine learning models and semantic search algorithms. Embeddings translate objects like these into a mathematical form according to the preset factors, enable machine learning models to interact with various data types. <br/>
-Word embedding<sup>[<c href="#ref3">3</c>]</sup> is a technique used in Natural Language Processing (NLP) to represent words as dense numerical vectors. These vectors capture semantic relationships between words based on their context in large text corpora. <br/>
+Word embedding<sup>[<a href="#ref3">3</a>]</sup> is a technique used in Natural Language Processing (NLP) to represent words as dense numerical vectors. These vectors capture semantic relationships between words based on their context in large text corpora. <br/>
 In our case we get a tokenized sequence (sentence, `M=max_length`) and we convert every token to a vector in the $`ℝ^{E}`$(`E=embedding_dim`, for more information on [*Real Vector Space*](https://en.wikipedia.org/wiki/Real_coordinate_space)) and we get for every sequence a matrix of size $`ℝ^{M×E}`$. <br/>
 
 
