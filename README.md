@@ -483,3 +483,5 @@ Simple Transformer 1024         |  3.377        |  35.785
 
 <b id="ref2">[2]</b> [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
+<b id="ref3">[3]</b> [Efficient Estimation of Word Representations in Vector Space](https://arxiv.org/abs/1301.3781?utm_source=chatgpt.com)
+
