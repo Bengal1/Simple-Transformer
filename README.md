@@ -396,7 +396,7 @@ This loss penalizes confident incorrect predictions more heavily than less certa
 ### Teacher forcing
 <img align="right" width="500" src="https://github.com/user-attachments/assets/eb3cf86c-ea30-4f15-bf59-83a22261a3d7" />
 
-Teacher Forcing is a training strategy used in sequence-to-sequence (seq2seq) models, especially in tasks like machine translation, text generation, and speech recognition. During training, the model is fed the actual ground truth output from the previous time step instead of its own predicted output. This helps the model learn faster and improves convergence. During inference, it must generate each token from its own previous outputs, which can lead to cascading errors if one prediction is wrong — that's exposure bias. <br/>
+Teacher Forcing<sup>[<a href="#ref4">4</a>]</sup> is a training strategy used in sequence-to-sequence (seq2seq) models, especially in tasks like machine translation, text generation, and speech recognition. During training, the model is fed the actual ground truth output from the previous time step instead of its own predicted output. This helps the model learn faster and improves convergence. During inference, it must generate each token from its own previous outputs, which can lead to cascading errors if one prediction is wrong — that's exposure bias. <br/>
 Given an input: `This is Simple Transformer Guide!` and a target: `Ceci est un guide simple du Transformer!`, every iteration we will feed input from target:
 
 Mistake at one step can lead to poor outputs later — exposure bias.
@@ -407,7 +407,7 @@ A padding mask in Transformers is a binary mask used to prevent the model from a
 ### Beam Search
 <img align="right" width="470" alt="beam_search_low_res" src="https://github.com/user-attachments/assets/0447e0fc-522c-41ca-bdc2-83fb6d997d51" />
 
-Beam Search is a decoding algorithm used to generate the most likely output sequence by keeping multiple hypotheses (beams) at each step, instead of just the best one (like greedy decoding). <br/>
+Beam Search<sup>[<a href="#ref4">4</a>]</sup> is a decoding algorithm used to generate the most likely output sequence by keeping multiple hypotheses (beams) at each step, instead of just the best one (like greedy decoding). <br/>
 This decoding strategy balances exploration and exploitation by keeping track of the top-k most likely partial sequences (beams) at each decoding step, rather than committing to the single most likely token as in greedy decoding. In greedy decoding, you pick the highest-probability token at each step, which is fast but can lead to suboptimal results because early mistakes cannot be corrected. Beam search instead expands all possible next tokens for each current beam, scores them (often using log-probabilities), and keeps only the best k sequences, allowing it to explore multiple promising paths in parallel. This often produces higher-quality translations or generations than greedy decoding, especially in Transformers, where the self-attention mechanism captures long-range dependencies that beam search can exploit to avoid short, repetitive, or incoherent outputs. However, beam search is slower than greedy decoding and can sometimes favor overly safe, generic sequences unless combined with techniques like length normalization or diverse beam search.
 
 #### Length Normalization
@@ -484,4 +484,6 @@ Simple Transformer 1024         |  3.377        |  35.785
 <b id="ref2">[2]</b> [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980)
 
 <b id="ref3">[3]</b> [Efficient Estimation of Word Representations in Vector Space](https://arxiv.org/abs/1301.3781?utm_source=chatgpt.com)
+
+<b id="ref4">[4]</b> [Sequence to Sequence Learning with Neural Networks](https://arxiv.org/abs/1409.3215?utm_source=chatgpt.com)
 
