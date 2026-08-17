@@ -1,4 +1,4 @@
-# Simple Transformer
+# Transformer from Scratch for NLP
 This repository is a guide and showcase for building a [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)) with PyTorch. It is intended for intermediate ML practitioners who want to understand how to implement a Transformer from scratch (if you are a beginner, I recommend starting with the [Simple CNN Guide](https://github.com/Bengal1/Simple-CNN-Guide)).
 
 The Transformer is a deep learning architecture introduced in the 2017 paper “Attention Is All You Need”<sup>[<a href="#ref1">1</a>]</sup>, based on the multi-head self-attention mechanism. [Large Language Models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model), such as GPT, are direct descendants of this architecture. By scaling parameters, data, and compute, they have revolutionized NLP and enabled breakthroughs from machine translation to conversational AI.
