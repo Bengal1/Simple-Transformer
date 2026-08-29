@@ -65,7 +65,7 @@ This project implements a complete encoder-decoder Transformer from scratch in P
 - Noam Learning Rate Scheduling
 - Beam Search with Length Normalization
 
-## The Transformer
+## 🏗️ The Transformer Architecture
 
 <img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/248bb023-240a-443b-a971-c0f16c74fdfe" />
 
