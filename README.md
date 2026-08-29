@@ -34,6 +34,37 @@ python main.py
 ```
 >Note: Model architecture, training parameters, and experiment settings can be configured in `config.py`.
 
+## 📌 Project Overview
+
+This project implements a complete encoder-decoder Transformer from scratch in PyTorch and applies it to English-to-French machine translation. The implementation follows the core architecture introduced in *Attention Is All You Need*, while adapting the training setup to the smaller IWSLT14 dataset and available compute.
+
+| Component | Details |
+|---|---|
+| **Task** | English → French Machine Translation |
+| **Framework** | PyTorch |
+| **Dataset** | IWSLT14 En–Fr (~180K sentence pairs) |
+| **Architecture** | Encoder–Decoder Transformer |
+| **Model Variants** | `d_model = 512` and `d_model = 1024` |
+| **Optimization** | Adam + Noam Learning Rate Scheduler |
+| **Training** | Teacher Forcing, Padding Masks, Gradient Accumulation |
+| **Decoding** | Beam Search with Length Normalization |
+| **Evaluation** | Cross-Entropy Loss and BLEU |
+| **Best BLEU Score** | **35.785** |
+
+### Implemented Components
+
+- Multi-Head Self-Attention
+- Masked Decoder Self-Attention
+- Encoder–Decoder Cross-Attention
+- Token Embeddings
+- Sinusoidal Positional Encoding
+- Position-Wise Feed-Forward Networks
+- Residual Connections and Layer Normalization
+- Padding and Causal Attention Masks
+- Teacher Forcing
+- Noam Learning Rate Scheduling
+- Beam Search with Length Normalization
+
 ## The Transformer
 
 <img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/248bb023-240a-443b-a971-c0f16c74fdfe" />
