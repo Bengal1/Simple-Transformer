@@ -11,6 +11,29 @@ The Transformer is a deep learning architecture introduced in the 2017 paper “
 
 In this project, I have implemented *SimpleTransformer* following the original paper’s design, and applied it to [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation). This repository is built for learning purposes, combining theoretical background with practical implementation, to help those who want to start coding Transformers for [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
 
+
+## 🚀 Quick Start
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Bengal1/Transformer-From-Scratch-NLP.git
+cd Transformer-From-Scratch-NLP
+```
+
+### Install the dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Run the project:
+
+```bash
+python main.py
+```
+>Model architecture, training parameters, and experiment settings can be configured in `config.py`.
+
 ## The Transformer
 
 <img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/248bb023-240a-443b-a971-c0f16c74fdfe" />
