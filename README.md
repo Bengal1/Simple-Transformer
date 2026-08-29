@@ -431,44 +431,23 @@ For example in $`ℝ^{100}`$ we can arrange ~exp(100·$`0.9^2`$) ≈ $`1.5·10^{
 ## ⚙️ Training and Optimization
 
 ### Adam Optimizer
-The Adam optimization algorithm<sup>[<a href="#ref2">2</a>]</sup> is an extension to stochastic gradient descent (SGD). Unlike SGD, The method computes individual adaptive learning rates for different parameters from estimates of first and second moments of the gradients Adam combines the benefits of two other methods: momentum and RMSProp.
 
-#### Adam Algorithm:
-- $\theta_t$ : parameters at time step t.  
-- $\beta_1, \beta_2$ : exponential decay rates for moment estimates.  
-- $\alpha$ : learning rate.
-- $\epsilon$ : small constant to prevent division by zero.  
-- $\lambda$ : weight decay coefficient. <br/>
+[Adam](#ref2) is an adaptive optimization algorithm that combines **momentum** with per-parameter learning-rate scaling based on the first and second moments of the gradients. This generally provides stable and efficient optimization for deep neural networks.
 
+For parameter $\theta$, Adam maintains moving averages of the gradient and squared gradient:
 
-1. Compute gradients:
-   <div align="center">
-   $$g_t = \nabla_\theta J(\theta_t)$$
-   </div>
+$$
+m_t = \beta_1 m_{t-1} + (1-\beta_1)g_t
+\qquad
+v_t = \beta_2 v_{t-1} + (1-\beta_2)g_t^2
+$$
 
-2. Update moment estimates:
-   <div align="center">
-   $$m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t \quad;\quad v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$$
-   </div>
-   
-3. Bias correction: 
-   <div align="center">
-   $$\hat{m}_t = \frac{m_t}{1 - \beta_1^t} \quad;\quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}$$
-   </div>
-   
-4. Parameter update: 
-   <div align="center">
-   $$\theta_{t+1} = \theta_t - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$$
-   </div>
-   
-* In our model *Weight decay* is applied:  
-   <div align="center">
-   $$\theta_{t+1} = \theta_t - \alpha \cdot \Bigg( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \cdot \theta_t \Bigg)$$
-   </div>
-   
+After bias correction, the parameters are updated using these estimates.
 
+In this project, **weight decay** is also applied as a regularization method to reduce overfitting.
 
 ### Noam Learning Rate
+
 *NoamLR* scheduler was introduced in the original Transformer paper "Attention Is All You Need". Schedulers in deep learning are used to adjust the learning rate during training to improve convergence and performance. It sets the learning rate to increase linearly for a set number of warm-up steps and then decay proportionally to the inverse square root of the training step: 
 
 $$
@@ -484,6 +463,7 @@ Where:
 This approach helps stabilize training in the early stages and allows the model to learn efficiently by avoiding large or unstable updates initially, while gradually reducing the learning rate to fine-tune the model later in training.
 
 ### Cross Entropy Loss Function
+
 The Cross Entropy Loss Function is widely used for classification tasks, as it measures the difference between the predicted probability distribution and the true distribution. Given a predicted probability vector **$\hat{y}$** and a one-hot encoded target vector **$y$**, the loss for a single example is defined as:
 
 $$
