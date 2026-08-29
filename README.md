@@ -32,7 +32,7 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
->Model architecture, training parameters, and experiment settings can be configured in `config.py`.
+>Note: Model architecture, training parameters, and experiment settings can be configured in `config.py`.
 
 ## The Transformer
 
