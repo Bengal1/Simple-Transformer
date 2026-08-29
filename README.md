@@ -65,6 +65,53 @@ This project implements a complete encoder-decoder Transformer from scratch in P
 - Noam Learning Rate Scheduling
 - Beam Search with Length Normalization
 
+## 📊 Results 
+The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
+In Optimizations problem, ML training, the Loss is the core signal guiding optimization. it measures how far model's predictions are from the targets, while optimization algorithms adjust model parameters to minimize it. Training loss is computed on the data used to update the model, reflecting how well it’s fitting that set, while validation loss is computed on unseen data to gauge generalization; a growing gap between them often signals overfitting.<br/>
+
+BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated text by comparing it to reference texts using n-gram overlaps. It combines these overlaps with a brevity penalty to avoid rewarding short outputs. Scores range from 0 to 1 (or 0–100%), with higher scores indicating closer matches, though it only measures exact wording matches.
+
+### Evaluation on Test Dataset
+Model Variant                   | Test Loss     | BLEU Score
+--------------------------------|---------------|--------------
+Simple Transformer 512          |  3.29         |  35.347
+Simple Transformer 1024         |  3.377        |  35.785
+
+### Training & Validation Loss
+<img width="2560" height="1335" alt="loss_plot" src="https://github.com/user-attachments/assets/ec32215a-0afc-4801-8552-16334e1e7dd2" />
+
+### Bilingual Evaluation Understudy (BLEU)
+<img width="2560" height="1335" alt="bleu_plot" src="https://github.com/user-attachments/assets/6c7fc809-104b-4fd4-9270-8dbf04365461" />
+
+## 🔬 Comparison with the Original Transformer
+
+In my experiments, I focus on a single-model comparison using the IWSLT14 dataset, which contains approximately 180,000 sentence pairs, to evaluate how well the Transformer architecture performs under resource-constrained conditions. <be/>
+For reference, the original Transformer models reported by Vaswani et al. (2017) were trained on the WMT 2014 dataset, which includes roughly 36 million sentence pairs, with a test set of about 3,000 sentences. In that setup, the Base model achieved a BLEU score of 38.1 and the Big model reached 41.0. While the paper also reports a Big Ensemble model achieving 41.8, ensembles are not within the scope of my comparison.<br/>
+By focusing on a smaller dataset, I establish a fair baseline for translation quality under data-limited conditions, highlighting the impact of training scale rather than architectural differences.
+
+My model differs from the original Transformer in several key aspects. I train a single-model Transformer on IWSLT14 using a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). I apply weight decay for regularization and adjust the batch size according to hardware limitations. To achieve a larger effective batch size without exceeding memory capacity, I use gradient accumulation, where gradients are accumulated over several smaller batches before performing an optimizer step. During inference, I rely on beam search with a length penalty to balance fluency and adequacy. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, attention heads, and weight initialization strategy remain consistent with the original paper.
+<br/>
+
+Model Variant                   | BLEU Score    | Dataset                          | Trainable Parameters
+--------------------------------|---------------|----------------------------------|--------------------------
+Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)   | 65M parameters
+Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)   | 213M parameters
+Simple Transformer 512          |  35.35        |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
+Simple Transformer 1024         |  35.785       |  IWSLT14 En-Fr (~180K samples)   | 383.6M parameters
+
+In comparing my model to both the Base and Big configurations of the original Transformer, I consider not only architectural scale (d_model, d_ff, num_heads) but also differences in parameter count and overall complexity. The Base model uses `d_model=512`, `d_ff=2048`, and `num_heads=8`, while the Big model doubles these values with `d_model=1024`, `d_ff=4096`, and `num_heads=16`. This scaling increases capacity and computational cost, but yields higher translation quality when sufficient data is available.
+
+As shown in the table above, my implementation also differs in parameter count for two main reasons:
+* **Weight tying**: The original Transformer shares parameters between source embeddings, target embeddings, and the output projection. I keep them separate, increasing the parameter count but allowing distinct representations for each component.
+* **Vocabulary size**: The original uses a joint ~37K vocabulary, while I use separate vocabularies (~56K source, ~73K target), which increases the size of embedding and output layers but captures each language more precisely.
+
+As a result, even when configured like Transformer-Base, my model contains more parameters, reflecting design choices that emphasize richer vocabulary coverage under data-limited conditions.
+
+When evaluating our implementation against the original Transformer, it is important to note the stark difference in dataset size: the IWSLT14 corpus (~180K sentences) is only about 0.5% of the scale of WMT14 (~36M sentences). Despite this limitation, the Simple Transformer 512 achieved roughly 93% of the BLEU score of the original Base model, demonstrating that even with a much smaller dataset, a moderately sized model can generalize well. In contrast, the Simple Transformer 1024 reached only about 87% of the BLEU score of the original Big model. This suggests that while the larger model has substantially higher capacity, its complexity far exceeds the available data, leading to underutilization and diminished relative performance. In other words, the 512 variant strikes a better balance between model size and dataset scale, whereas the 1024 variant highlights the need for substantially more training data to fully leverage its capacity.
+
+If you look at the training and validation curves presented in the following Evaluation section, they further illustrate these observations.. For the 512-dimensional model, both training and validation loss decrease steadily and stabilize without large divergence, while BLEU scores quickly plateau near their maximum, indicating efficient learning and good generalization. In contrast, the 1024-dimensional model shows a wider gap between training and validation loss, with validation loss plateauing at a higher value and BLEU scores improving more slowly. This reflects over-parameterization relative to the dataset size: the larger model can fit the training data better, but its higher capacity cannot be fully utilized given the limited training samples, leading to slower convergence and reduced generalization. Overall, these graphs confirm that the 512 variant achieves a better trade-off between complexity and dataset scale, while the 1024 variant would benefit from more data or stronger regularization.
+
+
 ## 🏗️ The Transformer Architecture
 
 <img align="right" width="400" alt="Transformer_model_architecture" src="https://github.com/user-attachments/assets/248bb023-240a-443b-a971-c0f16c74fdfe" />
@@ -487,50 +534,6 @@ This means beam search ranks sequences by their average (length-adjusted) log-pr
 
 The embedding layers are initialized with scaled normal distribution. Embedding normal distribution initialization means initializing embedding vectors by sampling each element from a normal (Gaussian) distribution with a small standard deviation (e.g., mean 0, std 0.01). This gives embeddings small random values before training begins, ensuring no initial bias toward any specific token. 
 
-## Comparison with The Original Transformer
-In my experiments, I focus on a single-model comparison using the IWSLT14 dataset, which contains approximately 180,000 sentence pairs, to evaluate how well the Transformer architecture performs under resource-constrained conditions. <be/>
-For reference, the original Transformer models reported by Vaswani et al. (2017) were trained on the WMT 2014 dataset, which includes roughly 36 million sentence pairs, with a test set of about 3,000 sentences. In that setup, the Base model achieved a BLEU score of 38.1 and the Big model reached 41.0. While the paper also reports a Big Ensemble model achieving 41.8, ensembles are not within the scope of my comparison.<br/>
-By focusing on a smaller dataset, I establish a fair baseline for translation quality under data-limited conditions, highlighting the impact of training scale rather than architectural differences.
-
-My model differs from the original Transformer in several key aspects. I train a single-model Transformer on IWSLT14 using a single NVIDIA A100-SXM4-40GB GPU (Google Colab environment). I apply weight decay for regularization and adjust the batch size according to hardware limitations. To achieve a larger effective batch size without exceeding memory capacity, I use gradient accumulation, where gradients are accumulated over several smaller batches before performing an optimizer step. During inference, I rely on beam search with a length penalty to balance fluency and adequacy. These adjustments help stabilize training and improve generalization on the smaller dataset, while other architectural details such as the number of layers, embedding dimensions, attention heads, and weight initialization strategy remain consistent with the original paper.
-<br/>
-
-Model Variant                   | BLEU Score    | Dataset                          | Trainable Parameters
---------------------------------|---------------|----------------------------------|--------------------------
-Original Transformer Base (512) |  38.1         |  WMT 2014 En-Fr (~36M samples)   | 65M parameters
-Original Transformer Big (1024) |  41.0         |  WMT 2014 En-Fr (~36M samples)   | 213M parameters
-Simple Transformer 512          |  35.35        |  IWSLT14 En-Fr (~180K samples)   | 147.8M parameters
-Simple Transformer 1024         |  35.785       |  IWSLT14 En-Fr (~180K samples)   | 383.6M parameters
-
-In comparing my model to both the Base and Big configurations of the original Transformer, I consider not only architectural scale (d_model, d_ff, num_heads) but also differences in parameter count and overall complexity. The Base model uses `d_model=512`, `d_ff=2048`, and `num_heads=8`, while the Big model doubles these values with `d_model=1024`, `d_ff=4096`, and `num_heads=16`. This scaling increases capacity and computational cost, but yields higher translation quality when sufficient data is available.
-
-As shown in the table above, my implementation also differs in parameter count for two main reasons:
-* **Weight tying**: The original Transformer shares parameters between source embeddings, target embeddings, and the output projection. I keep them separate, increasing the parameter count but allowing distinct representations for each component.
-* **Vocabulary size**: The original uses a joint ~37K vocabulary, while I use separate vocabularies (~56K source, ~73K target), which increases the size of embedding and output layers but captures each language more precisely.
-
-As a result, even when configured like Transformer-Base, my model contains more parameters, reflecting design choices that emphasize richer vocabulary coverage under data-limited conditions.
-
-When evaluating our implementation against the original Transformer, it is important to note the stark difference in dataset size: the IWSLT14 corpus (~180K sentences) is only about 0.5% of the scale of WMT14 (~36M sentences). Despite this limitation, the Simple Transformer 512 achieved roughly 93% of the BLEU score of the original Base model, demonstrating that even with a much smaller dataset, a moderately sized model can generalize well. In contrast, the Simple Transformer 1024 reached only about 87% of the BLEU score of the original Big model. This suggests that while the larger model has substantially higher capacity, its complexity far exceeds the available data, leading to underutilization and diminished relative performance. In other words, the 512 variant strikes a better balance between model size and dataset scale, whereas the 1024 variant highlights the need for substantially more training data to fully leverage its capacity.
-
-If you look at the training and validation curves presented in the following Evaluation section, they further illustrate these observations.. For the 512-dimensional model, both training and validation loss decrease steadily and stabilize without large divergence, while BLEU scores quickly plateau near their maximum, indicating efficient learning and good generalization. In contrast, the 1024-dimensional model shows a wider gap between training and validation loss, with validation loss plateauing at a higher value and BLEU scores improving more slowly. This reflects over-parameterization relative to the dataset size: the larger model can fit the training data better, but its higher capacity cannot be fully utilized given the limited training samples, leading to slower convergence and reduced generalization. Overall, these graphs confirm that the 512 variant achieves a better trade-off between complexity and dataset scale, while the 1024 variant would benefit from more data or stronger regularization.
-
-## Evaluation 
-The model performances are evaluated by two primary metrics *Loss* (training, validation & test) and *BLEU*.<br/>
-In Optimizations problem, ML training, the Loss is the core signal guiding optimization. it measures how far model's predictions are from the targets, while optimization algorithms adjust model parameters to minimize it. Training loss is computed on the data used to update the model, reflecting how well it’s fitting that set, while validation loss is computed on unseen data to gauge generalization; a growing gap between them often signals overfitting.<br/>
-
-BLEU (Bilingual Evaluation Understudy) is a metric for judging machine-generated text by comparing it to reference texts using n-gram overlaps. It combines these overlaps with a brevity penalty to avoid rewarding short outputs. Scores range from 0 to 1 (or 0–100%), with higher scores indicating closer matches, though it only measures exact wording matches.
-
-### Evaluation on Test Dataset
-Model Variant                   | Test Loss     | BLEU Score
---------------------------------|---------------|--------------
-Simple Transformer 512          |  3.29         |  35.347
-Simple Transformer 1024         |  3.377        |  35.785
-
-### Training & Validation Loss
-<img width="2560" height="1335" alt="loss_plot" src="https://github.com/user-attachments/assets/ec32215a-0afc-4801-8552-16334e1e7dd2" />
-
-### Bilingual Evaluation Understudy (BLEU)
-<img width="2560" height="1335" alt="bleu_plot" src="https://github.com/user-attachments/assets/6c7fc809-104b-4fd4-9270-8dbf04365461" />
 
 ## References
 <b id="ref1">[1]</b> [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
