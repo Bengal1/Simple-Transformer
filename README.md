@@ -1,17 +1,15 @@
 # Transformer from Scratch for NLP
-This repository is a guide and showcase for building a [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)) with PyTorch. It is intended for intermediate ML practitioners who want to understand how to implement a Transformer from scratch (if you are a beginner, I recommend starting with the [Simple CNN Guide](https://github.com/Bengal1/Simple-CNN-Guide)).
+[![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![Datasets](https://img.shields.io/badge/HuggingFace-Datasets-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/datasets)
+[![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) 
+[![sacrebleu](https://img.shields.io/pypi/v/sacrebleu?label=sacrebleu&color=blue&logo=python&logoColor=white&style=flat-square)](https://pypi.org/project/sacrebleu/) 
+
+This repository is a guide and showcase for building a [*Transformer*](https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)) with PyTorch. It is intended for intermediate ML practitioners who want to understand how to implement a Transformer from scratch (if you are a beginner, I recommend starting with the [CNN-Architecture-Guide](https://github.com/Bengal1/CNN-Architecture-Guide).
 
 The Transformer is a deep learning architecture introduced in the 2017 paper “Attention Is All You Need”<sup>[<a href="#ref1">1</a>]</sup>, based on the multi-head self-attention mechanism. [Large Language Models (LLMs)](https://en.wikipedia.org/wiki/Large_language_model), such as GPT, are direct descendants of this architecture. By scaling parameters, data, and compute, they have revolutionized NLP and enabled breakthroughs from machine translation to conversational AI.
 
 In this project, I have implemented *SimpleTransformer* following the original paper’s design, and applied it to [Machine Translation](https://en.wikipedia.org/wiki/Machine_translation). This repository is built for learning purposes, combining theoretical background with practical implementation, to help those who want to start coding Transformers for [*NLP (Natural Language Processing)*](https://en.wikipedia.org/wiki/Natural_language_processing) tasks.
-
-## Requirements
-- [![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python&logoColor=white)](https://www.python.org/) <br/>
-- [![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/) <br/>
-- [![Datasets](https://img.shields.io/badge/HuggingFace-Datasets-FCC624?logo=huggingface&logoColor=black)](https://huggingface.co/datasets) <br/>
-- [![spaCy](https://img.shields.io/badge/spaCy-NLP-09A3D5?logo=spacy&logoColor=white)](https://spacy.io/) <br/>
-- [![sacrebleu](https://img.shields.io/pypi/v/sacrebleu?label=sacrebleu&color=blue&logo=python&logoColor=white&style=flat-square)](https://pypi.org/project/sacrebleu/) <br/>
-
 
 ## The Transformer
 
